@@ -1,0 +1,178 @@
+[
+  {
+    "id": 1,
+    "type": "Glod",
+    "name": "金币球",
+    "typeOfBall": 1,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 2,
+    "type": "Ball1",
+    "name": "球1",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 3,
+    "type": "Ball2",
+    "name": "球2",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 4,
+    "type": "Ball3",
+    "name": "球3",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 5,
+    "type": "Ball4",
+    "name": "球4",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 6,
+    "type": "Ball5,",
+    "name": "球5",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 7,
+    "type": "Ball6,",
+    "name": "球6",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 8,
+    "type": "Ball7,",
+    "name": "球7",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 9,
+    "type": "Ball8,",
+    "name": "球8",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 10,
+    "type": "Ball9,",
+    "name": "球9",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 11,
+    "type": "Ball10,",
+    "name": "球10",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 12,
+    "type": "Ball11,",
+    "name": "球11",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 13,
+    "type": "Ball12,",
+    "name": "球12",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 14,
+    "type": "Ball13,",
+    "name": "球13",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 15,
+    "type": "Ball14,",
+    "name": "球14",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 16,
+    "type": "Ball15,",
+    "name": "球15",
+    "typeOfBall": 2,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 17,
+    "type": "Clothes1",
+    "name": "衣服1",
+    "typeOfBall": 3,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 18,
+    "type": "Clothes2",
+    "name": "衣服2",
+    "typeOfBall": 3,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 19,
+    "type": "Clothes3",
+    "name": "衣服3",
+    "typeOfBall": 3,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 20,
+    "type": "Clothes4",
+    "name": "衣服4",
+    "typeOfBall": 3,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 21,
+    "type": "Clothes5",
+    "name": "衣服5",
+    "typeOfBall": 3,
+    "spriteName": "",
+    "desc": ""
+  },
+  {
+    "id": 22,
+    "type": "Clothes6",
+    "name": "衣服6",
+    "typeOfBall": 3,
+    "spriteName": "",
+    "desc": ""
+  }
+]

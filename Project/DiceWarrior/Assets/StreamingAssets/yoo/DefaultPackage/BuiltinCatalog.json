@@ -1,0 +1,211 @@
+{
+    "FileVersion": 1,
+    "PackageName": "DefaultPackage",
+    "PackageVersion": "1.0.2",
+    "Entries": [
+        {
+            "BundleGuid": "071dbccafd1142ade18eef86a5d2b95e",
+            "FileName": "defaultpackage_assets_assetbundle_art_audios_musics_071dbccafd1142ade18eef86a5d2b95e.bundle"
+        },
+        {
+            "BundleGuid": "145618393dd0ff0bcd66dfccbccb0cb5",
+            "FileName": "defaultpackage_assets_assetbundle_art_audios_sounds_145618393dd0ff0bcd66dfccbccb0cb5.bundle"
+        },
+        {
+            "BundleGuid": "0facafa808e34d36eed3491cbaa39303",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_balls_0facafa808e34d36eed3491cbaa39303.bundle"
+        },
+        {
+            "BundleGuid": "36b2283c4ad4853adddc6607fd17a3eb",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_coingetwindow_36b2283c4ad4853adddc6607fd17a3eb.bundle"
+        },
+        {
+            "BundleGuid": "c58a8f663b2e98c4cbc21ef9bd6ef901",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_common_c58a8f663b2e98c4cbc21ef9bd6ef901.bundle"
+        },
+        {
+            "BundleGuid": "bdc251dcb903c73b68f7159920eaaef3",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_fontui_bdc251dcb903c73b68f7159920eaaef3.bundle"
+        },
+        {
+            "BundleGuid": "1e8a59ec488e742f6e0a766b3ccc6040",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_frame_1e8a59ec488e742f6e0a766b3ccc6040.bundle"
+        },
+        {
+            "BundleGuid": "2cb629fb645de0b7474364d6164c690c",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_gamewindow_2cb629fb645de0b7474364d6164c690c.bundle"
+        },
+        {
+            "BundleGuid": "8e869df1e3f18fffa84a1dda4a5859f1",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_other_8e869df1e3f18fffa84a1dda4a5859f1.bundle"
+        },
+        {
+            "BundleGuid": "68dedef52bb423198777aec9590ec422",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_propgetwindow_68dedef52bb423198777aec9590ec422.bundle"
+        },
+        {
+            "BundleGuid": "7cc933d89609aa0bcb9f1721d1220213",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_propicon_7cc933d89609aa0bcb9f1721d1220213.bundle"
+        },
+        {
+            "BundleGuid": "8c70da5e30a94ddc8f55ec53a9cafb94",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_revivewindow_8c70da5e30a94ddc8f55ec53a9cafb94.bundle"
+        },
+        {
+            "BundleGuid": "f9aa01eef306f18e2ae7df73c4fe5e7b",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_settingwindow_f9aa01eef306f18e2ae7df73c4fe5e7b.bundle"
+        },
+        {
+            "BundleGuid": "701ae64a72e33e74b09b67ccecadbedb",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_unlockwaitarea_701ae64a72e33e74b09b67ccecadbedb.bundle"
+        },
+        {
+            "BundleGuid": "a446fb4fd0760345f20c3889216a095b",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_失败_a446fb4fd0760345f20c3889216a095b.bundle"
+        },
+        {
+            "BundleGuid": "26ce3071e7d8b8ffbcfc79a33d70aaaf",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_提现功能_26ce3071e7d8b8ffbcfc79a33d70aaaf.bundle"
+        },
+        {
+            "BundleGuid": "583e69f6863572bcda578aafd5692c1f",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_每日任务_583e69f6863572bcda578aafd5692c1f.bundle"
+        },
+        {
+            "BundleGuid": "1e16aa9cc3c5b7ce7748070c41df332c",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_确认账户_1e16aa9cc3c5b7ce7748070c41df332c.bundle"
+        },
+        {
+            "BundleGuid": "113c131780ee9f9c82a8bb5395aa057a",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_胜利_113c131780ee9f9c82a8bb5395aa057a.bundle"
+        },
+        {
+            "BundleGuid": "a39b3071a753f7223ab0cf931b751eca",
+            "FileName": "defaultpackage_assets_assetbundle_art_ui_连击效果_a39b3071a753f7223ab0cf931b751eca.bundle"
+        },
+        {
+            "BundleGuid": "b9e95b1d5dd61140e4d178f75b8241c8",
+            "FileName": "defaultpackage_assets_assetbundle_fonts_b9e95b1d5dd61140e4d178f75b8241c8.bundle"
+        },
+        {
+            "BundleGuid": "3afc4a991874f92e5d1e967c8b50771e",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_3afc4a991874f92e5d1e967c8b50771e.bundle"
+        },
+        {
+            "BundleGuid": "753f1bbc6fe4e179b4ce12c9ca088e6f",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_accountwindow_753f1bbc6fe4e179b4ce12c9ca088e6f.bundle"
+        },
+        {
+            "BundleGuid": "4ed5fbf73ee6c037971b39783f231e5b",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_coingetwindow_4ed5fbf73ee6c037971b39783f231e5b.bundle"
+        },
+        {
+            "BundleGuid": "32d50cc2235038d6ac259f62708d6c4f",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_combowindow_32d50cc2235038d6ac259f62708d6c4f.bundle"
+        },
+        {
+            "BundleGuid": "595e0518fb5a6a72aebdec0740a8faa4",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_common_595e0518fb5a6a72aebdec0740a8faa4.bundle"
+        },
+        {
+            "BundleGuid": "cf7df799502d227e827f4a04df912c51",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_floattipwindow_cf7df799502d227e827f4a04df912c51.bundle"
+        },
+        {
+            "BundleGuid": "0d867c67fd43b13d02365a6ea155c546",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_gameresultwindow_0d867c67fd43b13d02365a6ea155c546.bundle"
+        },
+        {
+            "BundleGuid": "8f3d89929cbbb343ec405a0c3635d025",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_gamewindow_8f3d89929cbbb343ec405a0c3635d025.bundle"
+        },
+        {
+            "BundleGuid": "ba8cca76ea0f612d40ccc38b1843d7c6",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_getmoneywindow_ba8cca76ea0f612d40ccc38b1843d7c6.bundle"
+        },
+        {
+            "BundleGuid": "7964fc897dd36d4577c7502f668443a8",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_moneyrewardwindow_7964fc897dd36d4577c7502f668443a8.bundle"
+        },
+        {
+            "BundleGuid": "bc43c3bfc794f149ac876c5449795b1d",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_propgetwindow_bc43c3bfc794f149ac876c5449795b1d.bundle"
+        },
+        {
+            "BundleGuid": "a96bdf3406783cc5c01edabf1fa02b2f",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_settingwindow_a96bdf3406783cc5c01edabf1fa02b2f.bundle"
+        },
+        {
+            "BundleGuid": "69f49acd2444ae5e9b1498919182875d",
+            "FileName": "defaultpackage_assets_assetbundle_uiwindow_unlockwaitareawindow_69f49acd2444ae5e9b1498919182875d.bundle"
+        },
+        {
+            "BundleGuid": "c07bef70ad81d3dded876380d09029de",
+            "FileName": "defaultpackage_assets_yangtools_assetbunds_materials_c07bef70ad81d3dded876380d09029de.bundle"
+        },
+        {
+            "BundleGuid": "28882fb7645ddc37e1c8034a3330e0cb",
+            "FileName": "defaultpackage_assets_yangtools_assetbunds_prefabs_common_28882fb7645ddc37e1c8034a3330e0cb.bundle"
+        },
+        {
+            "BundleGuid": "23c30ce5f61270a5063f3ec1f4e71c0f",
+            "FileName": "defaultpackage_assets_yangtools_assetbunds_prefabs_itemselectwindow_23c30ce5f61270a5063f3ec1f4e71c0f.bundle"
+        },
+        {
+            "BundleGuid": "824e2994b289d2eba7b424effed00253",
+            "FileName": "defaultpackage_assets_yangtools_assetbunds_ui_824e2994b289d2eba7b424effed00253.bundle"
+        },
+        {
+            "BundleGuid": "00c579eb5d9a1b5134ba7fb265e672dd",
+            "FileName": "defaultpackage_assets_yangtools_assetbunds_ui_common_00c579eb5d9a1b5134ba7fb265e672dd.bundle"
+        },
+        {
+            "BundleGuid": "a3b0474d544cf2e9c4517b10bd8c5bbe",
+            "FileName": "defaultpackage_assets_yangtools_lubandata_generatedatas_json_a3b0474d544cf2e9c4517b10bd8c5bbe.bundle"
+        },
+        {
+            "BundleGuid": "8a41054c5e70120101f744cbaf60c6b6",
+            "FileName": "defaultpackage_share_assets_assetbundle_art_effect_8a41054c5e70120101f744cbaf60c6b6.bundle"
+        },
+        {
+            "BundleGuid": "1902e82abb14fcf3bf7ce5c5afd97232",
+            "FileName": "defaultpackage_share_assets_assetbundle_art_loading_1902e82abb14fcf3bf7ce5c5afd97232.bundle"
+        },
+        {
+            "BundleGuid": "49279409ebfc075916d6ceb16d419bc5",
+            "FileName": "defaultpackage_share_assets_assetbundle_art_spines_start_49279409ebfc075916d6ceb16d419bc5.bundle"
+        },
+        {
+            "BundleGuid": "99e0fc2cbbb45a9eb6c2313fd65a64f8",
+            "FileName": "defaultpackage_share_assets_assetbundle_effect_99e0fc2cbbb45a9eb6c2313fd65a64f8.bundle"
+        },
+        {
+            "BundleGuid": "dcbf161972eb5e8f4ad12f2e7a22d126",
+            "FileName": "defaultpackage_share_assets_spine_runtime_spine-unity_materials_dcbf161972eb5e8f4ad12f2e7a22d126.bundle"
+        },
+        {
+            "BundleGuid": "27c378bb1b0c313c8eebc10c75ed89f9",
+            "FileName": "defaultpackage_share_assets_spine_runtime_spine-unity_skeletondatamodifierassets_blendmodematerials_27c378bb1b0c313c8eebc10c75ed89f9.bundle"
+        },
+        {
+            "BundleGuid": "6b9e98a747c80f3c9f87f903fac03921",
+            "FileName": "defaultpackage_share_assets_textmesh_pro_fonts_6b9e98a747c80f3c9f87f903fac03921.bundle"
+        },
+        {
+            "BundleGuid": "7ab09b91e94405cb1fb77a674b3dd20d",
+            "FileName": "defaultpackage_share_assets_textmesh_pro_resources_fonts_&_materials_7ab09b91e94405cb1fb77a674b3dd20d.bundle"
+        },
+        {
+            "BundleGuid": "1ce1782df7c65ae52239d91d4aded82d",
+            "FileName": "defaultpackage_share_assets_yangtools_artres_minimap_ui_buttons_1ce1782df7c65ae52239d91d4aded82d.bundle"
+        },
+        {
+            "BundleGuid": "e1b66d8cf4bf9d104fd89459d05f4186",
+            "FileName": "defaultpackage_share_assets_yangtools_scripts_core_yangguidesystem_res_e1b66d8cf4bf9d104fd89459d05f4186.bundle"
+        },
+        {
+            "BundleGuid": "5440b100137d559d24a60a73e44b9fff",
+            "FileName": "defaultpackage_unityshaders_5440b100137d559d24a60a73e44b9fff.bundle"
+        }
+    ]
+}

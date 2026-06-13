@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1001,
+    "levelName": "关卡1",
+    "allballNum": 120,
+    "initBallType": 5,
+    "glodNum": 30,
+    "specialBallNum": 18,
+    "initSpecialBallType": 3,
+    "addBallType": [
+      0.3,
+      0.6,
+      0.8
+    ]
+  },
+  {
+    "id": 1002,
+    "levelName": "关卡2",
+    "allballNum": 120,
+    "initBallType": 5,
+    "glodNum": 30,
+    "specialBallNum": 18,
+    "initSpecialBallType": 3,
+    "addBallType": [
+      0.3,
+      0.6,
+      0.8
+    ]
+  },
+  {
+    "id": 1003,
+    "levelName": "关卡3",
+    "allballNum": 120,
+    "initBallType": 5,
+    "glodNum": 30,
+    "specialBallNum": 18,
+    "initSpecialBallType": 3,
+    "addBallType": [
+      0.3,
+      0.6,
+      0.8
+    ]
+  }
+]

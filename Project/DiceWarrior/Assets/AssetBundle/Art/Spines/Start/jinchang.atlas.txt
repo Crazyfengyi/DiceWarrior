@@ -1,0 +1,34 @@
+
+jinchang.png
+size: 973,773
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1
+  rotate: false
+  xy: 787, 677
+  size: 94, 94
+  orig: 100, 100
+  offset: 3, 3
+  index: -1
+2
+  rotate: true
+  xy: 2, 29
+  size: 492, 493
+  orig: 500, 502
+  offset: 3, 5
+  index: -1
+5
+  rotate: false
+  xy: 497, 2
+  size: 474, 519
+  orig: 489, 519
+  offset: 8, 0
+  index: -1
+7
+  rotate: false
+  xy: 2, 523
+  size: 783, 248
+  orig: 930, 261
+  offset: 63, 6
+  index: -1

@@ -1,0 +1,218 @@
+[
+  {
+    "id": 1,
+    "type": "Glod",
+    "name": "金币球",
+    "typeOfBall": 1,
+    "spriteName": "glod",
+    "desc": ""
+  },
+  {
+    "id": 2,
+    "type": "Ball1",
+    "name": "球1",
+    "typeOfBall": 2,
+    "spriteName": "ball1",
+    "desc": ""
+  },
+  {
+    "id": 3,
+    "type": "Ball2",
+    "name": "球2",
+    "typeOfBall": 2,
+    "spriteName": "ball2",
+    "desc": ""
+  },
+  {
+    "id": 4,
+    "type": "Ball3",
+    "name": "球3",
+    "typeOfBall": 2,
+    "spriteName": "ball3",
+    "desc": ""
+  },
+  {
+    "id": 5,
+    "type": "Ball4",
+    "name": "球4",
+    "typeOfBall": 3,
+    "spriteName": "ball4",
+    "desc": ""
+  },
+  {
+    "id": 6,
+    "type": "Ball5",
+    "name": "球5",
+    "typeOfBall": 2,
+    "spriteName": "ball5",
+    "desc": ""
+  },
+  {
+    "id": 7,
+    "type": "Ball6",
+    "name": "球6",
+    "typeOfBall": 3,
+    "spriteName": "ball6",
+    "desc": ""
+  },
+  {
+    "id": 8,
+    "type": "Ball7",
+    "name": "球7",
+    "typeOfBall": 3,
+    "spriteName": "ball7",
+    "desc": ""
+  },
+  {
+    "id": 9,
+    "type": "Ball8",
+    "name": "球8",
+    "typeOfBall": 2,
+    "spriteName": "ball8",
+    "desc": ""
+  },
+  {
+    "id": 10,
+    "type": "Ball9",
+    "name": "球9",
+    "typeOfBall": 3,
+    "spriteName": "ball9",
+    "desc": ""
+  },
+  {
+    "id": 11,
+    "type": "Ball10",
+    "name": "球10",
+    "typeOfBall": 3,
+    "spriteName": "ball10",
+    "desc": ""
+  },
+  {
+    "id": 12,
+    "type": "Ball11",
+    "name": "球11",
+    "typeOfBall": 2,
+    "spriteName": "ball11",
+    "desc": ""
+  },
+  {
+    "id": 13,
+    "type": "Ball12",
+    "name": "球12",
+    "typeOfBall": 3,
+    "spriteName": "ball12",
+    "desc": ""
+  },
+  {
+    "id": 14,
+    "type": "Ball13",
+    "name": "球13",
+    "typeOfBall": 3,
+    "spriteName": "ball13",
+    "desc": ""
+  },
+  {
+    "id": 15,
+    "type": "Ball14",
+    "name": "球14",
+    "typeOfBall": 3,
+    "spriteName": "ball14",
+    "desc": ""
+  },
+  {
+    "id": 16,
+    "type": "Ball15",
+    "name": "球15",
+    "typeOfBall": 3,
+    "spriteName": "ball15",
+    "desc": ""
+  },
+  {
+    "id": 17,
+    "type": "Clothes1",
+    "name": "衣服1",
+    "typeOfBall": 3,
+    "spriteName": "clothes1",
+    "desc": ""
+  },
+  {
+    "id": 18,
+    "type": "Clothes2",
+    "name": "衣服2",
+    "typeOfBall": 3,
+    "spriteName": "clothes2",
+    "desc": ""
+  },
+  {
+    "id": 19,
+    "type": "Clothes3",
+    "name": "衣服3",
+    "typeOfBall": 3,
+    "spriteName": "clothes3",
+    "desc": ""
+  },
+  {
+    "id": 20,
+    "type": "Clothes4",
+    "name": "衣服4",
+    "typeOfBall": 3,
+    "spriteName": "clothes4",
+    "desc": ""
+  },
+  {
+    "id": 21,
+    "type": "Clothes5",
+    "name": "衣服5",
+    "typeOfBall": 3,
+    "spriteName": "clothes5",
+    "desc": ""
+  },
+  {
+    "id": 22,
+    "type": "Clothes6",
+    "name": "衣服6",
+    "typeOfBall": 3,
+    "spriteName": "clothes6",
+    "desc": ""
+  },
+  {
+    "id": 23,
+    "type": "Clothes7",
+    "name": "球盘",
+    "typeOfBall": 3,
+    "spriteName": "clothes7",
+    "desc": ""
+  },
+  {
+    "id": 24,
+    "type": "Clothes8",
+    "name": "红牌",
+    "typeOfBall": 3,
+    "spriteName": "clothes8",
+    "desc": ""
+  },
+  {
+    "id": 25,
+    "type": "Clothes9",
+    "name": "口哨",
+    "typeOfBall": 3,
+    "spriteName": "clothes9",
+    "desc": ""
+  },
+  {
+    "id": 26,
+    "type": "Clothes10",
+    "name": "啤酒",
+    "typeOfBall": 3,
+    "spriteName": "clothes10",
+    "desc": ""
+  },
+  {
+    "id": 27,
+    "type": "Clothes11",
+    "name": "喇叭",
+    "typeOfBall": 3,
+    "spriteName": "clothes11",
+    "desc": ""
+  }
+]

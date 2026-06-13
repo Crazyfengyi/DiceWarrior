@@ -1,0 +1,50 @@
+[
+  {
+    "id": 10000,
+    "name": "测试物品",
+    "spriteName": "测试物品",
+    "desc": "测试物品",
+    "price": 100,
+    "quality": 1
+  },
+  {
+    "id": 1,
+    "name": "人民币",
+    "spriteName": "prop1",
+    "desc": "通用货币",
+    "price": 0,
+    "quality": 1
+  },
+  {
+    "id": 2,
+    "name": "金币",
+    "spriteName": "prop2",
+    "desc": "通用货币2",
+    "price": 0,
+    "quality": 1
+  },
+  {
+    "id": 3,
+    "name": "回退道具",
+    "spriteName": "prop3",
+    "desc": "通用货币3",
+    "price": 0,
+    "quality": 1
+  },
+  {
+    "id": 4,
+    "name": "清除道具",
+    "spriteName": "prop4",
+    "desc": "通用货币4",
+    "price": 0,
+    "quality": 1
+  },
+  {
+    "id": 5,
+    "name": "洗牌道具",
+    "spriteName": "prop5",
+    "desc": "通用货币5",
+    "price": 0,
+    "quality": 1
+  }
+]

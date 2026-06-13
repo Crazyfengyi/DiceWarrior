@@ -1,0 +1,119 @@
+[
+  {
+    "id": 1000,
+    "minCash": 0,
+    "maxCash": 150,
+    "minReward": 150,
+    "maxReward": 180,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1001,
+    "minCash": 150,
+    "maxCash": 200,
+    "minReward": 6,
+    "maxReward": 8,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1002,
+    "minCash": 200,
+    "maxCash": 250,
+    "minReward": 4,
+    "maxReward": 6,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1003,
+    "minCash": 250,
+    "maxCash": 300,
+    "minReward": 4,
+    "maxReward": 6,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1004,
+    "minCash": 300,
+    "maxCash": 350,
+    "minReward": 2,
+    "maxReward": 6,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1005,
+    "minCash": 350,
+    "maxCash": 400,
+    "minReward": 1,
+    "maxReward": 2,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1006,
+    "minCash": 400,
+    "maxCash": 450,
+    "minReward": 0.5,
+    "maxReward": 1,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1007,
+    "minCash": 450,
+    "maxCash": 475,
+    "minReward": 0.3,
+    "maxReward": 0.7,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1008,
+    "minCash": 475,
+    "maxCash": 485,
+    "minReward": 0.1,
+    "maxReward": 0.3,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1009,
+    "minCash": 485,
+    "maxCash": 490,
+    "minReward": 0.05,
+    "maxReward": 0.15,
+    "decimalPlaces": 2,
+    "formulaType": 0
+  },
+  {
+    "id": 1010,
+    "minCash": 490,
+    "maxCash": 495,
+    "minReward": 0.001,
+    "maxReward": 0.001,
+    "decimalPlaces": 4,
+    "formulaType": 1
+  },
+  {
+    "id": 1011,
+    "minCash": 495,
+    "maxCash": 500,
+    "minReward": 0.001,
+    "maxReward": 0.001,
+    "decimalPlaces": 4,
+    "formulaType": 1
+  },
+  {
+    "id": 1012,
+    "minCash": 500,
+    "maxCash": 0,
+    "minReward": 0.0001,
+    "maxReward": 0.0001,
+    "decimalPlaces": 4,
+    "formulaType": 2
+  }
+]
