@@ -23,7 +23,6 @@ public class GameInit : MonoBehaviour
     public void Awake()
     {
         Instance = this;
-        XYBT.XYBTSDK.Init();
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
         Application.runInBackground = true;

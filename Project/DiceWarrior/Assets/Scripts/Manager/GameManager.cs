@@ -19,7 +19,6 @@ public class GameManager : MonoSingleton<GameManager>
         FloatTipWindow.Show(tip);
     }
 
-
     #region 通用界面
 
     private int openMaskNum;

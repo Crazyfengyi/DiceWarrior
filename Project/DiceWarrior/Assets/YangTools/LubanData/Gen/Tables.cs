@@ -21,6 +21,8 @@ public sealed partial class Tables
     public GlobalConfigCategory GlobalConfigCategory {get; }
     public BallConfigCategory BallConfigCategory {get; }
     public MoneyRewardAttenuationCategory MoneyRewardAttenuationCategory {get; }
+    public TBEventCardCategory TBEventCardCategory {get; }
+    public DiceBattleCategory DiceBattleCategory {get; }
 
     public Tables(System.Func<string, JSONNode> loader)
     {
@@ -39,6 +41,10 @@ public sealed partial class Tables
         tables.Add("BallConfigCategory", BallConfigCategory);
         MoneyRewardAttenuationCategory = new MoneyRewardAttenuationCategory(loader("moneyrewardattenuationcategory")); 
         tables.Add("MoneyRewardAttenuationCategory", MoneyRewardAttenuationCategory);
+        TBEventCardCategory = new TBEventCardCategory(loader("tbeventcardcategory"));
+        tables.Add("TBEventCardCategory", TBEventCardCategory);
+        DiceBattleCategory = new DiceBattleCategory(loader("dicebattlecategory"));
+        tables.Add("DiceBattleCategory", DiceBattleCategory);
         PostInit();
 
         TbItemCategory.Resolve(tables); 
@@ -48,6 +54,8 @@ public sealed partial class Tables
         GlobalConfigCategory.Resolve(tables); 
         BallConfigCategory.Resolve(tables); 
         MoneyRewardAttenuationCategory.Resolve(tables); 
+        TBEventCardCategory.Resolve(tables);
+        DiceBattleCategory.Resolve(tables);
         PostResolve();
     }
 
@@ -60,6 +68,8 @@ public sealed partial class Tables
         GlobalConfigCategory.TranslateText(translator); 
         BallConfigCategory.TranslateText(translator); 
         MoneyRewardAttenuationCategory.TranslateText(translator); 
+        TBEventCardCategory.TranslateText(translator);
+        DiceBattleCategory.TranslateText(translator);
     }
     
     partial void PostInit();

@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1001,
+    "name": "遭遇战",
+    "desc": "战斗事件，占位效果。",
+    "cardType": 1,
+    "battleId": 1001,
+    "drawWeight": 10,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 1002,
+    "name": "精英拦路",
+    "desc": "战斗事件，占位效果。",
+    "cardType": 1,
+    "battleId": 1002,
+    "drawWeight": 8,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 1003,
+    "name": "突袭",
+    "desc": "战斗事件，占位效果。",
+    "cardType": 1,
+    "battleId": 1003,
+    "drawWeight": 6,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 2001,
+    "name": "岔路口",
+    "desc": "中立事件，占位效果。",
+    "cardType": 2,
+    "battleId": 0,
+    "drawWeight": 10,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 2002,
+    "name": "神秘商人",
+    "desc": "中立事件，占位效果。",
+    "cardType": 2,
+    "battleId": 0,
+    "drawWeight": 8,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 2003,
+    "name": "休整营地",
+    "desc": "中立事件，占位效果。",
+    "cardType": 2,
+    "battleId": 0,
+    "drawWeight": 6,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 3001,
+    "name": "普通宝箱",
+    "desc": "宝箱事件，占位效果。",
+    "cardType": 3,
+    "battleId": 0,
+    "drawWeight": 10,
+    "spriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 3002,
+    "name": "稀有宝箱",
+    "desc": "宝箱事件，占位效果。",
+    "cardType": 3,
+    "battleId": 0,
+    "drawWeight": 4,
+    "spriteName": "",
+    "enabled": true
+  }
+]

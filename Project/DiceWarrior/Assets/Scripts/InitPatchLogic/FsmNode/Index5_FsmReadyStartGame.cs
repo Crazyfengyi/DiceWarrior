@@ -50,6 +50,10 @@ namespace GameMain
                 await ResourceManager.LoadAssetAsync<Object>(preloadList[i]);
             }
 
+            press.press = 1f;
+            press.SendEvent();
+            await UniTask.WaitUntil(() => LoadScript.isLoadAniOver);
+            
             LoadOnProgress temp = new LoadOnProgress();
             temp.OnEndLoad = async (sceneName) =>
             {
@@ -72,12 +76,6 @@ namespace GameMain
                 //await UIWindowTool.ChangeToMainUIScene(); 
                 GameSceneManager.Instance.Load("MainGame");
             }
-
-            press.press = 1f;
-            press.SendEvent();
-            await UniTask.WaitUntil(() => LoadScript.isLoadAniOver);
-            await UniTask.Delay(1000);
-            
             machine.ChangeState<FsmLoadDone>();
         }
 
