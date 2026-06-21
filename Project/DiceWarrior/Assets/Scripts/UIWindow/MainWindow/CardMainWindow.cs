@@ -10,183 +10,184 @@ using UnityEngine.UI;
 using YangTools;
 using YangTools.Scripts.Core.YangSaveData;
 using YangTools.Scripts.Core.YangUGUI;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using DG.Tweening;
+using System.Collections.Generic;
+using TMPro;
+using System;
 
-/**
- * 主窗口卡片类，继承自UGUIPanelBase，实现了拖拽相关接口
- * 用于管理主界面中的卡片菜单，支持旋转选择和点击交互
- */
-public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginDragHandler, IDragHandler, IEndDragHandler
+/// <summary>
+/// 卡片主窗口类
+/// </summary>
+public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginDragHandler, IDragHandler,
+    IEndDragHandler
 {
-    // 卡片数量常量
-    private const int CardCount = 5;
-    // 每张卡片之间的角度间隔
-    private const float AngleStep = 360f / CardCount;
-    // 卡片在X轴上的旋转半径
-    private const float RadiusX = 430f;
-    // 卡片在Y轴上的旋转半径
-    private const float RadiusY = 48f;
-    // 每屏幕像素对应的角度变化
-    private const float DragAnglePerScreen = 180f;
-    // 卡片旋转动画持续时间
-    private const float SnapDuration = 0.25f;
-    // 游戏开始的关卡ID
-    private const int StartLevelId = 1;
+    // 卡片相关常量
+    private const int CardCount = 5; // 卡片总数
+    private const float AngleStep = 360f / CardCount; // 每张卡片的角度间隔
+    private const float RadiusX = 400f; // 卡片圆形布局的X轴半径
+    private const float PerspectiveSkewX = 0f; // 透视效果的X轴倾斜
+    private const float PerspectiveSkewY = -100f; // 透视效果的Y轴倾斜
+    private const float FrontScale = 1f; // 前景卡片的缩放比例
+    private const float BackScale = 0.6f; // 背景卡片的缩放比例
+    private const float FrontAlpha = 1f; // 前景卡片的不透明度
+    private const float BackAlpha = 0.24f; // 背景卡片的不透明度
+    private const float MaxYRotation = 58f; // 卡片Y轴最大旋转角度
+    private const float DragAnglePerScreen = 180f; // 每屏拖动对应的角度变化
+    private const float SnapDuration = 0.25f; // 卡片吸附动画的持续时间
+    private const int StartLevelId = 1; // 开始游戏的关卡ID
 
-    // 中间窗口组类型
-    private static readonly GroupType MiddleGroup = (GroupType) Enum.Parse(typeof(GroupType), "\u4e2d\u95f4");
-    // 弹出窗口2组类型
-    private static readonly GroupType Popup2Group = (GroupType) Enum.Parse(typeof(GroupType), "\u5f39\u7a972");
+    // 分组类型定义
+    private static readonly GroupType MiddleGroup = (GroupType)Enum.Parse(typeof(GroupType), "\u4e2d\u95f4"); // 中间分组
+    private static readonly GroupType Popup2Group = (GroupType)Enum.Parse(typeof(GroupType), "\u5f39\u7a972"); // 弹窗2分组
 
     // 卡片标题数组
     private static readonly string[] CardTitles =
     {
-        "\u7ee7\u7eed\u6e38\u620f",  // 继续游戏
-        "\u5f00\u59cb\u6e38\u620f",  // 开始游戏
-        "\u8d44\u6599",              // 资料
-        "\u8bbe\u7f6e",              // 设置
-        "\u9000\u51fa"               // 退出
+        "\u7ee7\u7eed\u6e38\u620f", // 继续游戏
+        "\u5f00\u59cb\u6e38\u620f", // 开始游戏
+        "\u8d44\u6599", // 资料
+        "\u8bbe\u7f6e", // 设置
+        "\u9000\u51fa" // 退出
     };
 
 
+    // UI组件引用
+    [SerializeField] private RectTransform windowRoot; // 窗口根节点
+    [SerializeField] private RectTransform cardRoot; // 卡片根节点
+    [SerializeField] private UICustomButton leftArrow; // 左箭头按钮
+    [SerializeField] private UICustomButton rightArrow; // 右箭头按钮
+    [SerializeField] private CardMainMenuItem cardPrefab; // 卡片预制体
+    [SerializeField] private List<CardMainMenuItem> cardItems = new List<CardMainMenuItem>(); // 卡片列表
 
-    // 序列化引用的UI元素
-    [SerializeField] private RectTransform windowRoot;  // 窗口根节点
-    [SerializeField] private RectTransform cardRoot;    // 卡片根节点
-    [SerializeField] private Button leftArrow;          // 左箭头按钮
-    [SerializeField] private Button rightArrow;         // 右箭头按钮
-    [SerializeField] private List<CardMainMenuItem> cardItems = new List<CardMainMenuItem>(); // 卡片菜单项列表
+    // 卡片深度排序相关
+    private readonly List<CardDepthOrder> cardDepthOrders = new List<CardDepthOrder>(CardCount);
+    private float currentAngle; // 当前旋转角度
+    private float dragStartAngle; // 拖动开始角度
+    private float dragStartX; // 拖动开始X坐标
+    private int selectedIndex; // 当前选中的卡片索引
+    private Sequence rotateSequence; // 旋转动画序列
+    private bool actionOpening; // 是否正在执行打开动作
 
-    // 当前旋转角度
-    private float currentAngle;
-    // 拖拽开始时的角度
-    private float dragStartAngle;
-    // 拖拽开始时的X坐标
-    private float dragStartX;
-    // 当前选中的卡片索引
-    private int selectedIndex;
-    // 旋转动画序列
-    private Sequence rotateSequence;
-    // 是否正在执行打开动作
-    private bool actionOpening;
-
-    /**
-     * 窗口打开时的回调函数
-     * 初始化UI、注册事件、重置状态并刷新卡片
-     */
+    /// <summary>
+    /// 窗口打开时的回调
+    /// </summary>
+    /// <param name="userData">用户数据</param>
     public override void OnOpen(object userData)
     {
         base.OnOpen(userData);
-        EnsureUI();
-        RegisterEvents();
+        EnsureUI(); // 确保UI元素正确创建
+        RegisterEvents(); // 注册事件监听
         actionOpening = false;
-        selectedIndex = 0;
-        currentAngle = 0f;
-        RefreshCards();
+        selectedIndex = 0; // 重置选中索引
+        currentAngle = 0f; // 重置当前角度
+        RefreshCards(); // 刷新卡片显示
     }
 
-    /**
-     * 窗口关闭时的回调函数
-     * 停止旋转动画并调用基类的关闭方法
-     */
+    /// <summary>
+    /// 窗口关闭时的回调
+    /// </summary>
+    /// <param name="isShutdown">是否正在关闭应用</param>
+    /// <param name="userData">用户数据</param>
     public override void OnClose(bool isShutdown, object userData)
     {
-        KillRotate();
+        KillRotate(); // 停止旋转动画
+        actionOpening = false;
         base.OnClose(isShutdown, userData);
     }
 
-    /**
-     * 拖拽开始时的回调函数
-     * 停止当前旋转动画，记录拖拽起始角度和X坐标
-     */
+    /// <summary>
+    /// 开始拖动时的回调
+    /// </summary>
+    /// <param name="eventData">事件数据</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
-        KillRotate();
-        dragStartAngle = currentAngle;
-        dragStartX = eventData.position.x;
+        KillRotate(); // 停止旋转动画
+        dragStartAngle = currentAngle; // 记录拖动开始角度
+        dragStartX = eventData.position.x; // 记录拖动开始X坐标
     }
 
-    /**
-     * 拖拽过程中的回调函数
-     * 根据拖拽距离计算新的旋转角度并刷新卡片
-     */
+    /// <summary>
+    /// 拖动过程中的回调
+    /// </summary>
+    /// <param name="eventData">事件数据</param>
     public void OnDrag(PointerEventData eventData)
     {
         float screenWidth = Mathf.Max(1f, Screen.width);
         float dragOffset = eventData.position.x - dragStartX;
-        currentAngle = dragStartAngle - dragOffset / screenWidth * DragAnglePerScreen;
+        currentAngle = dragStartAngle + dragOffset / screenWidth * DragAnglePerScreen;
+        selectedIndex = WrapIndex(Mathf.RoundToInt(-currentAngle / AngleStep));
         RefreshCards();
     }
 
-    /**
-     * 拖拽结束时的回调函数
-     * 将卡片吸附到最近的位置
-     */
+    /// <summary>
+    /// 结束拖动时的回调
+    /// </summary>
+    /// <param name="eventData">事件数据</param>
     public void OnEndDrag(PointerEventData eventData)
     {
-        SnapToNearest();
+        SnapToNearest(); // 吸附到最近的卡片
     }
 
-    /**
-     * 注册事件处理函数
-     * 为左右箭头按钮和卡片按钮添加点击事件
-     */
+    /// <summary>
+    /// 注册事件监听
+    /// </summary>
     private void RegisterEvents()
     {
+        // 注册左右箭头按钮点击事件
         if (leftArrow != null)
         {
-            leftArrow.onClick.RemoveListener(RotateLeft);
-            leftArrow.onClick.AddListener(RotateLeft);
+            leftArrow.AddListener(RotateLeft);
         }
 
         if (rightArrow != null)
         {
-            rightArrow.onClick.RemoveListener(RotateRight);
-            rightArrow.onClick.AddListener(RotateRight);
+            rightArrow.AddListener(RotateRight);
         }
 
+        // 注册卡片点击事件
         for (int i = 0; i < cardItems.Count; i++)
         {
             int index = i;
-            Button button = cardItems[i] != null ? cardItems[i].Button : null;
+            UICustomButton button = cardItems[i] != null ? cardItems[i].Button : null;
             if (button == null)
             {
                 continue;
             }
 
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => OnCardClicked(index));
+            button.AddListener(() => OnCardClicked(index));
         }
     }
 
-    /**
-     * 向左旋转卡片
-     */
+    /// <summary>
+    /// 向左旋转卡片
+    /// </summary>
     private void RotateLeft()
     {
         AnimateToIndex(selectedIndex - 1);
     }
 
-    /**
-     * 向右旋转卡片
-     */
+    /// <summary>
+    /// 向右旋转卡片
+    /// </summary>
     private void RotateRight()
     {
         AnimateToIndex(selectedIndex + 1);
     }
 
-    /**
-     * 将卡片吸附到最近的位置
-     */
+    /// <summary>
+    /// 吸附到最近的卡片
+    /// </summary>
     private void SnapToNearest()
     {
-        int index = Mathf.RoundToInt(-currentAngle / AngleStep);
-        AnimateToIndex(index);
+        AnimateToIndex(Mathf.RoundToInt(-currentAngle / AngleStep));
     }
 
-    /**
-     * 动画旋转到指定索引的卡片
-     * @param index 目标卡片索引
-     */
+    /// <summary>
+    /// 动画切换到指定索引的卡片
+    /// </summary>
+    /// <param name="index">目标索引</param>
     private void AnimateToIndex(int index)
     {
         selectedIndex = WrapIndex(index);
@@ -201,10 +202,10 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
             .SetTarget(this);
     }
 
-    /**
-     * 卡片点击处理函数
-     * 根据点击的卡片执行相应的操作
-     */
+    /// <summary>
+    /// 卡片点击事件处理
+    /// </summary>
+    /// <param name="index">卡片索引</param>
     private async void OnCardClicked(int index)
     {
         if (actionOpening)
@@ -220,51 +221,50 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
 
         switch (index)
         {
-            case 0:  // 继续游戏
+            case 0: // 继续游戏
                 actionOpening = true;
                 await OpenGameWindow();
                 break;
-            case 1:  // 开始游戏
+            case 1: // 开始游戏
                 actionOpening = true;
                 ResetSaveLevel();
                 await OpenGameWindow();
                 break;
-            case 2:  // 资料
+            case 2: // 资料
                 FloatTipWindow.Show("\u8d44\u6599\u5e93\u6682\u672a\u5f00\u653e");
                 break;
-            case 3:  // 设置
+            case 3: // 设置
                 actionOpening = true;
                 await UIMonoInstance.OpenPanel<SettingWindow>(Popup2Group);
                 actionOpening = false;
                 break;
-            case 4:  // 退出
+            case 4: // 退出
                 QuitGame();
                 break;
         }
     }
 
-    /**
-     * 打开游戏窗口
-     */
+    /// <summary>
+    /// 打开游戏窗口
+    /// </summary>
     private async UniTask OpenGameWindow()
     {
         CloseSelfPanel();
         await UIMonoInstance.OpenPanel<GameWindow>(MiddleGroup);
     }
 
-    /**
-     * 重置保存的游戏关卡
-     */
+    /// <summary>
+    /// 重置保存的关卡
+    /// </summary>
     private static void ResetSaveLevel()
     {
         Save_GameData gameData = YangSaveDataManager.Instance.DataCenter.GetLocalSave<Save_GameData>(true);
         gameData.currentLevelId = StartLevelId;
     }
 
-    /**
-     * 退出游戏
-     * 在编辑器模式下显示提示，实际构建时退出游戏
-     */
+    /// <summary>
+    /// 退出游戏
+    /// </summary>
     private static void QuitGame()
     {
 #if UNITY_EDITOR
@@ -275,36 +275,51 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
 #endif
     }
 
-    /**
-     * 刷新卡片显示
-     * 根据当前旋转角度更新每张卡片的位置、缩放和透明度
-     */
+    /// <summary>
+    /// 刷新卡片显示
+    /// </summary>
     private void RefreshCards()
     {
         int frontIndex = WrapIndex(Mathf.RoundToInt(-currentAngle / AngleStep));
+        cardDepthOrders.Clear();
+
         for (int i = 0; i < cardItems.Count; i++)
         {
+            CardMainMenuItem item = cardItems[i];
+            if (item == null)
+            {
+                continue;
+            }
+
             float angle = currentAngle + i * AngleStep;
             float radians = angle * Mathf.Deg2Rad;
             float sin = Mathf.Sin(radians);
-            float cos = Mathf.Cos(radians);
-            float frontAmount = Mathf.InverseLerp(-1f, 1f, cos);
-            float scale = Mathf.Lerp(0.62f, 1.15f, frontAmount);
-            float alpha = Mathf.Lerp(0.38f, 1f, frontAmount);
-            float y = Mathf.Lerp(-RadiusY, RadiusY, frontAmount);
-            int siblingOrder = Mathf.RoundToInt(frontAmount * 100f);
+            float z = Mathf.Cos(radians);
+            float depth = Mathf.InverseLerp(-1f, 1f, z);
+            float screenX = sin * RadiusX + z * PerspectiveSkewX;
+            float screenY = z * PerspectiveSkewY;
+            float scale = Mathf.Lerp(BackScale, FrontScale, depth);
+            float alpha = Mathf.Lerp(BackAlpha, FrontAlpha, depth);
+            float yRotation = -sin * MaxYRotation;
 
-            cardItems[i].Refresh(CardTitles[i], i == frontIndex);
-            cardItems[i].ApplyPose(new Vector2(sin * RadiusX, y), scale, alpha, -sin * 38f, siblingOrder);
+            item.Refresh(CardTitles[i], i == frontIndex);
+            item.ApplyPose(new Vector2(screenX, screenY), scale, alpha, yRotation, 0);
+            cardDepthOrders.Add(new CardDepthOrder(item, depth));
+        }
+
+        cardDepthOrders.Sort((left, right) => left.Depth.CompareTo(right.Depth));
+        for (int i = 0; i < cardDepthOrders.Count; i++)
+        {
+            cardDepthOrders[i].Item.transform.SetSiblingIndex(i);
         }
     }
 
-    /**
-     * 确保UI元素正确初始化
-     * 设置窗口根节点、卡片根节点、箭头和卡片
-     */
+    /// <summary>
+    /// 确保UI元素正确创建
+    /// </summary>
     private void EnsureUI()
     {
+        // 设置窗口根节点
         RectTransform rootRect = transform as RectTransform;
         if (rootRect != null)
         {
@@ -314,55 +329,35 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
             rootRect.offsetMax = Vector2.zero;
         }
 
-        Image raycastImage = GetComponent<Image>();
-        if (raycastImage == null)
+        // 添加背景图片
+        Image background = GetComponent<Image>();
+        if (background == null)
         {
-            raycastImage = gameObject.AddComponent<Image>();
+            background = gameObject.AddComponent<Image>();
         }
 
-        raycastImage.color = new Color(0.05f, 0.07f, 0.12f, 1f);
-        raycastImage.raycastTarget = true;
+        background.color = new Color(0.05f, 0.07f, 0.12f, 1f);
+        background.raycastTarget = true;
 
-        if (windowRoot == null)
-        {
-            windowRoot = CreateRect("WindowRoot", transform as RectTransform);
-            windowRoot.anchorMin = Vector2.zero;
-            windowRoot.anchorMax = Vector2.one;
-            windowRoot.offsetMin = Vector2.zero;
-            windowRoot.offsetMax = Vector2.zero;
-        }
+        // 创建和设置窗口根节点
+        windowRoot = EnsureRect(windowRoot, "WindowRoot", transform as RectTransform);
+        StretchToParent(windowRoot);
 
-        if (cardRoot == null)
-        {
-            cardRoot = CreateRect("CardRoot", windowRoot);
-            cardRoot.anchorMin = cardRoot.anchorMax = new Vector2(0.5f, 0.52f);
-            cardRoot.sizeDelta = new Vector2(980f, 650f);
-        }
+        // 创建和设置卡片根节点
+        cardRoot = EnsureRect(cardRoot, "CardRoot", windowRoot);
+        cardRoot.anchorMin = cardRoot.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRoot.anchoredPosition = Vector2.zero;
+        cardRoot.sizeDelta = new Vector2(1100f, 620f);
 
-        EnsureArrows();
-        EnsureCards();
+        // 创建左右箭头按钮
+        leftArrow = EnsureArrow(leftArrow, "LeftArrow", windowRoot, new Vector2(-520f, 0f), "<");
+        rightArrow = EnsureArrow(rightArrow, "RightArrow", windowRoot, new Vector2(520f, 0f), ">");
+        EnsureCards(); // 确保卡片正确创建
     }
 
-    /**
-     * 确保箭头按钮正确初始化
-     */
-    private void EnsureArrows()
-    {
-        if (leftArrow == null)
-        {
-            leftArrow = CreateArrow("LeftArrow", windowRoot, new Vector2(-560f, 0f), "\u25c0");
-        }
-
-        if (rightArrow == null)
-        {
-            rightArrow = CreateArrow("RightArrow", windowRoot, new Vector2(560f, 0f), "\u25b6");
-        }
-    }
-
-    /**
-     * 确保卡片正确初始化
-     * 清理空引用并创建足够的卡片
-     */
+    /// <summary>
+    /// 确保卡片正确创建
+    /// </summary>
     private void EnsureCards()
     {
         if (cardItems == null)
@@ -370,6 +365,7 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
             cardItems = new List<CardMainMenuItem>();
         }
 
+        // 移除空引用
         for (int i = cardItems.Count - 1; i >= 0; i--)
         {
             if (cardItems[i] == null)
@@ -378,118 +374,107 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
             }
         }
 
+        // 创建缺失的卡片
         while (cardItems.Count < CardCount)
         {
             cardItems.Add(CreateCard(cardItems.Count));
         }
+
+        // 初始化所有卡片
+        for (int i = 0; i < cardItems.Count; i++)
+        {
+            cardItems[i].Init();
+        }
     }
 
-    /**
-     * 创建新的卡片
-     * @param index 卡片索引
-     * @return 创建的卡片菜单项
-     */
+    /// <summary>
+    /// 创建卡片实例
+    /// </summary>
+    /// <param name="index">卡片索引</param>
+    /// <returns>创建的卡片实例</returns>
     private CardMainMenuItem CreateCard(int index)
     {
-        GameObject cardObject = new GameObject($"Card_{index + 1}", typeof(RectTransform), typeof(CanvasRenderer),
-            typeof(Image), typeof(CanvasGroup), typeof(Button), typeof(CardMainMenuItem));
-        cardObject.layer = GetUiLayer();
-        RectTransform rect = cardObject.GetComponent<RectTransform>();
-        rect.SetParent(cardRoot, false);
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(320f, 440f);
+        CardMainMenuItem item = Instantiate(cardPrefab, cardRoot, false);
 
-        Image background = cardObject.GetComponent<Image>();
-        background.color = new Color(0.24f, 0.45f, 0.86f, 1f);
-        background.raycastTarget = true;
-
-        Button button = cardObject.GetComponent<Button>();
-        button.transition = Selectable.Transition.ColorTint;
-
-        Image imagePlaceholder = CreateImage("Image", rect, new Vector2(0f, 42f), new Vector2(238f, 220f),
-            new Color(0.94f, 0.48f, 0.15f, 1f));
-        TextMeshProUGUI titleText = CreateText("Title", rect, CardTitles[index], new Vector2(0f, 170f), 34f);
-        TextMeshProUGUI buttonText = CreateText("ButtonText", rect, CardTitles[index], new Vector2(0f, -168f), 30f);
-
-        CardMainMenuItem item = cardObject.GetComponent<CardMainMenuItem>();
-        item.Bind(rect, cardObject.GetComponent<CanvasGroup>(), background, imagePlaceholder, titleText, buttonText,
-            button);
+        item.gameObject.name = $"Card_{index}";
+        item.Init();
         return item;
     }
 
-    /**
-     * 创建箭头按钮
-     * @param objectName 对象名称
-     * @param parent 父节点
-     * @param position 位置
-     * @param text 箭头文本
-     * @return 创建的按钮
-     */
-    private static Button CreateArrow(string objectName, RectTransform parent, Vector2 position, string text)
+    /// <summary>
+    /// 确保箭头按钮正确创建
+    /// </summary>
+    private UICustomButton EnsureArrow(UICustomButton current, string objectName, RectTransform parent,
+        Vector2 position, string text)
     {
-        GameObject arrowObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image),
-            typeof(Button));
+        if (current != null)
+        {
+            return current;
+        }
+
+        // 创建箭头按钮对象
+        GameObject arrowObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer),
+            typeof(Image), typeof(Button), typeof(UICustomButton));
         arrowObject.layer = GetUiLayer();
+
+        // 设置箭头按钮的RectTransform
         RectTransform rect = arrowObject.GetComponent<RectTransform>();
         rect.SetParent(parent, false);
         rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = position;
-        rect.sizeDelta = new Vector2(130f, 96f);
+        rect.sizeDelta = new Vector2(92f, 92f);
 
+        // 设置箭头按钮的图片
         Image image = arrowObject.GetComponent<Image>();
-        image.color = new Color(0.18f, 0.36f, 0.78f, 0.9f);
+        image.color = new Color(0.16f, 0.26f, 0.43f, 0.88f);
 
-        TextMeshProUGUI label = CreateText("Text", rect, text, Vector2.zero, 50f);
+        // 设置箭头按钮的Button组件
+        Button button = arrowObject.GetComponent<Button>();
+        button.transition = Selectable.Transition.None;
+
+        // 创建箭头按钮的文本
+        TextMeshProUGUI label = CreateText("Text", rect, text, Vector2.zero, 44f);
         label.color = Color.white;
 
-        return arrowObject.GetComponent<Button>();
+        // 设置箭头按钮的UICustomButton组件
+        UICustomButton customButton = arrowObject.GetComponent<UICustomButton>();
+        customButton.needClickAudio = true;
+        customButton.needAni = true;
+        return customButton;
     }
 
-    /**
-     * 创建图片元素
-     * @param objectName 对象名称
-     * @param parent 父节点
-     * @param position 位置
-     * @param size 尺寸
-     * @param color 颜色
-     * @return 创建的图片
-     */
-    private static Image CreateImage(string objectName, RectTransform parent, Vector2 position, Vector2 size, Color color)
+    /// <summary>
+    /// 确保RectTransform正确创建
+    /// </summary>
+    private static RectTransform EnsureRect(RectTransform current, string objectName, RectTransform parent)
     {
-        GameObject imageObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        imageObject.layer = GetUiLayer();
-        RectTransform rect = imageObject.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
+        if (current != null)
+        {
+            return current;
+        }
 
-        Image image = imageObject.GetComponent<Image>();
-        image.color = color;
-        image.raycastTarget = false;
-        return image;
+        GameObject rectObject = new GameObject(objectName, typeof(RectTransform));
+        rectObject.layer = GetUiLayer();
+        RectTransform rect = rectObject.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        return rect;
     }
 
-    /**
-     * 创建文本元素
-     * @param objectName 对象名称
-     * @param parent 父节点
-     * @param text 文本内容
-     * @param position 位置
-     * @param fontSize 字体大小
-     * @return 创建的文本
-     */
+    /// <summary>
+    /// 创建文本UI元素
+    /// </summary>
     private static TextMeshProUGUI CreateText(string objectName, RectTransform parent, string text, Vector2 position,
         float fontSize)
     {
         GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer),
             typeof(TextMeshProUGUI));
         textObject.layer = GetUiLayer();
+
         RectTransform rect = textObject.GetComponent<RectTransform>();
         rect.SetParent(parent, false);
         rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = position;
-        rect.sizeDelta = new Vector2(250f, 58f);
+        rect.sizeDelta = new Vector2(260f, 62f);
 
         TextMeshProUGUI label = textObject.GetComponent<TextMeshProUGUI>();
         label.font = GameManager.Instance.font;
@@ -504,45 +489,38 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
         return label;
     }
 
-    /**
-     * 创建矩形变换对象
-     * @param objectName 对象名称
-     * @param parent 父节点
-     * @return 创建的矩形变换
-     */
-    private static RectTransform CreateRect(string objectName, RectTransform parent)
+    /// <summary>
+    /// 将RectTransform拉伸至父节点大小
+    /// </summary>
+    private static void StretchToParent(RectTransform rect)
     {
-        GameObject rectObject = new GameObject(objectName, typeof(RectTransform));
-        rectObject.layer = GetUiLayer();
-        RectTransform rect = rectObject.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
-        return rect;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
     }
 
-    /**
-     * 将索引包装在有效范围内
-     * @param index 原始索引
-     * @return 包装后的索引
-     */
+    /// <summary>
+    /// 环绕索引处理，确保索引在有效范围内
+    /// </summary>
     private static int WrapIndex(int index)
     {
         int result = index % CardCount;
         return result < 0 ? result + CardCount : result;
     }
 
-    /**
-     * 获取UI层
-     * @return UI层索引
-     */
+    /// <summary>
+    /// 获取UI层的Layer值
+    /// </summary>
     private static int GetUiLayer()
     {
         int layer = LayerMask.NameToLayer("UI");
         return layer >= 0 ? layer : 0;
     }
 
-    /**
-     * 停止旋转动画
-     */
+    /// <summary>
+    /// 停止旋转动画
+    /// </summary>
     private void KillRotate()
     {
         if (rotateSequence == null)
@@ -552,5 +530,20 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
 
         rotateSequence.Kill();
         rotateSequence = null;
+    }
+
+    /// <summary>
+    /// 卡片深度排序结构体
+    /// </summary>
+    private readonly struct CardDepthOrder
+    {
+        public readonly CardMainMenuItem Item; // 卡片项
+        public readonly float Depth; // 深度值
+
+        public CardDepthOrder(CardMainMenuItem item, float depth)
+        {
+            Item = item;
+            Depth = depth;
+        }
     }
 }

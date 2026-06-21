@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/6/21 19:21:03",
+    "PackageNote": "2026/6/21 23:31:32",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -1421,6 +1421,14 @@
             "DependentBundleIDs": []
         },
         {
+            "Address": "CardMainMenuItem",
+            "AssetPath": "Assets/AssetBundle/UIWindow/CardMainWindow/CardMainMenuItem.prefab",
+            "AssetGuid": "9eafd0c9186def441a2418fddfe72344",
+            "AssetTags": [],
+            "BundleID": 24,
+            "DependentBundleIDs": []
+        },
+        {
             "Address": "CardMainWindow",
             "AssetPath": "Assets/AssetBundle/UIWindow/CardMainWindow/CardMainWindow.prefab",
             "AssetGuid": "93d878ff20cf44e7a9aa35aa73600d45",
@@ -2159,7 +2167,7 @@
             "UnityCrc": 0,
             "FileHash": "c8489a0880750c29b44f05445d90cc29",
             "FileCrc": 0,
-            "FileSize": 27277330,
+            "FileSize": 27280987,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2189,7 +2197,7 @@
             "UnityCrc": 0,
             "FileHash": "8a74813c4d09c9c1fb3eb36e7a4b1ca0",
             "FileCrc": 0,
-            "FileSize": 1557,
+            "FileSize": 31034,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
