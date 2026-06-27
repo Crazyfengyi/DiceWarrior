@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/6/21 23:31:32",
+    "PackageNote": "2026/6/27 17:30:51",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -1541,33 +1541,9 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "BlockView",
-            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/BlockView.prefab",
-            "AssetGuid": "c49378565633f2b41af6c393f67c8e8a",
-            "AssetTags": [],
-            "BundleID": 31,
-            "DependentBundleIDs": []
-        },
-        {
-            "Address": "FootBallView",
-            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/FootBallView.prefab",
-            "AssetGuid": "2e94947219378c447955265474e22007",
-            "AssetTags": [],
-            "BundleID": 31,
-            "DependentBundleIDs": []
-        },
-        {
             "Address": "GameWindow",
             "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/GameWindow.prefab",
             "AssetGuid": "9f51a00eb9e1cdb459f1829b577a94e5",
-            "AssetTags": [],
-            "BundleID": 31,
-            "DependentBundleIDs": []
-        },
-        {
-            "Address": "WaitSlotView",
-            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/WaitSlotView.prefab",
-            "AssetGuid": "a5991868f800e4344970d9b8e0bbe73d",
             "AssetTags": [],
             "BundleID": 31,
             "DependentBundleIDs": []
@@ -2167,7 +2143,7 @@
             "UnityCrc": 0,
             "FileHash": "c8489a0880750c29b44f05445d90cc29",
             "FileCrc": 0,
-            "FileSize": 27280987,
+            "FileSize": 27282582,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2257,7 +2233,7 @@
             "UnityCrc": 0,
             "FileHash": "62520a3dfe3a58c56777dc5d50ae2303",
             "FileCrc": 0,
-            "FileSize": 203794,
+            "FileSize": 203775,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2267,7 +2243,7 @@
             "UnityCrc": 0,
             "FileHash": "2b66a442c2eb3cbad892ebaa56a930eb",
             "FileCrc": 0,
-            "FileSize": 224175,
+            "FileSize": 196624,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2317,7 +2293,7 @@
             "UnityCrc": 0,
             "FileHash": "cffae3a79713ce6c134a1752df37797f",
             "FileCrc": 0,
-            "FileSize": 188737,
+            "FileSize": 189489,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
