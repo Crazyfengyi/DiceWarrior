@@ -17,6 +17,8 @@ public sealed class EventCardDeck
 
     public IReadOnlyList<EventCard> ShownCards => shownCards;
     public IReadOnlyList<EventCard> Graveyard => graveyard;
+    public int DrawPileCount => drawPool.Count;
+    public int DiscardPileCount => graveyard.Count;
 
     public void Initialize(IReadOnlyList<EventCard> cards)
     {

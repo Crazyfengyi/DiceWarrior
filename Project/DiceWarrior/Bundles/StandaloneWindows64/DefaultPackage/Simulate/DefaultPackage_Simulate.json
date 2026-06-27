@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/6/27 17:30:51",
+    "PackageNote": "2026/6/28 4:05:05",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -2143,7 +2143,7 @@
             "UnityCrc": 0,
             "FileHash": "c8489a0880750c29b44f05445d90cc29",
             "FileCrc": 0,
-            "FileSize": 27282582,
+            "FileSize": 27289472,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2243,7 +2243,7 @@
             "UnityCrc": 0,
             "FileHash": "2b66a442c2eb3cbad892ebaa56a930eb",
             "FileCrc": 0,
-            "FileSize": 196624,
+            "FileSize": 435617,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
