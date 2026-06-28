@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1001,
+    "enemyName": "拦路盗匪",
+    "playerHp": 32,
+    "playerAttack": 5,
+    "enemyHp": 24,
+    "enemyAttack": 4,
+    "diceSides": 6,
+    "coinReward": 20,
+    "enemySpriteName": "",
+    "enemyDiceFaces": [4, 6, 6],
+    "enemyStatusIds": [1001, 1002],
+    "enemySkillSequenceIds": [2001, 2002],
+    "enabled": true
+  },
+  {
+    "id": 1002,
+    "enemyName": "精英守卫",
+    "playerHp": 34,
+    "playerAttack": 5,
+    "enemyHp": 32,
+    "enemyAttack": 5,
+    "diceSides": 6,
+    "coinReward": 35,
+    "enemySpriteName": "",
+    "enemyDiceFaces": [6, 6, 6, 8],
+    "enemyStatusIds": [1002, 1003],
+    "enemySkillSequenceIds": [2002, 2003, 2004],
+    "enabled": true
+  },
+  {
+    "id": 1003,
+    "enemyName": "突袭者",
+    "playerHp": 30,
+    "playerAttack": 6,
+    "enemyHp": 26,
+    "enemyAttack": 5,
+    "diceSides": 6,
+    "coinReward": 28,
+    "enemySpriteName": "",
+    "enemyDiceFaces": [4, 4, 6, 6],
+    "enemyStatusIds": [1001, 1003],
+    "enemySkillSequenceIds": [2004, 2001],
+    "enabled": true
+  }
+]

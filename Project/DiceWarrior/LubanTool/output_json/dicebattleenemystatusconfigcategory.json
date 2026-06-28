@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1001,
+    "name": "压制",
+    "desc": "敌人持续压迫你，本回合会用更激进的方式掷出所有骰子。",
+    "iconSpriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 1002,
+    "name": "护甲",
+    "desc": "敌人保持防守姿态，说明当前目标更偏向稳健消耗。",
+    "iconSpriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 1003,
+    "name": "迅捷",
+    "desc": "敌人动作迅速，技能轮转会更频繁展示。",
+    "iconSpriteName": "",
+    "enabled": true
+  }
+]

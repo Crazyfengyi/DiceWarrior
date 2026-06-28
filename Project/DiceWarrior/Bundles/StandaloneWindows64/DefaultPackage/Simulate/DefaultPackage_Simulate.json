@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/6/28 4:05:05",
+    "PackageNote": "2026/6/28 14:41:45",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -1501,11 +1501,19 @@
             "DependentBundleIDs": []
         },
         {
+            "Address": "DiceEnhanceWindow",
+            "AssetPath": "Assets/AssetBundle/UIWindow/DiceEnhanceWindow/DiceEnhanceWindow.prefab",
+            "AssetGuid": "1ab09517343a4bc1a670d4412db1ca98",
+            "AssetTags": [],
+            "BundleID": 29,
+            "DependentBundleIDs": []
+        },
+        {
             "Address": "FloatTipItem",
             "AssetPath": "Assets/AssetBundle/UIWindow/FloatTipWindow/FloatTipItem.prefab",
             "AssetGuid": "213c1e383b68d484b989cde189ff38fd",
             "AssetTags": [],
-            "BundleID": 29,
+            "BundleID": 30,
             "DependentBundleIDs": []
         },
         {
@@ -1513,7 +1521,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/FloatTipWindow/FloatTipWindow.prefab",
             "AssetGuid": "6324b0cf48f14dca9ef2a7fcb2a2fb85",
             "AssetTags": [],
-            "BundleID": 29,
+            "BundleID": 30,
             "DependentBundleIDs": []
         },
         {
@@ -1521,7 +1529,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/GameResultWindow/LoseWindow.prefab",
             "AssetGuid": "7c02b875572545a8bd8773c5174da6ad",
             "AssetTags": [],
-            "BundleID": 30,
+            "BundleID": 31,
             "DependentBundleIDs": []
         },
         {
@@ -1529,7 +1537,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/GameResultWindow/ReviveWindow.prefab",
             "AssetGuid": "a232c4ce73714593a66dd12f4af29c49",
             "AssetTags": [],
-            "BundleID": 30,
+            "BundleID": 31,
             "DependentBundleIDs": []
         },
         {
@@ -1537,7 +1545,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/GameResultWindow/WinWindow.prefab",
             "AssetGuid": "6bd2a4267e994e8291a89f97bef2b22d",
             "AssetTags": [],
-            "BundleID": 30,
+            "BundleID": 31,
             "DependentBundleIDs": []
         },
         {
@@ -1545,7 +1553,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/GameWindow.prefab",
             "AssetGuid": "9f51a00eb9e1cdb459f1829b577a94e5",
             "AssetTags": [],
-            "BundleID": 31,
+            "BundleID": 32,
             "DependentBundleIDs": []
         },
         {
@@ -1553,7 +1561,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/GetMoneyWindow/GetMoneyWindow.prefab",
             "AssetGuid": "3be84b6a5fd534b488e5a5f5f422dfee",
             "AssetTags": [],
-            "BundleID": 32,
+            "BundleID": 33,
             "DependentBundleIDs": []
         },
         {
@@ -1569,7 +1577,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/MainWindow/MainWindow.prefab",
             "AssetGuid": "3ac3d4f847d6b014f994f0fe2b943b49",
             "AssetTags": [],
-            "BundleID": 33,
+            "BundleID": 34,
             "DependentBundleIDs": []
         },
         {
@@ -1577,7 +1585,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/MoneyRewardWindow/MoneyRewardWindow.prefab",
             "AssetGuid": "de18cc9f761f4453a1bbf463a6c94068",
             "AssetTags": [],
-            "BundleID": 34,
+            "BundleID": 35,
             "DependentBundleIDs": []
         },
         {
@@ -1585,7 +1593,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/PropGetWindow/PropGetWindow.prefab",
             "AssetGuid": "d8bf26f182154e508cc096ac3f392e49",
             "AssetTags": [],
-            "BundleID": 35,
+            "BundleID": 36,
             "DependentBundleIDs": []
         },
         {
@@ -1593,7 +1601,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/SettingWindow/SetNode.prefab",
             "AssetGuid": "fe8be4bce0ce90e47b7f565b0a8c39c9",
             "AssetTags": [],
-            "BundleID": 36,
+            "BundleID": 37,
             "DependentBundleIDs": []
         },
         {
@@ -1601,7 +1609,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/SettingWindow/SettingWindow.prefab",
             "AssetGuid": "63e6147f1f9a581469be0d97d8c21111",
             "AssetTags": [],
-            "BundleID": 36,
+            "BundleID": 37,
             "DependentBundleIDs": []
         },
         {
@@ -1609,7 +1617,7 @@
             "AssetPath": "Assets/AssetBundle/UIWindow/UnLockWaitAreaWindow/UnLockWaitAreaWindow.prefab",
             "AssetGuid": "d9992f5028db7104ba589966f4f4f724",
             "AssetTags": [],
-            "BundleID": 37,
+            "BundleID": 38,
             "DependentBundleIDs": []
         },
         {
@@ -1617,7 +1625,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Materials/UICircleMask.mat",
             "AssetGuid": "64db51965ffcad24e97c69391b7537e9",
             "AssetTags": [],
-            "BundleID": 38,
+            "BundleID": 39,
             "DependentBundleIDs": []
         },
         {
@@ -1625,7 +1633,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Materials/UIGray_Static.mat",
             "AssetGuid": "9b93fbd4f87b001448c4f2b1d9f33015",
             "AssetTags": [],
-            "BundleID": 38,
+            "BundleID": 39,
             "DependentBundleIDs": []
         },
         {
@@ -1633,7 +1641,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Prefabs/Common/bgMask.prefab",
             "AssetGuid": "831017eb10b7bae43a2cc12afce3546d",
             "AssetTags": [],
-            "BundleID": 39,
+            "BundleID": 40,
             "DependentBundleIDs": []
         },
         {
@@ -1641,7 +1649,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Prefabs/Common/Btn.prefab",
             "AssetGuid": "09a929abf2703d342b86fb6b33b87e6b",
             "AssetTags": [],
-            "BundleID": 39,
+            "BundleID": 40,
             "DependentBundleIDs": []
         },
         {
@@ -1649,7 +1657,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Prefabs/Common/CommonGuideWindow.prefab",
             "AssetGuid": "2e8a35c4e6b21044ea7fb5e1c40d65f8",
             "AssetTags": [],
-            "BundleID": 39,
+            "BundleID": 40,
             "DependentBundleIDs": []
         },
         {
@@ -1657,7 +1665,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Prefabs/ItemSelectWindow/ItemSelectWindow.prefab",
             "AssetGuid": "52669834af5d17a41854657235af4c19",
             "AssetTags": [],
-            "BundleID": 40,
+            "BundleID": 41,
             "DependentBundleIDs": []
         },
         {
@@ -1665,7 +1673,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/Prefabs/ItemSelectWindow/SelectItemUI.prefab",
             "AssetGuid": "74577ca1cfed4d441b85897486690ccb",
             "AssetTags": [],
-            "BundleID": 40,
+            "BundleID": 41,
             "DependentBundleIDs": []
         },
         {
@@ -1673,7 +1681,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/btn1.png",
             "AssetGuid": "a206815451de71042b991aa62536cef8",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1681,7 +1689,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/btn2.png",
             "AssetGuid": "556efed28e20a2b4fac6c5e93d1b2aa4",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1689,7 +1697,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/geren_x17_cha.png",
             "AssetGuid": "a80765a1291f0ef4c826fad46f74e614",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1697,7 +1705,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/geren_x17_di.png",
             "AssetGuid": "d6345960cba42c7459296c3045e3403c",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1705,7 +1713,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/linghaoli_x17_jdt01.png",
             "AssetGuid": "92c65afb867b38c448c97099ee7086f1",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1713,7 +1721,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/linghaoli_x17_jdt02.png",
             "AssetGuid": "ff9f0cd00bf306a4fa9c04a466de02d3",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1721,7 +1729,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/Common/zhujiemian_x17_tishi.png",
             "AssetGuid": "b835a6d990d4be04b9e209b453db3fca",
             "AssetTags": [],
-            "BundleID": 42,
+            "BundleID": 43,
             "DependentBundleIDs": []
         },
         {
@@ -1729,7 +1737,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/jiesuan_fk_libao.png",
             "AssetGuid": "45ca8cde6a2415248938fbc32b9d7ee8",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1737,7 +1745,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/主页.png",
             "AssetGuid": "7ea91fa024fd9a146bd7b88742d828fc",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1745,7 +1753,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/关闭.png",
             "AssetGuid": "59255851c1058624f92b77afaaa46be8",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1753,7 +1761,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/声音_关.png",
             "AssetGuid": "75ccdf6c44da65b4395ed261c762aaab",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1761,7 +1769,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/声音_开.png",
             "AssetGuid": "b0b91c3a1a1ea0b4e8b486e56dd03132",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1769,7 +1777,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/左滑按钮.png",
             "AssetGuid": "cc61aa6c6231b17439195c8d64071bee",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1777,7 +1785,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/按钮_2.png",
             "AssetGuid": "bae2f98442458734db5c832433c1923b",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1785,7 +1793,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/新纪录.png",
             "AssetGuid": "ac4fa2a60c07a334d89bf34a6d636313",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1793,7 +1801,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/最高纪录.png",
             "AssetGuid": "e1abf2abbb8352540830357bda1d7e80",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1801,7 +1809,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/设置.png",
             "AssetGuid": "359851e649262ea42ba00b2b6e68f0ca",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1809,7 +1817,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/谷歌.png",
             "AssetGuid": "cfcca5eb9c92b484681224b7bf9c48bf",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1817,7 +1825,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/金币.png",
             "AssetGuid": "c3127d829c6c3bf488cdda93f330a219",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1825,7 +1833,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/音乐_关.png",
             "AssetGuid": "87865177b5267ae4c8e1c9e0375676fa",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1833,7 +1841,7 @@
             "AssetPath": "Assets/YangTools/AssetBunds/UI/音乐_开.png",
             "AssetGuid": "f26f8811846bbaf4994d35fb294b7880",
             "AssetTags": [],
-            "BundleID": 41,
+            "BundleID": 42,
             "DependentBundleIDs": []
         },
         {
@@ -1843,7 +1851,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1853,7 +1861,37 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "dicebattleenemyskillconfigcategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/dicebattleenemyskillconfigcategory.json",
+            "AssetGuid": "dbf1055af4497fe41ae13ca9779bf769",
+            "AssetTags": [
+                "LubanData"
+            ],
+            "BundleID": 44,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "dicebattleenemystatusconfigcategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/dicebattleenemystatusconfigcategory.json",
+            "AssetGuid": "80f280563a041454a97c594da31aa2ee",
+            "AssetTags": [
+                "LubanData"
+            ],
+            "BundleID": 44,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "diceenhanceconfigcategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/diceenhanceconfigcategory.json",
+            "AssetGuid": "57ec961aef6943989a3c86703a174efa",
+            "AssetTags": [
+                "LubanData"
+            ],
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1863,7 +1901,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1873,7 +1911,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1883,7 +1921,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1893,7 +1931,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1903,7 +1941,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1913,7 +1951,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         },
         {
@@ -1923,7 +1961,7 @@
             "AssetTags": [
                 "LubanData"
             ],
-            "BundleID": 43,
+            "BundleID": 44,
             "DependentBundleIDs": []
         }
     ],
@@ -2143,7 +2181,7 @@
             "UnityCrc": 0,
             "FileHash": "c8489a0880750c29b44f05445d90cc29",
             "FileCrc": 0,
-            "FileSize": 27289472,
+            "FileSize": 29405951,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2213,7 +2251,17 @@
             "UnityCrc": 0,
             "FileHash": "cceb6dc2f0c984a84159014948ebda39",
             "FileCrc": 0,
-            "FileSize": 1698,
+            "FileSize": 474164,
+            "IsEncrypted": false,
+            "Tags": [],
+            "DependentBundleIDs": []
+        },
+        {
+            "BundleName": "defaultpackage_assets_assetbundle_uiwindow_diceenhancewindow.bundle",
+            "UnityCrc": 0,
+            "FileHash": "2fce8597f7debf119791f9709c58ef28",
+            "FileCrc": 0,
+            "FileSize": 191767,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2363,7 +2411,7 @@
             "UnityCrc": 0,
             "FileHash": "452625d7287832ee5eb069451304b57e",
             "FileCrc": 0,
-            "FileSize": 11923,
+            "FileSize": 14147,
             "IsEncrypted": false,
             "Tags": [
                 "LubanData"

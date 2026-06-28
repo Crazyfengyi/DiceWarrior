@@ -1,0 +1,30 @@
+[
+  {
+    "id": 2001,
+    "name": "横扫",
+    "desc": "敌人会同时掷出全部骰子，用总和压制玩家。",
+    "iconSpriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 2002,
+    "name": "逼近",
+    "desc": "敌人以稳定骰面推进，等待你先交出重投机会。",
+    "iconSpriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 2003,
+    "name": "蓄力",
+    "desc": "敌人维持高面值骰子等待回合结算时爆发。",
+    "iconSpriteName": "",
+    "enabled": true
+  },
+  {
+    "id": 2004,
+    "name": "突袭",
+    "desc": "敌人快速结算本回合，试图在你结束行动时取得更高总和。",
+    "iconSpriteName": "",
+    "enabled": true
+  }
+]

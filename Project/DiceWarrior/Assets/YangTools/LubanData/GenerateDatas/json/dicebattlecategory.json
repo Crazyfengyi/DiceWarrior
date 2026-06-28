@@ -8,6 +8,10 @@
     "enemyAttack": 4,
     "diceSides": 6,
     "coinReward": 20,
+    "enemySpriteName": "",
+    "enemyDiceFaces": [4, 6, 6],
+    "enemyStatusIds": [1001, 1002],
+    "enemySkillSequenceIds": [2001, 2002],
     "enabled": true
   },
   {
@@ -19,6 +23,10 @@
     "enemyAttack": 5,
     "diceSides": 6,
     "coinReward": 35,
+    "enemySpriteName": "",
+    "enemyDiceFaces": [6, 6, 6, 8],
+    "enemyStatusIds": [1002, 1003],
+    "enemySkillSequenceIds": [2002, 2003, 2004],
     "enabled": true
   },
   {
@@ -30,6 +38,10 @@
     "enemyAttack": 5,
     "diceSides": 6,
     "coinReward": 28,
+    "enemySpriteName": "",
+    "enemyDiceFaces": [4, 4, 6, 6],
+    "enemyStatusIds": [1001, 1003],
+    "enemySkillSequenceIds": [2004, 2001],
     "enabled": true
   }
 ]

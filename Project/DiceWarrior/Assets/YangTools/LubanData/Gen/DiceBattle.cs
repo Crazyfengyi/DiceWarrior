@@ -9,12 +9,10 @@ using Bright.Serialization;
 using System.Collections.Generic;
 using SimpleJSON;
 
-
-
 namespace cfg
 {
 
-public sealed partial class DiceBattle :  Bright.Config.BeanBase
+public sealed partial class DiceBattle : Bright.Config.BeanBase
 {
     public DiceBattle(JSONNode _json)
     {
@@ -26,22 +24,31 @@ public sealed partial class DiceBattle :  Bright.Config.BeanBase
         { if(!_json["enemyAttack"].IsNumber) { throw new SerializationException(); }  EnemyAttack = _json["enemyAttack"]; }
         { if(!_json["diceSides"].IsNumber) { throw new SerializationException(); }  DiceSides = _json["diceSides"]; }
         { if(!_json["coinReward"].IsNumber) { throw new SerializationException(); }  CoinReward = _json["coinReward"]; }
+        { if(!_json["enemySpriteName"].IsString) { throw new SerializationException(); }  EnemySpriteName = _json["enemySpriteName"]; }
+        { var __json0 = _json["enemyDiceFaces"]; if(!__json0.IsArray) { throw new SerializationException(); } EnemyDiceFaces = new List<int>(__json0.Count); foreach(JSONNode __e0 in __json0.Children) { int __v0; { if(!__e0.IsNumber) { throw new SerializationException(); } __v0 = __e0; } EnemyDiceFaces.Add(__v0); } }
+        { var __json1 = _json["enemyStatusIds"]; if(!__json1.IsArray) { throw new SerializationException(); } EnemyStatusIds = new List<int>(__json1.Count); foreach(JSONNode __e1 in __json1.Children) { int __v1; { if(!__e1.IsNumber) { throw new SerializationException(); } __v1 = __e1; } EnemyStatusIds.Add(__v1); } }
+        { var __json2 = _json["enemySkillSequenceIds"]; if(!__json2.IsArray) { throw new SerializationException(); } EnemySkillSequenceIds = new List<int>(__json2.Count); foreach(JSONNode __e2 in __json2.Children) { int __v2; { if(!__e2.IsNumber) { throw new SerializationException(); } __v2 = __e2; } EnemySkillSequenceIds.Add(__v2); } }
         { if(!_json["enabled"].IsBoolean) { throw new SerializationException(); }  Enabled = _json["enabled"]; }
         PostInit();
     }
 
     public DiceBattle(int id, string enemyName, int playerHp, int playerAttack, int enemyHp, int enemyAttack,
-        int diceSides, int coinReward, bool enabled )
+        int diceSides, int coinReward, string enemySpriteName, List<int> enemyDiceFaces, List<int> enemyStatusIds,
+        List<int> enemySkillSequenceIds, bool enabled)
     {
-        this.Id = id;
-        this.EnemyName = enemyName;
-        this.PlayerHp = playerHp;
-        this.PlayerAttack = playerAttack;
-        this.EnemyHp = enemyHp;
-        this.EnemyAttack = enemyAttack;
-        this.DiceSides = diceSides;
-        this.CoinReward = coinReward;
-        this.Enabled = enabled;
+        Id = id;
+        EnemyName = enemyName;
+        PlayerHp = playerHp;
+        PlayerAttack = playerAttack;
+        EnemyHp = enemyHp;
+        EnemyAttack = enemyAttack;
+        DiceSides = diceSides;
+        CoinReward = coinReward;
+        EnemySpriteName = enemySpriteName;
+        EnemyDiceFaces = enemyDiceFaces;
+        EnemyStatusIds = enemyStatusIds;
+        EnemySkillSequenceIds = enemySkillSequenceIds;
+        Enabled = enabled;
         PostInit();
     }
 
@@ -58,36 +65,45 @@ public sealed partial class DiceBattle :  Bright.Config.BeanBase
     public int EnemyAttack { get; private set; }
     public int DiceSides { get; private set; }
     public int CoinReward { get; private set; }
+    public string EnemySpriteName { get; private set; }
+    public List<int> EnemyDiceFaces { get; private set; }
+    public List<int> EnemyStatusIds { get; private set; }
+    public List<int> EnemySkillSequenceIds { get; private set; }
     public bool Enabled { get; private set; }
 
     public const int __ID__ = 171642002;
     public override int GetTypeId() => __ID__;
 
-    public  void Resolve(Dictionary<string, object> _tables)
+    public void Resolve(Dictionary<string, object> _tables)
     {
         PostResolve();
     }
 
-    public  void TranslateText(System.Func<string, string, string> translator)
+    public void TranslateText(System.Func<string, string, string> translator)
     {
     }
 
     public override string ToString()
     {
         return "{ "
-        + "Id:" + Id + ","
-        + "EnemyName:" + EnemyName + ","
-        + "PlayerHp:" + PlayerHp + ","
-        + "PlayerAttack:" + PlayerAttack + ","
-        + "EnemyHp:" + EnemyHp + ","
-        + "EnemyAttack:" + EnemyAttack + ","
-        + "DiceSides:" + DiceSides + ","
-        + "CoinReward:" + CoinReward + ","
-        + "Enabled:" + Enabled + ","
-        + "}";
+            + "Id:" + Id + ","
+            + "EnemyName:" + EnemyName + ","
+            + "PlayerHp:" + PlayerHp + ","
+            + "PlayerAttack:" + PlayerAttack + ","
+            + "EnemyHp:" + EnemyHp + ","
+            + "EnemyAttack:" + EnemyAttack + ","
+            + "DiceSides:" + DiceSides + ","
+            + "CoinReward:" + CoinReward + ","
+            + "EnemySpriteName:" + EnemySpriteName + ","
+            + "EnemyDiceFaces:" + EnemyDiceFaces.Count + ","
+            + "EnemyStatusIds:" + EnemyStatusIds.Count + ","
+            + "EnemySkillSequenceIds:" + EnemySkillSequenceIds.Count + ","
+            + "Enabled:" + Enabled + ","
+            + "}";
     }
 
     partial void PostInit();
     partial void PostResolve();
 }
+
 }
