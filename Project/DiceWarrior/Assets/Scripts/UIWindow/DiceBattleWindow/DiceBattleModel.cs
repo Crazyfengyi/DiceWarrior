@@ -4,6 +4,13 @@ using UnityEngine;
 
 public sealed class DiceBattleModel
 {
+    public enum RoundWinnerType
+    {
+        Draw = 0,
+        Player = 1,
+        Enemy = 2
+    }
+
     public sealed class PlayerDieState
     {
         private readonly List<int> faces = new List<int>();
@@ -164,15 +171,21 @@ public sealed class DiceBattleModel
     public int RemainingSingleDieRerolls { get; private set; }
     public int RemainingAllDiceRerolls { get; private set; }
     public string LastMessage { get; private set; }
+    public string RoundResolvedMessage { get; private set; }
+    public RoundWinnerType RoundWinner { get; private set; }
+    public int RoundDamage { get; private set; }
+    public int RoundPlayerTotal { get; private set; }
+    public int RoundEnemyTotal { get; private set; }
     public IReadOnlyList<PlayerDieState> PlayerDiceStates => playerDiceStates;
     public IReadOnlyList<EnemyDieState> EnemyDiceStates => enemyDiceStates;
     public IReadOnlyList<DiceBattleEnemyStatusConfig> EnemyStatuses => enemyStatuses;
     public DiceBattleEnemySkillConfig CurrentSkill => GetCurrentSkill();
     public bool IsFinished => PlayerHp <= 0 || EnemyHp <= 0;
     public bool IsPlayerWin => EnemyHp <= 0 && PlayerHp > 0;
+    public bool IsRoundResolved { get; private set; }
     public bool CanThrowAll => !IsFinished && HasAnyUnthrownPlayerDice();
     public bool CanRerollAll => !IsFinished && RemainingAllDiceRerolls > 0 && HasAnyThrownPlayerDice();
-    public bool CanEndTurn => !IsFinished && HasAnyThrownPlayerDice();
+    public bool CanEndTurn => !IsFinished && !IsRoundResolved && HasAnyThrownPlayerDice();
 
     /// <summary>
     /// 投出单颗玩家骰子。
@@ -273,14 +286,23 @@ public sealed class DiceBattleModel
 
         RollEnemyDice();
         ResolveRoundDamage();
-        if (!IsFinished)
+        return true;
+    }
+
+    /// <summary>
+    /// 完成当前回合结算后的推进处理。
+    /// </summary>
+    public void AdvanceAfterRoundResolution()
+    {
+        if (!IsRoundResolved || IsFinished)
         {
-            CurrentRound++;
-            ResetRoundForNextTurn();
-            LastMessage += "，进入下一回合";
+            return;
         }
 
-        return true;
+        string resolvedMessage = RoundResolvedMessage;
+        CurrentRound++;
+        ResetRoundForNextTurn();
+        LastMessage = $"{resolvedMessage}，进入下一回合";
     }
 
     /// <summary>
@@ -412,13 +434,19 @@ public sealed class DiceBattleModel
 
     private void ResolveRoundDamage()
     {
+        IsRoundResolved = true;
+        RoundPlayerTotal = PlayerCurrentResult;
+        RoundEnemyTotal = EnemyCurrentResult;
         int diff = Mathf.Abs(PlayerCurrentResult - EnemyCurrentResult);
         if (PlayerCurrentResult > EnemyCurrentResult)
         {
             int damage = PlayerAttack + diff;
             EnemyHp = Mathf.Max(0, EnemyHp - damage);
-            LastMessage =
+            RoundWinner = RoundWinnerType.Player;
+            RoundDamage = damage;
+            RoundResolvedMessage =
                 $"第{CurrentRound}回合：玩家 {PlayerCurrentResult} 比 敌人 {EnemyCurrentResult} 高，造成 {damage} 点伤害";
+            LastMessage = RoundResolvedMessage;
             return;
         }
 
@@ -426,14 +454,23 @@ public sealed class DiceBattleModel
         {
             int damage = EnemyAttack + diff;
             PlayerHp = Mathf.Max(0, PlayerHp - damage);
-            LastMessage =
+            RoundWinner = RoundWinnerType.Enemy;
+            RoundDamage = damage;
+            RoundResolvedMessage =
                 $"第{CurrentRound}回合：敌人 {EnemyCurrentResult} 比 玩家 {PlayerCurrentResult} 高，造成 {damage} 点伤害";
+            LastMessage = RoundResolvedMessage;
             return;
         }
 
-        LastMessage = $"第{CurrentRound}回合：双方同为 {PlayerCurrentResult}，平局无伤害";
+        RoundWinner = RoundWinnerType.Draw;
+        RoundDamage = 0;
+        RoundResolvedMessage = $"第{CurrentRound}回合：双方同为 {PlayerCurrentResult}，平局无伤害";
+        LastMessage = RoundResolvedMessage;
     }
 
+    /// <summary>
+    /// 重置到下一回合的内部状态。
+    /// </summary>
     private void ResetRoundForNextTurn()
     {
         for (int i = 0; i < playerDiceStates.Count; i++)
@@ -450,6 +487,12 @@ public sealed class DiceBattleModel
         EnemyCurrentResult = 0;
         RemainingSingleDieRerolls = SingleDieRerollLimitPerRound;
         RemainingAllDiceRerolls = AllDiceRerollLimitPerRound;
+        RoundResolvedMessage = string.Empty;
+        RoundWinner = RoundWinnerType.Draw;
+        RoundDamage = 0;
+        RoundPlayerTotal = 0;
+        RoundEnemyTotal = 0;
+        IsRoundResolved = false;
     }
 
     private void RecalculatePlayerCurrentResult()

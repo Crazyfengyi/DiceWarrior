@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using DG.Tweening;
 using cfg;
 using Cysharp.Threading.Tasks;
 using GameMain;
@@ -42,6 +43,25 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     [SerializeField] private UICustomButton settleButton;
     [SerializeField] private UICustomButton setButton;
     [SerializeField] private DiceBattleHoverTargetUI skillHoverTarget;
+    [SerializeField] private RectTransform playerAttackRoot;
+    [SerializeField] private RectTransform enemyAttackRoot;
+    [SerializeField] private Image playerHitFlashImage;
+    [SerializeField] private Image enemyHitFlashImage;
+    [SerializeField] private RectTransform playerDamagePopupRoot;
+    [SerializeField] private RectTransform enemyDamagePopupRoot;
+    [SerializeField] private CanvasGroup playerDamagePopupCanvasGroup;
+    [SerializeField] private CanvasGroup enemyDamagePopupCanvasGroup;
+    [SerializeField] private TextMeshProUGUI playerDamagePopupText;
+    [SerializeField] private TextMeshProUGUI enemyDamagePopupText;
+    [SerializeField] private float attackMoveDuration = 0.18f;
+    [SerializeField] private float attackHitScaleDuration = 0.12f;
+    [SerializeField] private float attackReturnDuration = 0.16f;
+    [SerializeField] private float attackForwardOffset = 120f;
+    [SerializeField] private float attackHitScale = 1.12f;
+    [SerializeField] private float attackTargetPunchScale = 1.08f;
+    [SerializeField] private float hitFlashPeakAlpha = 0.55f;
+    [SerializeField] private float damagePopupMoveDistance = 56f;
+    [SerializeField] private float damagePopupDuration = 0.28f;
     [SerializeField] private List<DiceBattlePlayerDieItemUI> playerDieItems = new List<DiceBattlePlayerDieItemUI>();
     [SerializeField] private List<DiceBattleDieFaceCellUI> enemyDieItems = new List<DiceBattleDieFaceCellUI>();
     [SerializeField] private List<DiceBattleStatusItemUI> enemyStatusItems = new List<DiceBattleStatusItemUI>();
@@ -51,7 +71,14 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     private DiceBattleModel model;
     private bool initialized;
     private bool resultHandled;
+    private bool isPlayingAttackAnimation;
     private int hoveredPlayerDieIndex = -1;
+    private Vector2 playerAttackStartPosition;
+    private Vector2 enemyAttackStartPosition;
+    private Vector3 playerAttackStartScale;
+    private Vector3 enemyAttackStartScale;
+    private Vector2 playerDamagePopupStartPosition;
+    private Vector2 enemyDamagePopupStartPosition;
 
     /// <summary>
     /// 打开骰子战斗窗口并初始化显示。
@@ -73,6 +100,8 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         hoveredPlayerDieIndex = -1;
         RegisterEventsIfNeeded();
         HideAllHoverPanels();
+        CacheAttackPose();
+        ResetAttackVisualState();
         RefreshAll();
         RefreshEnemyVisualsAsync().Forget();
     }
@@ -82,6 +111,8 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     public override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(this);
+        ResetAttackVisualState();
         base.OnClose(isShutdown, userData);
         HideAllHoverPanels();
     }
@@ -214,7 +245,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
                 i < model.PlayerDiceStates.Count ? model.PlayerDiceStates[i] : null;
             if (playerDieItems[i] != null)
             {
-                playerDieItems[i].Refresh(dieState, model.CanRerollSingleDie(i), !model.IsFinished);
+                playerDieItems[i].Refresh(dieState, model.CanRerollSingleDie(i), !model.IsFinished && !isPlayingAttackAnimation);
             }
         }
     }
@@ -273,10 +304,12 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     private void RefreshActionButtons()
     {
-        SetButtonState(throwAllButton, !model.IsFinished, model.CanThrowAll);
-        SetButtonState(rerollAllButton, model.CanRerollAll, model.CanRerollAll);
-        SetButtonState(endTurnButton, !model.IsFinished, model.CanEndTurn);
-        SetButtonState(settleButton, model.IsFinished, model.IsFinished);
+        bool allowInteraction = !isPlayingAttackAnimation;
+        SetButtonState(throwAllButton, !model.IsFinished, allowInteraction && model.CanThrowAll);
+        SetButtonState(rerollAllButton, model.CanRerollAll, allowInteraction && model.CanRerollAll);
+        SetButtonState(endTurnButton, !model.IsFinished, allowInteraction && model.CanEndTurn);
+        SetButtonState(settleButton, model.IsFinished, allowInteraction && model.IsFinished);
+        SetButtonState(setButton, true, allowInteraction);
     }
 
     /// <summary>
@@ -334,11 +367,16 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// <summary>
     /// 点击结束行动按钮。
     /// </summary>
-    private void OnEndTurnClicked()
+    private async void OnEndTurnClicked()
     {
         if (model == null || !model.EndPlayerTurn())
         {
             return;
+        }
+
+        if (model.RoundWinner != DiceBattleModel.RoundWinnerType.Draw)
+        {
+            await PlayAttackSequenceAsync(model.RoundWinner == DiceBattleModel.RoundWinnerType.Player);
         }
 
         if (model.IsFinished && model.IsPlayerWin && model.CoinReward > 0)
@@ -346,6 +384,13 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             BagMgr.Instance.AddBagProp(CoinPropId, model.CoinReward);
         }
 
+        if (!model.IsFinished)
+        {
+            model.AdvanceAfterRoundResolution();
+        }
+
+        ResetAttackVisualState();
+        isPlayingAttackAnimation = false;
         RefreshAll();
     }
 
@@ -608,6 +653,231 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     }
 
     /// <summary>
+    /// 缓存攻击载体的初始姿态。
+    /// </summary>
+    private void CacheAttackPose()
+    {
+        if (playerAttackRoot != null)
+        {
+            playerAttackStartPosition = playerAttackRoot.anchoredPosition;
+            playerAttackStartScale = playerAttackRoot.localScale;
+        }
+
+        if (enemyAttackRoot != null)
+        {
+            enemyAttackStartPosition = enemyAttackRoot.anchoredPosition;
+            enemyAttackStartScale = enemyAttackRoot.localScale;
+        }
+
+        if (playerDamagePopupRoot != null)
+        {
+            playerDamagePopupStartPosition = playerDamagePopupRoot.anchoredPosition;
+        }
+
+        if (enemyDamagePopupRoot != null)
+        {
+            enemyDamagePopupStartPosition = enemyDamagePopupRoot.anchoredPosition;
+        }
+    }
+
+    /// <summary>
+    /// 播放回合攻击动画。
+    /// </summary>
+    private UniTask PlayAttackSequenceAsync(bool isPlayerAttack)
+    {
+        if (playerAttackRoot == null || enemyAttackRoot == null)
+        {
+            return UniTask.CompletedTask;
+        }
+
+        return isPlayerAttack ? PlayPlayerAttackAsync() : PlayEnemyAttackAsync();
+    }
+
+    /// <summary>
+    /// 播放玩家攻击动画。
+    /// </summary>
+    private UniTask PlayPlayerAttackAsync()
+    {
+        return PlayAttackAnimationAsync(playerAttackRoot, enemyAttackRoot, playerAttackStartPosition,
+            enemyAttackStartScale, attackForwardOffset, enemyHitFlashImage, enemyDamagePopupRoot,
+            enemyDamagePopupCanvasGroup, enemyDamagePopupText, enemyDamagePopupStartPosition, model.RoundDamage);
+    }
+
+    /// <summary>
+    /// 播放敌方攻击动画。
+    /// </summary>
+    private UniTask PlayEnemyAttackAsync()
+    {
+        return PlayAttackAnimationAsync(enemyAttackRoot, playerAttackRoot, enemyAttackStartPosition,
+            playerAttackStartScale, -attackForwardOffset, playerHitFlashImage, playerDamagePopupRoot,
+            playerDamagePopupCanvasGroup, playerDamagePopupText, playerDamagePopupStartPosition, model.RoundDamage);
+    }
+
+    /// <summary>
+    /// 重置攻击载体到初始姿态。
+    /// </summary>
+    private void ResetAttackVisualState()
+    {
+        if (playerAttackRoot != null)
+        {
+            playerAttackRoot.anchoredPosition = playerAttackStartPosition;
+            playerAttackRoot.localScale = playerAttackStartScale;
+        }
+
+        if (enemyAttackRoot != null)
+        {
+            enemyAttackRoot.anchoredPosition = enemyAttackStartPosition;
+            enemyAttackRoot.localScale = enemyAttackStartScale;
+        }
+
+        ResetHitFeedbackVisual(playerHitFlashImage, playerDamagePopupRoot, playerDamagePopupCanvasGroup,
+            playerDamagePopupText, playerDamagePopupStartPosition);
+        ResetHitFeedbackVisual(enemyHitFlashImage, enemyDamagePopupRoot, enemyDamagePopupCanvasGroup,
+            enemyDamagePopupText, enemyDamagePopupStartPosition);
+    }
+
+    /// <summary>
+    /// 播放单侧冲刺命中动画。
+    /// </summary>
+    private async UniTask PlayAttackAnimationAsync(RectTransform attackerRoot, RectTransform targetRoot,
+        Vector2 attackerStartPosition, Vector3 targetStartScale, float forwardOffset, Image hitFlashImage,
+        RectTransform damagePopupRoot, CanvasGroup damagePopupCanvasGroup, TextMeshProUGUI damagePopupText,
+        Vector2 damagePopupStartPosition, int damage)
+    {
+        if (attackerRoot == null || targetRoot == null)
+        {
+            return;
+        }
+
+        isPlayingAttackAnimation = true;
+        RefreshActionButtons();
+        DOTween.Kill(this);
+        ResetAttackVisualState();
+
+        Sequence attackSequence = DOTween.Sequence().SetTarget(this);
+        attackSequence
+            .Append(attackerRoot.DOAnchorPos(attackerStartPosition + new Vector2(forwardOffset, 0f), attackMoveDuration)
+                .SetEase(Ease.OutCubic))
+            .Join(attackerRoot.DOScale(attackerRoot.localScale * attackHitScale, attackMoveDuration).SetEase(Ease.OutBack))
+            .AppendCallback(() => PrepareDamagePopup(damagePopupRoot, damagePopupCanvasGroup, damagePopupText, damagePopupStartPosition, damage))
+            .Append(targetRoot.DOScale(targetStartScale * attackTargetPunchScale, attackHitScaleDuration).SetEase(Ease.OutBack));
+
+        if (hitFlashImage != null)
+        {
+            attackSequence.Join(hitFlashImage.DOFade(hitFlashPeakAlpha, attackHitScaleDuration * 0.5f));
+        }
+
+        if (damagePopupCanvasGroup != null)
+        {
+            attackSequence.Join(damagePopupCanvasGroup.DOFade(1f, attackHitScaleDuration * 0.5f));
+        }
+
+        if (damagePopupRoot != null)
+        {
+            attackSequence.Join(damagePopupRoot
+                .DOAnchorPos(damagePopupStartPosition + new Vector2(0f, damagePopupMoveDistance), damagePopupDuration)
+                .SetEase(Ease.OutCubic));
+        }
+
+        attackSequence
+            .Append(targetRoot.DOScale(targetStartScale, attackHitScaleDuration).SetEase(Ease.OutCubic))
+            .Join(attackerRoot.DOAnchorPos(attackerStartPosition, attackReturnDuration).SetEase(Ease.InCubic))
+            .Join(attackerRoot.DOScale(GetAttackStartScale(attackerRoot), attackReturnDuration).SetEase(Ease.OutCubic));
+
+        if (hitFlashImage != null)
+        {
+            attackSequence.Join(hitFlashImage.DOFade(0f, attackHitScaleDuration));
+        }
+
+        if (damagePopupCanvasGroup != null)
+        {
+            attackSequence.Join(damagePopupCanvasGroup.DOFade(0f, attackHitScaleDuration));
+        }
+
+        await WaitSequenceAsync(attackSequence);
+    }
+
+    /// <summary>
+    /// 准备伤害数字弹出显示。
+    /// </summary>
+    private static void PrepareDamagePopup(RectTransform damagePopupRoot, CanvasGroup damagePopupCanvasGroup,
+        TextMeshProUGUI damagePopupText, Vector2 damagePopupStartPosition, int damage)
+    {
+        if (damagePopupRoot != null)
+        {
+            damagePopupRoot.anchoredPosition = damagePopupStartPosition;
+        }
+
+        if (damagePopupCanvasGroup != null)
+        {
+            damagePopupCanvasGroup.alpha = 0f;
+        }
+
+        if (damagePopupText != null)
+        {
+            damagePopupText.text = $"-{Mathf.Max(0, damage)}";
+        }
+    }
+
+    /// <summary>
+    /// 重置单侧受击反馈显示。
+    /// </summary>
+    private static void ResetHitFeedbackVisual(Image hitFlashImage, RectTransform damagePopupRoot,
+        CanvasGroup damagePopupCanvasGroup, TextMeshProUGUI damagePopupText, Vector2 damagePopupStartPosition)
+    {
+        if (hitFlashImage != null)
+        {
+            Color flashColor = hitFlashImage.color;
+            flashColor.a = 0f;
+            hitFlashImage.color = flashColor;
+        }
+
+        if (damagePopupRoot != null)
+        {
+            damagePopupRoot.anchoredPosition = damagePopupStartPosition;
+        }
+
+        if (damagePopupCanvasGroup != null)
+        {
+            damagePopupCanvasGroup.alpha = 0f;
+        }
+
+        if (damagePopupText != null)
+        {
+            damagePopupText.text = string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// 获取攻击载体的初始缩放。
+    /// </summary>
+    private Vector3 GetAttackStartScale(RectTransform attackRoot)
+    {
+        if (attackRoot == playerAttackRoot)
+        {
+            return playerAttackStartScale;
+        }
+
+        return enemyAttackStartScale;
+    }
+
+    /// <summary>
+    /// 等待 DOTween 序列结束。
+    /// </summary>
+    private static UniTask WaitSequenceAsync(Sequence sequence)
+    {
+        if (sequence == null)
+        {
+            return UniTask.CompletedTask;
+        }
+
+        UniTaskCompletionSource completionSource = new UniTaskCompletionSource();
+        sequence.OnComplete(() => completionSource.TrySetResult());
+        sequence.OnKill(() => completionSource.TrySetResult());
+        return completionSource.Task;
+    }
+
+    /// <summary>
     /// 校验 prefab 绑定是否完整。
     /// </summary>
     private void ValidateBindings()
@@ -620,7 +890,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             skillHoverTitleText == null || skillHoverDescText == null || probabilityPanelRoot == null ||
             statusHoverPanelRoot == null || skillHoverPanelRoot == null || throwAllButton == null ||
             rerollAllButton == null || endTurnButton == null || settleButton == null || setButton == null ||
-            skillHoverTarget == null)
+            skillHoverTarget == null || playerAttackRoot == null || enemyAttackRoot == null ||
+            playerHitFlashImage == null || enemyHitFlashImage == null || playerDamagePopupRoot == null ||
+            enemyDamagePopupRoot == null || playerDamagePopupCanvasGroup == null || enemyDamagePopupCanvasGroup == null ||
+            playerDamagePopupText == null || enemyDamagePopupText == null)
         {
             Debug.LogError("DiceBattleWindow 预制体引用未绑定完整", this);
         }
