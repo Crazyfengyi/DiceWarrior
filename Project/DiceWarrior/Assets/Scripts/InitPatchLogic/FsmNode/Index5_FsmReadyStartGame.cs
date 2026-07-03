@@ -59,7 +59,8 @@ namespace GameMain
             {
                 if (sceneName == "MainGame")
                 {
-                    (int id, GameWindow panel) panelData = await UIMonoInstance.OpenPanel<GameWindow>(GroupType.中间);
+                    (int id, CardMainWindow panel) panelData =
+                        await UIMonoInstance.OpenPanel<CardMainWindow>(GroupType.中间);
                 }
             };
             GameSceneManager.Instance.SetOnProgress(temp);

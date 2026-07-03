@@ -9,12 +9,10 @@ using Bright.Serialization;
 using System.Collections.Generic;
 using SimpleJSON;
 
-
-
 namespace cfg
 {
 
-public sealed partial class EventCard :  Bright.Config.BeanBase
+public sealed partial class EventCard : Bright.Config.BeanBase
 {
     public EventCard(JSONNode _json)
     {
@@ -23,22 +21,25 @@ public sealed partial class EventCard :  Bright.Config.BeanBase
         { if(!_json["desc"].IsString) { throw new SerializationException(); }  Desc = _json["desc"]; }
         { if(!_json["cardType"].IsNumber) { throw new SerializationException(); }  CardType = (eventcard.EEventCardType)_json["cardType"].AsInt; }
         { if(!_json["battleId"].IsNumber) { throw new SerializationException(); }  BattleId = _json["battleId"]; }
+        { if(!_json["diceEnhanceId"].IsNumber) { throw new SerializationException(); }  DiceEnhanceId = _json["diceEnhanceId"]; }
         { if(!_json["drawWeight"].IsNumber) { throw new SerializationException(); }  DrawWeight = _json["drawWeight"]; }
         { if(!_json["spriteName"].IsString) { throw new SerializationException(); }  SpriteName = _json["spriteName"]; }
         { if(!_json["enabled"].IsBoolean) { throw new SerializationException(); }  Enabled = _json["enabled"]; }
         PostInit();
     }
 
-    public EventCard(int id, string name, string desc, eventcard.EEventCardType cardType, int battleId, int drawWeight, string spriteName, bool enabled )
+    public EventCard(int id, string name, string desc, eventcard.EEventCardType cardType, int battleId,
+        int diceEnhanceId, int drawWeight, string spriteName, bool enabled)
     {
-        this.Id = id;
-        this.Name = name;
-        this.Desc = desc;
-        this.CardType = cardType;
-        this.BattleId = battleId;
-        this.DrawWeight = drawWeight;
-        this.SpriteName = spriteName;
-        this.Enabled = enabled;
+        Id = id;
+        Name = name;
+        Desc = desc;
+        CardType = cardType;
+        BattleId = battleId;
+        DiceEnhanceId = diceEnhanceId;
+        DrawWeight = drawWeight;
+        SpriteName = spriteName;
+        Enabled = enabled;
         PostInit();
     }
 
@@ -47,66 +48,45 @@ public sealed partial class EventCard :  Bright.Config.BeanBase
         return new EventCard(_json);
     }
 
-    /// <summary>
-    /// 唯一ID
-    /// </summary>
     public int Id { get; private set; }
-    /// <summary>
-    /// 名称
-    /// </summary>
     public string Name { get; private set; }
-    /// <summary>
-    /// 描述
-    /// </summary>
     public string Desc { get; private set; }
-    /// <summary>
-    /// 卡牌类型
-    /// </summary>
     public eventcard.EEventCardType CardType { get; private set; }
-    /// <summary>
-    /// 战斗配置ID
-    /// </summary>
     public int BattleId { get; private set; }
-    /// <summary>
-    /// 同类型内抽取权重
-    /// </summary>
+    public int DiceEnhanceId { get; private set; }
     public int DrawWeight { get; private set; }
-    /// <summary>
-    /// 图标资源名
-    /// </summary>
     public string SpriteName { get; private set; }
-    /// <summary>
-    /// 是否启用
-    /// </summary>
     public bool Enabled { get; private set; }
 
     public const int __ID__ = 171642001;
     public override int GetTypeId() => __ID__;
 
-    public  void Resolve(Dictionary<string, object> _tables)
+    public void Resolve(Dictionary<string, object> _tables)
     {
         PostResolve();
     }
 
-    public  void TranslateText(System.Func<string, string, string> translator)
+    public void TranslateText(System.Func<string, string, string> translator)
     {
     }
 
     public override string ToString()
     {
         return "{ "
-        + "Id:" + Id + ","
-        + "Name:" + Name + ","
-        + "Desc:" + Desc + ","
-        + "CardType:" + CardType + ","
-        + "BattleId:" + BattleId + ","
-        + "DrawWeight:" + DrawWeight + ","
-        + "SpriteName:" + SpriteName + ","
-        + "Enabled:" + Enabled + ","
-        + "}";
+            + "Id:" + Id + ","
+            + "Name:" + Name + ","
+            + "Desc:" + Desc + ","
+            + "CardType:" + CardType + ","
+            + "BattleId:" + BattleId + ","
+            + "DiceEnhanceId:" + DiceEnhanceId + ","
+            + "DrawWeight:" + DrawWeight + ","
+            + "SpriteName:" + SpriteName + ","
+            + "Enabled:" + Enabled + ","
+            + "}";
     }
 
     partial void PostInit();
     partial void PostResolve();
 }
+
 }

@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
+using TMPro;
 using UnityEngine;
 using YangTools.Scripts.Core;
 using YangTools.Scripts.Core.YangUGUI;
 
 public class GameManager : MonoSingleton<GameManager>
 {
+    public TMP_FontAsset font;
+    
     protected override void Awake()
     {
         base.Awake();

@@ -61,6 +61,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     [SerializeField] private RectTransform moneyFlyEffectRoot;
     [SerializeField] private RectTransform eventCardRoot;
     [SerializeField] private List<EventCardItemUI> eventCardItems = new List<EventCardItemUI>();
+    [SerializeField] private RectTransform routeHudRoot;
 
     private EventInfo pressChangeListener;
     private EventInfo bagPropChangeListener;
@@ -72,6 +73,16 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     [SerializeField] private GameRoot gameRoot;
     private IReadOnlyList<EventCard> pendingEventCards = Array.Empty<EventCard>();
     private bool eventCardItemsCreating;
+    [SerializeField] private List<EquippedDiceSlotUI> equippedDiceSlotItems = new List<EquippedDiceSlotUI>();
+    [SerializeField] private List<PathCardUI> pathCardItems = new List<PathCardUI>();
+    [SerializeField] private PileCounterUI discardPileUI;
+    [SerializeField] private PileCounterUI drawPileUI;
+    [SerializeField] private DiceEquipmentPanelUI diceEquipmentPanelUI;
+    [SerializeField] private RectTransform hoverTipRoot;
+    [SerializeField] private TextMeshProUGUI hoverTipText;
+    [SerializeField] private Image hpFillImage;
+    [SerializeField] private TextMeshProUGUI hpText;
+    private bool routeHudValidated;
 
     /// <summary>
     /// 鏋愭瀯鍑芥暟锛屽仠姝㈤噾甯侀琛岀壒鏁?    /// </summary>
@@ -127,7 +138,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         bagPropChangeListener = gameObject.AddEventListener<BagPropChange>(OnHandleEventMessage);
         gameStartListener = gameObject.AddEventListener<GameStart>(OnHandleEventMessage);
 
-        EnsureEventCardItems();
+        ValidateRouteHudBindings();
         EnsureGameRoot().Initialize(this);
         YangAudioManager.Instance.PlayBGM("level_bgm");
         Canvas.ForceUpdateCanvases();
@@ -142,6 +153,12 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     {
         base.OnClose(isShutdown, userData);
         gameRoot?.Dispose();
+        HideHoverTip();
+        if (diceEquipmentPanelUI != null)
+        {
+            diceEquipmentPanelUI.Hide();
+        }
+
         if (pressChangeListener != null)
         {
             Extend.RemoveEventListener(pressChangeListener);
@@ -212,6 +229,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         startAniText.text = $"{gameStart.levelName}";
 
         startAni.gameObject.SetActive(true);
+        startAni.transform.SetAsLastSibling();
         startAni.AnimationState.SetAnimation(0, "jinchang2", false);
 
         void OnAnimationStateOnComplete(TrackEntry trackEntry)
@@ -673,6 +691,209 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         int layer = LayerMask.NameToLayer("UI");
         return layer >= 0 ? layer : 0;
     }
+
+    public void RefreshRouteHud()
+    {
+        ValidateRouteHudBindings();
+        RefreshEquippedDiceSlots();
+        ApplyPathCards();
+        RefreshPileCounters();
+        RefreshHpBar();
+    }
+
+    private void ValidateRouteHudBindings()
+    {
+        if (routeHudValidated)
+        {
+            return;
+        }
+
+        if (eventCardRoot != null)
+        {
+            eventCardRoot.gameObject.SetActive(false);
+        }
+
+        if (routeHudRoot == null)
+        {
+            Transform foundRoot = transform.Find("RouteHudRoot");
+            routeHudRoot = foundRoot as RectTransform;
+        }
+
+        if (routeHudRoot == null)
+        {
+            Debug.LogError("RouteHudRoot is missing on GameWindow prefab. Run GameWindowRouteHudPrefabBuilder.");
+            return;
+        }
+
+        routeHudRoot.SetAsLastSibling();
+        FindRouteHudBindings();
+        InitRouteHudBindings();
+        routeHudValidated = true;
+    }
+
+    private void FindRouteHudBindings()
+    {
+        if (equippedDiceSlotItems == null)
+        {
+            equippedDiceSlotItems = new List<EquippedDiceSlotUI>();
+        }
+
+        if (equippedDiceSlotItems.Count == 0)
+        {
+            equippedDiceSlotItems.AddRange(routeHudRoot.GetComponentsInChildren<EquippedDiceSlotUI>(true));
+            equippedDiceSlotItems.Sort((left, right) => string.CompareOrdinal(left.name, right.name));
+        }
+
+        if (pathCardItems == null)
+        {
+            pathCardItems = new List<PathCardUI>();
+        }
+
+        if (pathCardItems.Count == 0)
+        {
+            pathCardItems.AddRange(routeHudRoot.GetComponentsInChildren<PathCardUI>(true));
+            pathCardItems.Sort((left, right) => string.CompareOrdinal(left.name, right.name));
+        }
+
+        discardPileUI ??= FindRouteHudComponent<PileCounterUI>("DiscardPile");
+        drawPileUI ??= FindRouteHudComponent<PileCounterUI>("DrawPile");
+        diceEquipmentPanelUI ??= FindRouteHudComponent<DiceEquipmentPanelUI>("DiceEquipPanelRoot");
+        hoverTipRoot ??= FindRouteHudRect("HoverTip");
+        hoverTipText ??= FindRouteHudComponent<TextMeshProUGUI>("HoverTip/Text");
+        hpFillImage ??= FindRouteHudComponent<Image>("HpBarRoot/Fill");
+        hpText ??= FindRouteHudComponent<TextMeshProUGUI>("HpBarRoot/HpText");
+    }
+
+    private void InitRouteHudBindings()
+    {
+        for (int i = 0; i < equippedDiceSlotItems.Count; i++)
+        {
+            if (equippedDiceSlotItems[i] != null)
+            {
+                equippedDiceSlotItems[i].Init(i, ShowDiceEquipmentPanel);
+            }
+        }
+
+        for (int i = 0; i < pathCardItems.Count; i++)
+        {
+            if (pathCardItems[i] != null)
+            {
+                pathCardItems[i].Init(i, SelectEventCard);
+            }
+        }
+
+        discardPileUI?.Init(ShowHoverTip, HideHoverTip);
+        drawPileUI?.Init(ShowHoverTip, HideHoverTip);
+        diceEquipmentPanelUI?.Init();
+    }
+
+    private T FindRouteHudComponent<T>(string path) where T : Component
+    {
+        RectTransform rect = FindRouteHudRect(path);
+        return rect != null ? rect.GetComponent<T>() : null;
+    }
+
+    private RectTransform FindRouteHudRect(string path)
+    {
+        if (routeHudRoot == null)
+        {
+            return null;
+        }
+
+        Transform target = routeHudRoot.Find(path);
+        if (target == null)
+        {
+            Debug.LogError($"Route HUD binding missing: {path}");
+            return null;
+        }
+
+        return target as RectTransform;
+    }
+
+    private void RefreshEquippedDiceSlots()
+    {
+        IReadOnlyList<EquippedDiceSlotData> slots = gameRoot != null ? gameRoot.EquippedDiceSlots : null;
+        for (int i = 0; i < equippedDiceSlotItems.Count; i++)
+        {
+            EquippedDiceSlotData data = slots != null && i < slots.Count ? slots[i] : null;
+            if (equippedDiceSlotItems[i] != null)
+            {
+                equippedDiceSlotItems[i].Refresh(data);
+            }
+        }
+    }
+
+    private void ApplyPathCards()
+    {
+        for (int i = 0; i < pathCardItems.Count; i++)
+        {
+            EventCard card = i < pendingEventCards.Count ? pendingEventCards[i] : null;
+            if (pathCardItems[i] != null)
+            {
+                pathCardItems[i].Refresh($"\u8def\u5f84{i + 1}", card);
+            }
+        }
+    }
+
+    private void RefreshPileCounters()
+    {
+        int discardCount = gameRoot != null ? gameRoot.DiscardPileCount : 0;
+        int drawCount = gameRoot != null ? gameRoot.DrawPileCount : 0;
+        discardPileUI?.Refresh("\u5f03\u724c\u5806", discardCount, $"\u5f03\u724c\u5806\u5269\u4f59\uff1a{discardCount}");
+        drawPileUI?.Refresh("\u62bd\u724c\u5806", drawCount, $"\u62bd\u724c\u5806\u5269\u4f59\uff1a{drawCount}");
+    }
+
+    private void RefreshHpBar()
+    {
+        if (gameRoot == null || hpFillImage == null)
+        {
+            return;
+        }
+
+        float percent = gameRoot.PlayerMaxHp <= 0 ? 0f : Mathf.Clamp01((float) gameRoot.PlayerHp / gameRoot.PlayerMaxHp);
+        RectTransform fillRect = hpFillImage.transform as RectTransform;
+        if (fillRect != null)
+        {
+            fillRect.anchorMax = new Vector2(percent, 1f);
+        }
+
+        if (hpText != null)
+        {
+            hpText.text = $"{gameRoot.PlayerHp}/{gameRoot.PlayerMaxHp}";
+        }
+    }
+
+    private void ShowDiceEquipmentPanel(int slotIndex)
+    {
+        diceEquipmentPanelUI?.Show(gameRoot != null ? gameRoot.EquippedDiceSlots : null, slotIndex);
+    }
+
+    private void ShowHoverTip(string text, Vector2 screenPosition)
+    {
+        if (hoverTipRoot == null || hoverTipText == null)
+        {
+            return;
+        }
+
+        hoverTipText.text = text;
+        Camera uiCamera = UIMonoInstance.Instance != null ? UIMonoInstance.Instance.uiCamera : null;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(routeHudRoot, screenPosition, uiCamera, out Vector2 localPoint))
+        {
+            hoverTipRoot.anchoredPosition = localPoint + new Vector2(0f, 56f);
+        }
+
+        hoverTipRoot.gameObject.SetActive(true);
+        hoverTipRoot.SetAsLastSibling();
+    }
+
+    private void HideHoverTip()
+    {
+        if (hoverTipRoot != null)
+        {
+            hoverTipRoot.gameObject.SetActive(false);
+        }
+    }
+
     public void RefreshLevelDropdown(IReadOnlyList<TbLevelData> levelDatas)
     {
         if (levelDropdown == null || levelDatas == null)
@@ -696,13 +917,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     public void RefreshEventCards(IReadOnlyList<EventCard> shownCards)
     {
         pendingEventCards = shownCards ?? Array.Empty<EventCard>();
-        EnsureEventCardItems();
-        if (eventCardItemsCreating)
-        {
-            return;
-        }
-
-        ApplyEventCardItems();
+        ApplyPathCards();
     }
 
     private void ApplyEventCardItems()

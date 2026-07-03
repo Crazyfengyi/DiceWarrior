@@ -23,6 +23,9 @@ public sealed partial class Tables
     public MoneyRewardAttenuationCategory MoneyRewardAttenuationCategory {get; }
     public TBEventCardCategory TBEventCardCategory {get; }
     public DiceBattleCategory DiceBattleCategory {get; }
+    public DiceEnhanceConfigCategory DiceEnhanceConfigCategory {get; }
+    public DiceBattleEnemyStatusConfigCategory DiceBattleEnemyStatusConfigCategory {get; }
+    public DiceBattleEnemySkillConfigCategory DiceBattleEnemySkillConfigCategory {get; }
 
     public Tables(System.Func<string, JSONNode> loader)
     {
@@ -45,6 +48,12 @@ public sealed partial class Tables
         tables.Add("TBEventCardCategory", TBEventCardCategory);
         DiceBattleCategory = new DiceBattleCategory(loader("dicebattlecategory"));
         tables.Add("DiceBattleCategory", DiceBattleCategory);
+        DiceEnhanceConfigCategory = new DiceEnhanceConfigCategory(loader("diceenhanceconfigcategory"));
+        tables.Add("DiceEnhanceConfigCategory", DiceEnhanceConfigCategory);
+        DiceBattleEnemyStatusConfigCategory = new DiceBattleEnemyStatusConfigCategory(loader("dicebattleenemystatusconfigcategory"));
+        tables.Add("DiceBattleEnemyStatusConfigCategory", DiceBattleEnemyStatusConfigCategory);
+        DiceBattleEnemySkillConfigCategory = new DiceBattleEnemySkillConfigCategory(loader("dicebattleenemyskillconfigcategory"));
+        tables.Add("DiceBattleEnemySkillConfigCategory", DiceBattleEnemySkillConfigCategory);
         PostInit();
 
         TbItemCategory.Resolve(tables); 
@@ -56,6 +65,9 @@ public sealed partial class Tables
         MoneyRewardAttenuationCategory.Resolve(tables); 
         TBEventCardCategory.Resolve(tables);
         DiceBattleCategory.Resolve(tables);
+        DiceEnhanceConfigCategory.Resolve(tables);
+        DiceBattleEnemyStatusConfigCategory.Resolve(tables);
+        DiceBattleEnemySkillConfigCategory.Resolve(tables);
         PostResolve();
     }
 
@@ -70,6 +82,9 @@ public sealed partial class Tables
         MoneyRewardAttenuationCategory.TranslateText(translator); 
         TBEventCardCategory.TranslateText(translator);
         DiceBattleCategory.TranslateText(translator);
+        DiceEnhanceConfigCategory.TranslateText(translator);
+        DiceBattleEnemyStatusConfigCategory.TranslateText(translator);
+        DiceBattleEnemySkillConfigCategory.TranslateText(translator);
     }
     
     partial void PostInit();
