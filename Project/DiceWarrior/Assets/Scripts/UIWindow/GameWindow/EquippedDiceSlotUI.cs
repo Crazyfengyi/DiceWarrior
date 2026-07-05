@@ -12,6 +12,7 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private RectTransform faceRoot;
     [SerializeField] private List<Image> faceImages = new List<Image>();
+    [SerializeField] private List<TextMeshProUGUI> faceValueTexts = new List<TextMeshProUGUI>();
     private int slotIndex;
     private Action<int> clickCallback;
 
@@ -67,6 +68,54 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
             {
                 faceImages[i].color = new Color(0.26f, 0.43f, 0.76f, 1f);
             }
+
+            int value = active && !isEmpty && data.Faces != null && i < data.Faces.Count ? data.Faces[i] : 0;
+            RefreshFaceValueText(i, active, value);
+        }
+    }
+
+    /// <summary>
+    /// 刷新单个骰面格子的数值文本。
+    /// </summary>
+    private void RefreshFaceValueText(int index, bool active, int value)
+    {
+        if (index < 0 || index >= faceValueTexts.Count || faceValueTexts[index] == null)
+        {
+            return;
+        }
+
+        faceValueTexts[index].gameObject.SetActive(active);
+        if (active)
+        {
+            faceValueTexts[index].text = value.ToString();
+        }
+    }
+
+    /// <summary>
+    /// 缓存骰面格子上的数值文本引用。
+    /// </summary>
+    private void CacheFaceValueTextsIfNeeded()
+    {
+        if (faceValueTexts != null && faceValueTexts.Count > 0)
+        {
+            return;
+        }
+
+        if (faceValueTexts == null)
+        {
+            faceValueTexts = new List<TextMeshProUGUI>();
+        }
+        else
+        {
+            faceValueTexts.Clear();
+        }
+
+        for (int i = 0; i < faceImages.Count; i++)
+        {
+            TextMeshProUGUI text = faceImages[i] != null
+                ? faceImages[i].GetComponentInChildren<TextMeshProUGUI>(true)
+                : null;
+            faceValueTexts.Add(text);
         }
     }
 
@@ -74,6 +123,7 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
     {
         if (faceImages != null && faceImages.Count > 0)
         {
+            CacheFaceValueTextsIfNeeded();
             return;
         }
 
@@ -88,11 +138,21 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
             return;
         }
 
-        faceImages.AddRange(faceRoot.GetComponentsInChildren<Image>(true));
+        for (int i = 0; i < faceRoot.childCount; i++)
+        {
+            Image image = faceRoot.GetChild(i).GetComponent<Image>();
+            if (image != null)
+            {
+                faceImages.Add(image);
+            }
+        }
+
         if (faceImages.Count == 0)
         {
             Debug.LogError($"{name} face images are missing on prefab.");
         }
+
+        CacheFaceValueTextsIfNeeded();
     }
 
     private void OnClick()

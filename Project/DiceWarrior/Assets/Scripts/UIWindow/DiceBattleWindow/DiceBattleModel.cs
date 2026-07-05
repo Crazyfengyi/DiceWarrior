@@ -279,12 +279,39 @@ public sealed class DiceBattleModel
     /// </summary>
     public bool EndPlayerTurn()
     {
+        if (!RollEnemyTurn())
+        {
+            return false;
+        }
+
+        return ResolveRoundAfterEnemyReveal();
+    }
+
+    /// <summary>
+    /// 投出敌方回合的所有骰子。
+    /// </summary>
+    public bool RollEnemyTurn()
+    {
         if (!CanEndTurn)
         {
             return false;
         }
 
         RollEnemyDice();
+        LastMessage = $"敌方总和：{EnemyCurrentResult}";
+        return true;
+    }
+
+    /// <summary>
+    /// 在敌方亮骰后结算本回合。
+    /// </summary>
+    public bool ResolveRoundAfterEnemyReveal()
+    {
+        if (IsFinished || IsRoundResolved || EnemyCurrentResult <= 0)
+        {
+            return false;
+        }
+
         ResolveRoundDamage();
         return true;
     }

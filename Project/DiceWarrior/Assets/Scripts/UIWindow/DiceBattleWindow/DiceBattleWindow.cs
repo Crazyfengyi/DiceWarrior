@@ -45,6 +45,11 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     [SerializeField] private DiceBattleHoverTargetUI skillHoverTarget;
     [SerializeField] private RectTransform playerAttackRoot;
     [SerializeField] private RectTransform enemyAttackRoot;
+    [SerializeField] private RectTransform battleLogPanelRoot;
+    [SerializeField] private ScrollRect battleLogScrollRect;
+    [SerializeField] private TextMeshProUGUI battleLogText;
+    [SerializeField] private UICustomButton battleLogCloseButton;
+    [SerializeField] private UICustomButton battleLogOpenButton;
     [SerializeField] private Image playerHitFlashImage;
     [SerializeField] private Image enemyHitFlashImage;
     [SerializeField] private RectTransform playerDamagePopupRoot;
@@ -62,16 +67,20 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     [SerializeField] private float hitFlashPeakAlpha = 0.55f;
     [SerializeField] private float damagePopupMoveDistance = 56f;
     [SerializeField] private float damagePopupDuration = 0.28f;
+    [SerializeField] private float enemyRevealDelay = 0.65f;
     [SerializeField] private List<DiceBattlePlayerDieItemUI> playerDieItems = new List<DiceBattlePlayerDieItemUI>();
     [SerializeField] private List<DiceBattleDieFaceCellUI> enemyDieItems = new List<DiceBattleDieFaceCellUI>();
     [SerializeField] private List<DiceBattleStatusItemUI> enemyStatusItems = new List<DiceBattleStatusItemUI>();
 
     private readonly Dictionary<string, Sprite> spriteCache = new Dictionary<string, Sprite>();
+    private readonly List<string> battleLogEntries = new List<string>();
 
     private DiceBattleModel model;
     private bool initialized;
     private bool resultHandled;
     private bool isPlayingAttackAnimation;
+    private bool isEnemyRevealPlaying;
+    private bool battleEndLogged;
     private int hoveredPlayerDieIndex = -1;
     private Vector2 playerAttackStartPosition;
     private Vector2 enemyAttackStartPosition;
@@ -98,10 +107,13 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         model = new DiceBattleModel(windowData.BattleConfig, windowData.PlayerDiceSlots);
         resultHandled = false;
         hoveredPlayerDieIndex = -1;
+        battleEndLogged = false;
         RegisterEventsIfNeeded();
         HideAllHoverPanels();
         CacheAttackPose();
         ResetAttackVisualState();
+        ResetBattleLogState();
+        AppendBattleStartLog();
         RefreshAll();
         RefreshEnemyVisualsAsync().Forget();
     }
@@ -115,6 +127,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         ResetAttackVisualState();
         base.OnClose(isShutdown, userData);
         HideAllHoverPanels();
+        ResetBattleLogState();
     }
 
     /// <summary>
@@ -132,6 +145,8 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         endTurnButton?.AddListener(OnEndTurnClicked);
         settleButton?.AddListener(OnSettleClicked);
         setButton?.AddListener(OnSettingClicked);
+        battleLogCloseButton?.AddListener(OnCloseBattleLogClicked);
+        battleLogOpenButton?.AddListener(OnOpenBattleLogClicked);
         skillHoverTarget?.Init(ShowSkillHoverPanel, HideSkillHoverPanel);
 
         for (int i = 0; i < playerDieItems.Count; i++)
@@ -245,7 +260,8 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
                 i < model.PlayerDiceStates.Count ? model.PlayerDiceStates[i] : null;
             if (playerDieItems[i] != null)
             {
-                playerDieItems[i].Refresh(dieState, model.CanRerollSingleDie(i), !model.IsFinished && !isPlayingAttackAnimation);
+                playerDieItems[i].Refresh(dieState, model.CanRerollSingleDie(i),
+                    !model.IsFinished && !isPlayingAttackAnimation && !isEnemyRevealPlaying);
             }
         }
     }
@@ -304,7 +320,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     private void RefreshActionButtons()
     {
-        bool allowInteraction = !isPlayingAttackAnimation;
+        bool allowInteraction = !isPlayingAttackAnimation && !isEnemyRevealPlaying;
         SetButtonState(throwAllButton, !model.IsFinished, allowInteraction && model.CanThrowAll);
         SetButtonState(rerollAllButton, model.CanRerollAll, allowInteraction && model.CanRerollAll);
         SetButtonState(endTurnButton, !model.IsFinished, allowInteraction && model.CanEndTurn);
@@ -369,10 +385,26 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     private async void OnEndTurnClicked()
     {
-        if (model == null || !model.EndPlayerTurn())
+        if (model == null || !model.RollEnemyTurn())
         {
             return;
         }
+
+        isEnemyRevealPlaying = true;
+        RefreshEnemyDiceItems();
+        RefreshRoundTexts();
+        RefreshActionButtons();
+        AppendBattleLog($"<color=#FFE7A3>敌方总和：{model.EnemyCurrentResult}</color>");
+        await UniTask.Delay((int) (enemyRevealDelay * 1000f));
+        isEnemyRevealPlaying = false;
+
+        if (!model.ResolveRoundAfterEnemyReveal())
+        {
+            RefreshAll();
+            return;
+        }
+
+        AppendRoundResultLog();
 
         if (model.RoundWinner != DiceBattleModel.RoundWinnerType.Draw)
         {
@@ -384,9 +416,15 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             BagMgr.Instance.AddBagProp(CoinPropId, model.CoinReward);
         }
 
+        if (model.IsFinished)
+        {
+            AppendBattleEndLog();
+        }
+
         if (!model.IsFinished)
         {
             model.AdvanceAfterRoundResolution();
+            AppendBattleLog($"<color=#D7DCEB>进入第 {model.CurrentRound} 回合</color>");
         }
 
         ResetAttackVisualState();
@@ -417,6 +455,22 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     private async void OnSettingClicked()
     {
         await UIMonoInstance.OpenPanel<SettingWindow>(GroupType.弹窗2);
+    }
+
+    /// <summary>
+    /// 关闭战斗日志面板。
+    /// </summary>
+    private void OnCloseBattleLogClicked()
+    {
+        SetBattleLogVisible(false);
+    }
+
+    /// <summary>
+    /// 打开战斗日志面板。
+    /// </summary>
+    private void OnOpenBattleLogClicked()
+    {
+        SetBattleLogVisible(true);
     }
 
     /// <summary>
@@ -596,6 +650,131 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         sprite = await ResourceManager.LoadAssetAsync<Sprite>(spriteName);
         spriteCache[spriteName] = sprite;
         return sprite;
+    }
+
+    /// <summary>
+    /// 追加一条战斗日志并刷新显示。
+    /// </summary>
+    private void AppendBattleLog(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            return;
+        }
+
+        battleLogEntries.Add(message);
+        RefreshBattleLogView();
+        ScrollBattleLogToBottom().Forget();
+    }
+
+    /// <summary>
+    /// 追加战斗开始日志。
+    /// </summary>
+    private void AppendBattleStartLog()
+    {
+        AppendBattleLog($"<color=#F3F5FA>战斗开始：玩家 VS {model?.EnemyName ?? "敌人"}</color>");
+    }
+
+    /// <summary>
+    /// 追加当前回合的结算日志。
+    /// </summary>
+    private void AppendRoundResultLog()
+    {
+        if (model == null)
+        {
+            return;
+        }
+
+        switch (model.RoundWinner)
+        {
+            case DiceBattleModel.RoundWinnerType.Player:
+                AppendBattleLog($"<color=#7EE6FF>{model.RoundResolvedMessage}</color>");
+                break;
+            case DiceBattleModel.RoundWinnerType.Enemy:
+                AppendBattleLog($"<color=#FF8A8A>{model.RoundResolvedMessage}</color>");
+                break;
+            default:
+                AppendBattleLog($"<color=#F3F5FA>{model.RoundResolvedMessage}</color>");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 追加战斗结束日志。
+    /// </summary>
+    private void AppendBattleEndLog()
+    {
+        if (model == null || battleEndLogged)
+        {
+            return;
+        }
+
+        battleEndLogged = true;
+        if (model.IsPlayerWin)
+        {
+            AppendBattleLog($"<color=#7EE6FF>战斗胜利，获得金币 {model.CoinReward}</color>");
+            return;
+        }
+
+        AppendBattleLog("<color=#FF8A8A>战斗失败</color>");
+    }
+
+    /// <summary>
+    /// 刷新战斗日志文本显示。
+    /// </summary>
+    private void RefreshBattleLogView()
+    {
+        if (battleLogText == null)
+        {
+            return;
+        }
+
+        battleLogText.text = string.Join("\n", battleLogEntries);
+    }
+
+    /// <summary>
+    /// 将战斗日志滚动到底部。
+    /// </summary>
+    private async UniTaskVoid ScrollBattleLogToBottom()
+    {
+        if (battleLogScrollRect == null)
+        {
+            return;
+        }
+
+        await UniTask.Yield();
+        Canvas.ForceUpdateCanvases();
+        battleLogScrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    /// <summary>
+    /// 重置战斗日志的运行时状态。
+    /// </summary>
+    private void ResetBattleLogState()
+    {
+        battleLogEntries.Clear();
+        if (battleLogText != null)
+        {
+            battleLogText.text = string.Empty;
+        }
+
+        if (battleLogScrollRect != null)
+        {
+            battleLogScrollRect.verticalNormalizedPosition = 1f;
+        }
+
+        SetBattleLogVisible(true);
+    }
+
+    /// <summary>
+    /// 切换战斗日志面板显示状态。
+    /// </summary>
+    private void SetBattleLogVisible(bool visible)
+    {
+        if (battleLogPanelRoot != null)
+        {
+            battleLogPanelRoot.gameObject.SetActive(visible);
+        }
     }
 
     /// <summary>
@@ -891,6 +1070,8 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             statusHoverPanelRoot == null || skillHoverPanelRoot == null || throwAllButton == null ||
             rerollAllButton == null || endTurnButton == null || settleButton == null || setButton == null ||
             skillHoverTarget == null || playerAttackRoot == null || enemyAttackRoot == null ||
+            battleLogPanelRoot == null || battleLogScrollRect == null || battleLogText == null ||
+            battleLogCloseButton == null || battleLogOpenButton == null ||
             playerHitFlashImage == null || enemyHitFlashImage == null || playerDamagePopupRoot == null ||
             enemyDamagePopupRoot == null || playerDamagePopupCanvasGroup == null || enemyDamagePopupCanvasGroup == null ||
             playerDamagePopupText == null || enemyDamagePopupText == null)
