@@ -70,19 +70,6 @@ public sealed class PathCardUI : MonoBehaviour
         {
             descText.text = hasCard ? card.Desc : "\u5361\u6c60\u4e0d\u8db3";
         }
-
-        if (background != null)
-        {
-            background.color = hasCard
-                ? new Color(0.28f, 0.46f, 0.79f, 1f)
-                : new Color(0.18f, 0.25f, 0.36f, 0.8f);
-        }
-
-        if (icon == null)
-        {
-            return;
-        }
-
         icon.gameObject.SetActive(hasCard && !string.IsNullOrEmpty(card.SpriteName));
         if (hasCard && !string.IsNullOrEmpty(card.SpriteName))
         {

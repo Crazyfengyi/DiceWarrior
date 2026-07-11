@@ -150,13 +150,16 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
         for (int i = 0; i < cardItems.Count; i++)
         {
             int index = i;
-            UICustomButton button = cardItems[i] != null ? cardItems[i].Button : null;
-            if (button == null)
-            {
-                continue;
-            }
+            CardMainMenuItem item = cardItems[i];
+            item.InitBtn(index, () => OnCardClicked(index));
+        }
+    }
 
-            button.AddListener(() => OnCardClicked(index));
+    public void TryShow(int index)
+    {
+        if (index != selectedIndex)
+        {
+            AnimateToIndex(index);
         }
     }
 
@@ -188,7 +191,7 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
     /// 动画切换到指定索引的卡片
     /// </summary>
     /// <param name="index">目标索引</param>
-    private void AnimateToIndex(int index)
+    public void AnimateToIndex(int index)
     {
         selectedIndex = WrapIndex(index);
         float targetAngle = -index * AngleStep;
@@ -383,7 +386,7 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
         // 初始化所有卡片
         for (int i = 0; i < cardItems.Count; i++)
         {
-            cardItems[i].Init();
+            cardItems[i].Init(this);
         }
     }
 
@@ -397,7 +400,7 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
         CardMainMenuItem item = Instantiate(cardPrefab, cardRoot, false);
 
         item.gameObject.name = $"Card_{index}";
-        item.Init();
+        item.Init(this);
         return item;
     }
 

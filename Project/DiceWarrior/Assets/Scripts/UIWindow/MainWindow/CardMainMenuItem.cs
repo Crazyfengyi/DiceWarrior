@@ -1,3 +1,4 @@
+using System;
 using GameMain;
 using TMPro;
 using UnityEngine;
@@ -12,13 +13,24 @@ public class CardMainMenuItem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI buttonText;
     [SerializeField] private UICustomButton button;
-
+    [SerializeField] private UICustomButton bgBtn;
     public UICustomButton Button => button;
-
-    public void Init()
+    private CardMainWindow handle;
+    private int index;
+    public void Init(CardMainWindow _handle)
     {
+        handle = _handle;
+        bgBtn.AddListener(() =>
+        {
+            handle?.TryShow(index);
+        });
     }
 
+    public void InitBtn(int _index,Action onClick)
+    {
+        index = _index;
+        button.AddListener(onClick);
+    }
     public void Refresh(string title, bool selected)
     {
         titleText.text = title;
@@ -26,14 +38,6 @@ public class CardMainMenuItem : MonoBehaviour
 
         buttonText.text = "确定";
         buttonText.color = selected ? Color.white : new Color(0.7f, 0.78f, 0.92f, 1f);
-
-        background.color = selected
-            ? new Color(0.24f, 0.42f, 0.78f, 1f)
-            : new Color(0.12f, 0.21f, 0.38f, 1f);
-
-        icon.color = selected
-            ? new Color(0.95f, 0.98f, 1f, 0.28f)
-            : new Color(0.62f, 0.75f, 0.94f, 0.16f);
     }
 
     public void ApplyPose(Vector2 anchoredPosition, float scale, float alpha, float yRotation, int siblingOrder)

@@ -307,4 +307,6 @@ MonoBehaviour:
   needClickAudio: 1
   clipName: 
   needAni: 1
+  useBigAni: 0
   clickInterval: 0.2
+  btnImgList: []
