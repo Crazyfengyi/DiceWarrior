@@ -8,15 +8,15 @@ public sealed class DiceBattleWindowData : DefaultUGUIDataBase
     /// <summary>
     /// 创建骰子战斗窗口数据。
     /// </summary>
-    public DiceBattleWindowData(DiceBattle battleConfig, IReadOnlyList<EquippedDiceSlotData> playerDiceSlots,
+    public DiceBattleWindowData(EnemyData enemyData, IReadOnlyList<EquippedDiceSlotData> playerDiceSlots,
         Action<bool> onBattleFinished)
     {
-        BattleConfig = battleConfig;
+        EnemyData = enemyData;
         PlayerDiceSlots = playerDiceSlots;
         OnBattleFinished = onBattleFinished;
     }
 
-    public DiceBattle BattleConfig { get; }
+    public EnemyData EnemyData { get; }
     public IReadOnlyList<EquippedDiceSlotData> PlayerDiceSlots { get; }
     public Action<bool> OnBattleFinished { get; }
 }

@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "itemName": "复活药",
+    "bonusType": "增幅",
+    "activeType": "被动",
+    "consumeType": "消耗",
+    "maxUses": 1,
+    "chargeNode": "无",
+    "rarity": 1,
+    "desc": "在生命归零后立刻1血复活，并销毁该道具"
+  },
+  {
+    "id": 2,
+    "itemName": "回溯之环",
+    "bonusType": "增幅",
+    "activeType": "主动",
+    "consumeType": "非消耗",
+    "maxUses": -1,
+    "chargeNode": "无",
+    "rarity": 1,
+    "desc": "重掷保留之前的结果"
+  },
+  {
+    "id": 3,
+    "itemName": "力量之手",
+    "bonusType": "增幅",
+    "activeType": "主动",
+    "consumeType": "非消耗",
+    "maxUses": 1,
+    "chargeNode": "战斗结束后",
+    "rarity": 1,
+    "desc": "重掷所有骰子，每局1次"
+  },
+  {
+    "id": 4,
+    "itemName": "敏捷之手",
+    "bonusType": "增幅",
+    "activeType": "主动",
+    "consumeType": "非消耗",
+    "maxUses": 1,
+    "chargeNode": "战斗结束后",
+    "rarity": 1,
+    "desc": "重掷某个骰子，每局1次"
+  },
+  {
+    "id": 5,
+    "itemName": "技巧之手",
+    "bonusType": "增幅",
+    "activeType": "主动",
+    "consumeType": "非消耗",
+    "maxUses": 1,
+    "chargeNode": "战斗结束后",
+    "rarity": 1,
+    "desc": "将某个骰子反转到任意面，每局1次"
+  },
+  {
+    "id": 6,
+    "itemName": "望远镜",
+    "bonusType": "增幅",
+    "activeType": "被动",
+    "consumeType": "非消耗",
+    "maxUses": -1,
+    "chargeNode": "无",
+    "rarity": 1,
+    "desc": "获得后路径+1"
+  },
+  {
+    "id": 7,
+    "itemName": "幸运6",
+    "bonusType": "增幅",
+    "activeType": "主动",
+    "consumeType": "非消耗",
+    "maxUses": -1,
+    "chargeNode": "无",
+    "rarity": 1,
+    "desc": "在未投掷时，跳过投掷结果直接为6"
+  },
+  {
+    "id": 1001,
+    "itemName": "地缚锁",
+    "bonusType": "诅咒",
+    "activeType": "被动",
+    "consumeType": "非消耗",
+    "maxUses": -1,
+    "chargeNode": "无",
+    "rarity": 1,
+    "desc": "无法重掷结果"
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "diceName": "1d4",
+    "diceType": "标准",
+    "faces": "1 2 3 4"
+  },
+  {
+    "id": 2,
+    "diceName": "1d6",
+    "diceType": "标准",
+    "faces": "1 2 3 4 5 6"
+  },
+  {
+    "id": 3,
+    "diceName": "1d20",
+    "diceType": "标准",
+    "faces": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+  },
+  {
+    "id": 4,
+    "diceName": "1d100",
+    "diceType": "标准",
+    "faces": ""
+  },
+  {
+    "id": 9002,
+    "diceName": "1d4 01",
+    "diceType": "弱",
+    "faces": "0 0 1 1"
+  },
+  {
+    "id": 9003,
+    "diceName": "1d6 012",
+    "diceType": "弱",
+    "faces": "0 0 1 1 2 2"
+  },
+  {
+    "id": 9004,
+    "diceName": "1d20 0123",
+    "diceType": "弱",
+    "faces": "0 0 0 0 0 1 1 1 1 1 2 2 2 2 2 3 3 3 3 3"
+  },
+  {
+    "id": 9005,
+    "diceName": "1d4 +1",
+    "diceType": "强",
+    "faces": "2 3 4 5"
+  },
+  {
+    "id": 9006,
+    "diceName": "1d6 +1",
+    "diceType": "强",
+    "faces": "2 3 4 5 6 7"
+  },
+  {
+    "id": 9007,
+    "diceName": "1d4 x2",
+    "diceType": "强",
+    "faces": "2 4 6 8"
+  },
+  {
+    "id": 9001,
+    "diceName": "1d100",
+    "diceType": "超",
+    "faces": "100*100"
+  }
+]

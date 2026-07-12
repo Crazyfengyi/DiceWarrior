@@ -131,6 +131,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 213336442279088910, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
+      propertyPath: orthographic
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 213336442279088910, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
+      propertyPath: near clip plane
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3616080001169822314, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -177,6 +185,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3901875478092205896, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5340501709386526577, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7154779246095046968, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}

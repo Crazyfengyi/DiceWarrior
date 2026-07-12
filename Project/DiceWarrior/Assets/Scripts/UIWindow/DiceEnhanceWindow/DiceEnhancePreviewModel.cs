@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using cfg;
-using cfg.diceenhance;
 using UnityEngine;
 
 public sealed class DiceEnhancePreviewModel
@@ -12,16 +12,17 @@ public sealed class DiceEnhancePreviewModel
     /// <summary>
     /// 根据当前骰子和强化配置生成预览数据。
     /// </summary>
-    public DiceEnhancePreviewModel(EquippedDiceSlotData dice, DiceEnhanceConfig config, int? selectedFaceIndex)
+    public DiceEnhancePreviewModel(EquippedDiceSlotData dice, EnhancementTypeData enhancementData,
+        int? selectedFaceIndex)
     {
         SourceDice = dice;
-        Config = config;
+        EnhancementData = enhancementData;
         SelectedFaceIndex = selectedFaceIndex;
         BuildPreview();
     }
 
     public EquippedDiceSlotData SourceDice { get; }
-    public DiceEnhanceConfig Config { get; }
+    public EnhancementTypeData EnhancementData { get; }
     public IReadOnlyList<int> PreviewFaces => previewFaces;
     public int? SelectedFaceIndex { get; }
     public bool HasValidTarget { get; private set; }
@@ -73,25 +74,22 @@ public sealed class DiceEnhancePreviewModel
         MinValue = 0;
         MaxValue = 0;
 
-        if (SourceDice == null || SourceDice.IsEmpty || Config == null || !Config.Enabled)
+        if (SourceDice == null || SourceDice.IsEmpty || EnhancementData == null)
         {
             return;
         }
 
-        switch (Config.TargetMode)
+        if (IsWholeDiceEnhancement(EnhancementData))
         {
-            case EDiceEnhanceTargetMode.WholeDice:
-                previewFaces.AddRange(SourceDice.BuildWholeDicePreview(GetValueDelta()));
-                HasValidTarget = true;
-                break;
-            case EDiceEnhanceTargetMode.SingleFace:
-                if (SelectedFaceIndex.HasValue && SelectedFaceIndex.Value >= 0 &&
-                    SelectedFaceIndex.Value < SourceDice.Faces.Count)
-                {
-                    previewFaces.AddRange(SourceDice.BuildSingleFacePreview(SelectedFaceIndex.Value, GetValueDelta()));
-                    HasValidTarget = true;
-                }
-                break;
+            previewFaces.AddRange(SourceDice.BuildWholeDicePreview(GetValueDelta(EnhancementData)));
+            HasValidTarget = true;
+        }
+        else if (SelectedFaceIndex.HasValue && SelectedFaceIndex.Value >= 0 &&
+                 SelectedFaceIndex.Value < SourceDice.Faces.Count)
+        {
+            previewFaces.AddRange(SourceDice.BuildSingleFacePreview(SelectedFaceIndex.Value,
+                GetValueDelta(EnhancementData)));
+            HasValidTarget = true;
         }
 
         if (previewFaces.Count == 0)
@@ -111,14 +109,29 @@ public sealed class DiceEnhancePreviewModel
     /// <summary>
     /// 读取当前效果支持的数值增量。
     /// </summary>
-    private int GetValueDelta()
+    /// <summary>
+    /// 读取强化类型表中的数值增量。
+    /// </summary>
+    public static int GetValueDelta(EnhancementTypeData enhancementData)
     {
-        switch (Config.EffectType)
+        if (enhancementData == null ||
+            (enhancementData.EnhancementType != "数值增加" && enhancementData.EnhancementType != "数值减少"))
         {
-            case EDiceEnhanceEffectType.AddValue:
-                return Config.ValueDelta;
-            default:
-                return 0;
+            return 0;
         }
+
+        string valueText = enhancementData.EnhancementName?.Replace("全", string.Empty);
+        return int.TryParse(valueText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value)
+            ? value
+            : 0;
+    }
+
+    /// <summary>
+    /// 判断强化类型是否作用于整颗骰子。
+    /// </summary>
+    public static bool IsWholeDiceEnhancement(EnhancementTypeData enhancementData)
+    {
+        return enhancementData != null && enhancementData.EnhancementName != null &&
+               enhancementData.EnhancementName.StartsWith("全", StringComparison.Ordinal);
     }
 }

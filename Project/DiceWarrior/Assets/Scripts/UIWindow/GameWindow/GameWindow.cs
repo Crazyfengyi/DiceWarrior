@@ -950,29 +950,29 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         }
     }
 
-    /// <summary>
-    /// 刷新关卡下拉列表
-    /// </summary>
-    /// <param name="levelDatas">关卡数据列表</param>
-    public void RefreshLevelDropdown(IReadOnlyList<TbLevelData> levelDatas)
-    {
-        if (levelDropdown == null || levelDatas == null) // 如果下拉列表或关卡数据不存在，则返回
-        {
-            return;
-        }
-
-        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
-        for (int i = 0; i < levelDatas.Count; i++)
-        {
-            TbLevelData levelData = levelDatas[i];
-            options.Add(new TMP_Dropdown.OptionData
-            {
-                text = levelData.Id.ToString()
-            });
-        }
-
-        levelDropdown.options = options;
-    }
+    // /// <summary>
+    // /// 刷新关卡下拉列表
+    // /// </summary>
+    // /// <param name="levelDatas">关卡数据列表</param>
+    // public void RefreshLevelDropdown(IReadOnlyList<TbLevelData> levelDatas)
+    // {
+    //     if (levelDropdown == null || levelDatas == null) // 如果下拉列表或关卡数据不存在，则返回
+    //     {
+    //         return;
+    //     }
+    //
+    //     List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
+    //     for (int i = 0; i < levelDatas.Count; i++)
+    //     {
+    //         TbLevelData levelData = levelDatas[i];
+    //         options.Add(new TMP_Dropdown.OptionData
+    //         {
+    //             text = levelData.Id.ToString()
+    //         });
+    //     }
+    //
+    //     levelDropdown.options = options;
+    // }
 
     /// <summary>
     /// 刷新事件卡显示

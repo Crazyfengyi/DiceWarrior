@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "skillName": "1d4",
+    "diceId": "1",
+    "attackMultiplier": 1,
+    "cooldown": 1,
+    "desc": ""
+  },
+  {
+    "id": 2,
+    "skillName": "吸血1d4",
+    "diceId": "1",
+    "attackMultiplier": 1,
+    "cooldown": 1,
+    "desc": "造成伤害时吸血"
+  },
+  {
+    "id": 3,
+    "skillName": "1d4",
+    "diceId": "1",
+    "attackMultiplier": 3,
+    "cooldown": 1,
+    "desc": "造成伤害时会造成3次伤害"
+  },
+  {
+    "id": 4,
+    "skillName": "2d6",
+    "diceId": "2 2",
+    "attackMultiplier": 1,
+    "cooldown": 1,
+    "desc": ""
+  },
+  {
+    "id": 1001,
+    "skillName": "践踏",
+    "diceId": "3",
+    "attackMultiplier": 1,
+    "cooldown": 4,
+    "desc": "1d20如果超过12玩家受到伤害时会施加1回合眩晕buff"
+  },
+  {
+    "id": 9001,
+    "skillName": "灭世激光",
+    "diceId": "9001",
+    "attackMultiplier": 1,
+    "cooldown": 1,
+    "desc": "投掷一个每一面都是100的百面骰"
+  }
+]

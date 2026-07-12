@@ -40,9 +40,15 @@ public class CardMainMenuItem : MonoBehaviour
         buttonText.color = selected ? Color.white : new Color(0.7f, 0.78f, 0.92f, 1f);
     }
 
-    public void ApplyPose(Vector2 anchoredPosition, float scale, float alpha, float yRotation, int siblingOrder)
+    /// <summary>
+    /// 应用卡片在圆柱上的位置、缩放、透明度和朝向。
+    /// </summary>
+    public void ApplyPose(Vector2 anchoredPosition, float scale, float alpha, float yRotation, float zPosition,
+        int siblingOrder)
     {
         rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, rectTransform.localPosition.y,
+            zPosition);
         rectTransform.localScale = Vector3.one * scale;
         rectTransform.localRotation = Quaternion.Euler(0f, yRotation, 0f);
         rectTransform.SetSiblingIndex(siblingOrder);

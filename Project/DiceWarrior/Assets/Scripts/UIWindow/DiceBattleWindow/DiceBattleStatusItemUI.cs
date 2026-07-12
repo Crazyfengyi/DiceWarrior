@@ -1,12 +1,10 @@
 using System;
-using GameMain;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public sealed class DiceBattleStatusItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [SerializeField] private UICustomButton button;
     [SerializeField] private Image iconImage;
 
     private Action pointerEnterCallback;
@@ -20,10 +18,6 @@ public sealed class DiceBattleStatusItemUI : MonoBehaviour, IPointerEnterHandler
         pointerEnterCallback = onPointerEnter;
         pointerExitCallback = onPointerExit;
         ValidateBindings();
-        if (button != null && button.TargetButton != null)
-        {
-            button.TargetButton.interactable = false;
-        }
     }
 
     /// <summary>
@@ -66,7 +60,7 @@ public sealed class DiceBattleStatusItemUI : MonoBehaviour, IPointerEnterHandler
     /// </summary>
     private void ValidateBindings()
     {
-        if (button == null || iconImage == null)
+        if (iconImage == null)
         {
             Debug.LogError($"DiceBattleStatusItemUI 引用未绑定完整：{name}", this);
         }

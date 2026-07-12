@@ -33,7 +33,6 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
     private const float BackScale = 0.6f; // 背景卡片的缩放比例
     private const float FrontAlpha = 1f; // 前景卡片的不透明度
     private const float BackAlpha = 0.24f; // 背景卡片的不透明度
-    private const float MaxYRotation = 58f; // 卡片Y轴最大旋转角度
     private const float DragAnglePerScreen = 180f; // 每屏拖动对应的角度变化
     private const float SnapDuration = 0.25f; // 卡片吸附动画的持续时间
     private const int StartLevelId = 1; // 开始游戏的关卡ID
@@ -303,10 +302,11 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
             float screenY = z * PerspectiveSkewY;
             float scale = Mathf.Lerp(BackScale, FrontScale, depth);
             float alpha = Mathf.Lerp(BackAlpha, FrontAlpha, depth);
-            float yRotation = -sin * MaxYRotation;
+            float zPosition = -z * RadiusX;
+            float yRotation = 0f;
 
             item.Refresh(CardTitles[i], i == frontIndex);
-            item.ApplyPose(new Vector2(screenX, screenY), scale, alpha, yRotation, 0);
+            item.ApplyPose(new Vector2(screenX, screenY), scale, alpha, yRotation, zPosition, 0);
             cardDepthOrders.Add(new CardDepthOrder(item, depth));
         }
 

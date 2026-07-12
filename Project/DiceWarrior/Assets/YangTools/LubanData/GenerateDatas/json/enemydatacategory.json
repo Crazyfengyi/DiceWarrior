@@ -1,0 +1,63 @@
+[
+  {
+    "id": 1,
+    "enemyName": "测试怪1",
+    "enemyType": "小怪",
+    "hp": 10,
+    "desc": "",
+    "skillGroup": [
+      1
+    ]
+  },
+  {
+    "id": 2,
+    "enemyName": "测试怪2",
+    "enemyType": "小怪",
+    "hp": 10,
+    "desc": "",
+    "skillGroup": [
+      2
+    ]
+  },
+  {
+    "id": 3,
+    "enemyName": "测试怪3",
+    "enemyType": "小怪",
+    "hp": 10,
+    "desc": "",
+    "skillGroup": [
+      3
+    ]
+  },
+  {
+    "id": 4,
+    "enemyName": "测试怪4",
+    "enemyType": "小怪",
+    "hp": 10,
+    "desc": "",
+    "skillGroup": [
+      4
+    ]
+  },
+  {
+    "id": 1001,
+    "enemyName": "测试boss",
+    "enemyType": "boss",
+    "hp": 50,
+    "desc": "",
+    "skillGroup": [
+      1,
+      1001
+    ]
+  },
+  {
+    "id": 9001,
+    "enemyName": "巨人",
+    "enemyType": "boss",
+    "hp": 200,
+    "desc": "",
+    "skillGroup": [
+      9001
+    ]
+  }
+]

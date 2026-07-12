@@ -8,17 +8,17 @@ public sealed class DiceEnhanceWindowData : DefaultUGUIDataBase
     /// <summary>
     /// 创建强化页打开参数。
     /// </summary>
-    public DiceEnhanceWindowData(DiceEnhanceConfig enhanceConfig, IReadOnlyList<EquippedDiceSlotData> diceSlots,
+    public DiceEnhanceWindowData(EnhancementTypeData enhancementData, IReadOnlyList<EquippedDiceSlotData> diceSlots,
         int initialSelectedDiceIndex, Action<int, int?> onConfirm, Action onCancel)
     {
-        EnhanceConfig = enhanceConfig;
+        EnhancementData = enhancementData;
         DiceSlots = diceSlots;
         InitialSelectedDiceIndex = initialSelectedDiceIndex;
         OnConfirm = onConfirm;
         OnCancel = onCancel;
     }
 
-    public DiceEnhanceConfig EnhanceConfig { get; }
+    public EnhancementTypeData EnhancementData { get; }
     public IReadOnlyList<EquippedDiceSlotData> DiceSlots { get; }
     public int InitialSelectedDiceIndex { get; }
     public Action<int, int?> OnConfirm { get; }

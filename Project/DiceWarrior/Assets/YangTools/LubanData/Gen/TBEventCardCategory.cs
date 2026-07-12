@@ -12,18 +12,18 @@ using SimpleJSON;
 
 
 namespace cfg
-{
+{ 
 
 public sealed partial class TBEventCardCategory
 {
     private readonly Dictionary<int, EventCard> _dataMap;
     private readonly List<EventCard> _dataList;
-
+    
     public TBEventCardCategory(JSONNode _json)
     {
         _dataMap = new Dictionary<int, EventCard>();
         _dataList = new List<EventCard>();
-
+        
         foreach(JSONNode _row in _json.Children)
         {
             var _v = EventCard.DeserializeEventCard(_row);
@@ -56,8 +56,8 @@ public sealed partial class TBEventCardCategory
             v.TranslateText(translator);
         }
     }
-
-
+    
+    
     partial void PostInit();
     partial void PostResolve();
 }

@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/7/11 12:44:32",
+    "PackageNote": "2026/7/13 0:07:20",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -2213,9 +2213,9 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "ballconfigcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/ballconfigcategory.json",
-            "AssetGuid": "8c0f73cdf29d88b40afc9af8226db2ac",
+            "Address": "buffdatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/buffdatacategory.json",
+            "AssetGuid": "f25a290889494ee46a86bbc9dce58901",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2223,9 +2223,9 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "dicebattlecategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/dicebattlecategory.json",
-            "AssetGuid": "552d9f8bec2d49c18e1a5316ed822db0",
+            "Address": "dicedatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/dicedatacategory.json",
+            "AssetGuid": "a584c2137575537438682089731e2b4c",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2233,9 +2233,9 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "dicebattleenemyskillconfigcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/dicebattleenemyskillconfigcategory.json",
-            "AssetGuid": "dbf1055af4497fe41ae13ca9779bf769",
+            "Address": "enemydatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/enemydatacategory.json",
+            "AssetGuid": "19b4660c1521fa4418448730f4a4dc4a",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2243,9 +2243,9 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "dicebattleenemystatusconfigcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/dicebattleenemystatusconfigcategory.json",
-            "AssetGuid": "80f280563a041454a97c594da31aa2ee",
+            "Address": "enemyskilldatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/enemyskilldatacategory.json",
+            "AssetGuid": "cf3496c86eb1bbd48bfc8ffa859b8033",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2253,9 +2253,9 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "diceenhanceconfigcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/diceenhanceconfigcategory.json",
-            "AssetGuid": "57ec961aef6943989a3c86703a174efa",
+            "Address": "enhancementtypedatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/enhancementtypedatacategory.json",
+            "AssetGuid": "4b4fb064564d1414587ee018e1628966",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2273,9 +2273,29 @@
             "DependentBundleIDs": []
         },
         {
-            "Address": "moneyrewardattenuationcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/moneyrewardattenuationcategory.json",
-            "AssetGuid": "19a6370a00ca46f9916caad2e74bde7b",
+            "Address": "itemdatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/itemdatacategory.json",
+            "AssetGuid": "cd27b7d6a0eb7c948b89575eeb43c0a6",
+            "AssetTags": [
+                "LubanData"
+            ],
+            "BundleID": 48,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "rewarddatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/rewarddatacategory.json",
+            "AssetGuid": "c8040a8508a731b4e828592d37c47303",
+            "AssetTags": [
+                "LubanData"
+            ],
+            "BundleID": 48,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "rewarditemdatacategory",
+            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/rewarditemdatacategory.json",
+            "AssetGuid": "e18c847828ed433478ace529e0bcd042",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2286,16 +2306,6 @@
             "Address": "tbeventcardcategory",
             "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/tbeventcardcategory.json",
             "AssetGuid": "7ef652ce9d884b49a27191a8af144637",
-            "AssetTags": [
-                "LubanData"
-            ],
-            "BundleID": 48,
-            "DependentBundleIDs": []
-        },
-        {
-            "Address": "tbguidesetcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/tbguidesetcategory.json",
-            "AssetGuid": "d2083a6e42d4b0143a5689898105a35a",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2316,16 +2326,6 @@
             "Address": "tblanguagecategory",
             "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/tblanguagecategory.json",
             "AssetGuid": "9d16276afddf6ac4bba084e479dfc1fd",
-            "AssetTags": [
-                "LubanData"
-            ],
-            "BundleID": 48,
-            "DependentBundleIDs": []
-        },
-        {
-            "Address": "tblevelcategory",
-            "AssetPath": "Assets/YangTools/LubanData/GenerateDatas/json/tblevelcategory.json",
-            "AssetGuid": "eb9e92d5f02c69a4395f282c386075ba",
             "AssetTags": [
                 "LubanData"
             ],
@@ -2609,7 +2609,7 @@
             "UnityCrc": 0,
             "FileHash": "8a74813c4d09c9c1fb3eb36e7a4b1ca0",
             "FileCrc": 0,
-            "FileSize": 33093,
+            "FileSize": 33113,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2689,7 +2689,7 @@
             "UnityCrc": 0,
             "FileHash": "2b66a442c2eb3cbad892ebaa56a930eb",
             "FileCrc": 0,
-            "FileSize": 364752,
+            "FileSize": 364756,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2699,7 +2699,7 @@
             "UnityCrc": 0,
             "FileHash": "c762097ca1d7831747166a6947bfd9c7",
             "FileCrc": 0,
-            "FileSize": 78007,
+            "FileSize": 77997,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -2819,7 +2819,7 @@
             "UnityCrc": 0,
             "FileHash": "452625d7287832ee5eb069451304b57e",
             "FileCrc": 0,
-            "FileSize": 14147,
+            "FileSize": 20698,
             "IsEncrypted": false,
             "Tags": [
                 "LubanData"

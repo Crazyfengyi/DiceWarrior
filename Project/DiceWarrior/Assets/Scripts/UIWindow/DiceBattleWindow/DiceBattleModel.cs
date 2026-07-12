@@ -131,24 +131,24 @@ public sealed class DiceBattleModel
 
     private readonly List<PlayerDieState> playerDiceStates = new List<PlayerDieState>();
     private readonly List<EnemyDieState> enemyDiceStates = new List<EnemyDieState>();
-    private readonly List<DiceBattleEnemyStatusConfig> enemyStatuses = new List<DiceBattleEnemyStatusConfig>();
-    private readonly List<DiceBattleEnemySkillConfig> enemySkillSequence = new List<DiceBattleEnemySkillConfig>();
+    private readonly List<BuffData> enemyStatuses = new List<BuffData>();
+    private readonly List<EnemySkillData> enemySkillSequence = new List<EnemySkillData>();
 
-    public DiceBattleModel(DiceBattle config, IReadOnlyList<EquippedDiceSlotData> playerDiceSlots)
+    public DiceBattleModel(EnemyData enemyData, IReadOnlyList<EquippedDiceSlotData> playerDiceSlots)
     {
-        EnemyName = string.IsNullOrEmpty(config?.EnemyName) ? "Enemy" : config.EnemyName;
-        EnemySpriteName = config?.EnemySpriteName ?? string.Empty;
-        PlayerMaxHp = Mathf.Max(0, config?.PlayerHp ?? 0);
+        EnemyName = string.IsNullOrEmpty(enemyData?.EnemyName) ? "Enemy" : enemyData.EnemyName;
+        EnemySpriteName = string.Empty;
+        PlayerMaxHp = 99;
         PlayerHp = PlayerMaxHp;
-        PlayerAttack = Mathf.Max(0, config?.PlayerAttack ?? 0);
-        EnemyMaxHp = Mathf.Max(0, config?.EnemyHp ?? 0);
+        PlayerAttack = 0;
+        EnemyMaxHp = Mathf.Max(0, enemyData?.Hp ?? 0);
         EnemyHp = EnemyMaxHp;
-        EnemyAttack = Mathf.Max(0, config?.EnemyAttack ?? 0);
-        CoinReward = Mathf.Max(0, config?.CoinReward ?? 0);
+        EnemyAttack = 0;
+        CoinReward = 0;
 
         BuildPlayerDiceStates(playerDiceSlots);
-        BuildEnemyDiceStates(config);
-        BuildEnemyDisplayConfigs(config);
+        BuildEnemyDiceStates();
+        BuildEnemyDisplayConfigs(enemyData);
 
         CurrentRound = 1;
         RemainingSingleDieRerolls = SingleDieRerollLimitPerRound;
@@ -178,8 +178,8 @@ public sealed class DiceBattleModel
     public int RoundEnemyTotal { get; private set; }
     public IReadOnlyList<PlayerDieState> PlayerDiceStates => playerDiceStates;
     public IReadOnlyList<EnemyDieState> EnemyDiceStates => enemyDiceStates;
-    public IReadOnlyList<DiceBattleEnemyStatusConfig> EnemyStatuses => enemyStatuses;
-    public DiceBattleEnemySkillConfig CurrentSkill => GetCurrentSkill();
+    public IReadOnlyList<BuffData> EnemyStatuses => enemyStatuses;
+    public EnemySkillData CurrentSkill => GetCurrentSkill();
     public bool IsFinished => PlayerHp <= 0 || EnemyHp <= 0;
     public bool IsPlayerWin => EnemyHp <= 0 && PlayerHp > 0;
     public bool IsRoundResolved { get; private set; }
@@ -358,52 +358,42 @@ public sealed class DiceBattleModel
         }
     }
 
-    private void BuildEnemyDiceStates(DiceBattle config)
+    private void BuildEnemyDiceStates()
     {
         enemyDiceStates.Clear();
-        if (config?.EnemyDiceFaces == null || config.EnemyDiceFaces.Count == 0)
-        {
-            enemyDiceStates.Add(new EnemyDieState(config?.DiceSides ?? 6));
-            return;
-        }
-
-        for (int i = 0; i < config.EnemyDiceFaces.Count; i++)
-        {
-            enemyDiceStates.Add(new EnemyDieState(config.EnemyDiceFaces[i]));
-        }
+        enemyDiceStates.Add(new EnemyDieState(6));
     }
 
-    private void BuildEnemyDisplayConfigs(DiceBattle config)
+    private void BuildEnemyDisplayConfigs(EnemyData enemyData)
     {
         enemyStatuses.Clear();
         enemySkillSequence.Clear();
 
         Tables tables = GameTableManager.Instance?.Tables;
-        if (tables == null || config == null)
+        if (tables == null || enemyData == null)
         {
             return;
         }
 
-        if (config.EnemyStatusIds != null && tables.DiceBattleEnemyStatusConfigCategory != null)
+        if (tables.BuffDataCategory != null)
         {
-            for (int i = 0; i < config.EnemyStatusIds.Count; i++)
+            for (int i = 0; i < tables.BuffDataCategory.DataList.Count; i++)
             {
-                DiceBattleEnemyStatusConfig status =
-                    tables.DiceBattleEnemyStatusConfigCategory.GetOrDefault(config.EnemyStatusIds[i]);
-                if (status != null && status.Enabled)
+                BuffData status = tables.BuffDataCategory.DataList[i];
+                if (status != null)
                 {
                     enemyStatuses.Add(status);
                 }
             }
         }
 
-        if (config.EnemySkillSequenceIds != null && tables.DiceBattleEnemySkillConfigCategory != null)
+        if (tables.EnemySkillDataCategory != null && enemyData.SkillGroup != null)
         {
-            for (int i = 0; i < config.EnemySkillSequenceIds.Count; i++)
+            for (int i = 0; i < enemyData.SkillGroup.Count; i++)
             {
-                DiceBattleEnemySkillConfig skill =
-                    tables.DiceBattleEnemySkillConfigCategory.GetOrDefault(config.EnemySkillSequenceIds[i]);
-                if (skill != null && skill.Enabled)
+                EnemySkillData skill =
+                    tables.EnemySkillDataCategory.GetOrDefault(enemyData.SkillGroup[i]);
+                if (skill != null)
                 {
                     enemySkillSequence.Add(skill);
                 }
@@ -534,7 +524,7 @@ public sealed class DiceBattleModel
         }
     }
 
-    private DiceBattleEnemySkillConfig GetCurrentSkill()
+    private EnemySkillData GetCurrentSkill()
     {
         if (enemySkillSequence.Count == 0)
         {

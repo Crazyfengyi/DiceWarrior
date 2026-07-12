@@ -9,37 +9,52 @@ using Bright.Serialization;
 using System.Collections.Generic;
 using SimpleJSON;
 
-namespace cfg
-{
 
-public sealed partial class EventCard : Bright.Config.BeanBase
+
+namespace cfg
+{ 
+
+public sealed partial class EventCard :  Bright.Config.BeanBase 
 {
-    public EventCard(JSONNode _json)
+    public EventCard(JSONNode _json) 
     {
         { if(!_json["id"].IsNumber) { throw new SerializationException(); }  Id = _json["id"]; }
         { if(!_json["name"].IsString) { throw new SerializationException(); }  Name = _json["name"]; }
         { if(!_json["desc"].IsString) { throw new SerializationException(); }  Desc = _json["desc"]; }
-        { if(!_json["cardType"].IsNumber) { throw new SerializationException(); }  CardType = (eventcard.EEventCardType)_json["cardType"].AsInt; }
-        { if(!_json["battleId"].IsNumber) { throw new SerializationException(); }  BattleId = _json["battleId"]; }
-        { if(!_json["diceEnhanceId"].IsNumber) { throw new SerializationException(); }  DiceEnhanceId = _json["diceEnhanceId"]; }
-        { if(!_json["drawWeight"].IsNumber) { throw new SerializationException(); }  DrawWeight = _json["drawWeight"]; }
         { if(!_json["spriteName"].IsString) { throw new SerializationException(); }  SpriteName = _json["spriteName"]; }
         { if(!_json["enabled"].IsBoolean) { throw new SerializationException(); }  Enabled = _json["enabled"]; }
+        { if(!_json["DiceEnhanceId"].IsNumber) { throw new SerializationException(); }  DiceEnhanceId = _json["DiceEnhanceId"]; }
+        { if(!_json["DrawWeight"].IsNumber) { throw new SerializationException(); }  DrawWeight = _json["DrawWeight"]; }
+        { if(!_json["repeatable"].IsNumber) { throw new SerializationException(); }  Repeatable = _json["repeatable"]; }
+        { if(!_json["mutexGroup"].IsNumber) { throw new SerializationException(); }  MutexGroup = _json["mutexGroup"]; }
+        { if(!_json["fixedOrder"].IsString) { throw new SerializationException(); }  FixedOrder = _json["fixedOrder"]; }
+        { if(!_json["availableLayers"].IsString) { throw new SerializationException(); }  AvailableLayers = _json["availableLayers"]; }
+        { if(!_json["cardType"].IsNumber) { throw new SerializationException(); }  CardType = (eventcard.EEventCardType)_json["cardType"].AsInt; }
+        { if(!_json["eventType"].IsString) { throw new SerializationException(); }  EventType = _json["eventType"]; }
+        { if(!_json["enemyList"].IsString) { throw new SerializationException(); }  EnemyList = _json["enemyList"]; }
+        { if(!_json["rewardList"].IsString) { throw new SerializationException(); }  RewardList = _json["rewardList"]; }
+        { if(!_json["poolCondition"].IsString) { throw new SerializationException(); }  PoolCondition = _json["poolCondition"]; }
         PostInit();
     }
 
-    public EventCard(int id, string name, string desc, eventcard.EEventCardType cardType, int battleId,
-        int diceEnhanceId, int drawWeight, string spriteName, bool enabled)
+    public EventCard(int id, string name, string desc, string spriteName, bool enabled, int DiceEnhanceId, int DrawWeight, int repeatable, int mutexGroup, string fixedOrder, string availableLayers, eventcard.EEventCardType cardType, string eventType, string enemyList, string rewardList, string poolCondition ) 
     {
-        Id = id;
-        Name = name;
-        Desc = desc;
-        CardType = cardType;
-        BattleId = battleId;
-        DiceEnhanceId = diceEnhanceId;
-        DrawWeight = drawWeight;
-        SpriteName = spriteName;
-        Enabled = enabled;
+        this.Id = id;
+        this.Name = name;
+        this.Desc = desc;
+        this.SpriteName = spriteName;
+        this.Enabled = enabled;
+        this.DiceEnhanceId = DiceEnhanceId;
+        this.DrawWeight = DrawWeight;
+        this.Repeatable = repeatable;
+        this.MutexGroup = mutexGroup;
+        this.FixedOrder = fixedOrder;
+        this.AvailableLayers = availableLayers;
+        this.CardType = cardType;
+        this.EventType = eventType;
+        this.EnemyList = enemyList;
+        this.RewardList = rewardList;
+        this.PoolCondition = poolCondition;
         PostInit();
     }
 
@@ -50,43 +65,89 @@ public sealed partial class EventCard : Bright.Config.BeanBase
 
     public int Id { get; private set; }
     public string Name { get; private set; }
+    /// <summary>
+    /// 描述
+    /// </summary>
     public string Desc { get; private set; }
-    public eventcard.EEventCardType CardType { get; private set; }
-    public int BattleId { get; private set; }
-    public int DiceEnhanceId { get; private set; }
-    public int DrawWeight { get; private set; }
     public string SpriteName { get; private set; }
     public bool Enabled { get; private set; }
+    /// <summary>
+    /// 强化ID
+    /// </summary>
+    public int DiceEnhanceId { get; private set; }
+    /// <summary>
+    /// 权重
+    /// </summary>
+    public int DrawWeight { get; private set; }
+    /// <summary>
+    /// 可重复
+    /// </summary>
+    public int Repeatable { get; private set; }
+    /// <summary>
+    /// 互斥组
+    /// </summary>
+    public int MutexGroup { get; private set; }
+    /// <summary>
+    /// 重新开始固定排序
+    /// </summary>
+    public string FixedOrder { get; private set; }
+    /// <summary>
+    /// 会出现的层数
+    /// </summary>
+    public string AvailableLayers { get; private set; }
+    public eventcard.EEventCardType CardType { get; private set; }
+    /// <summary>
+    /// 类型
+    /// </summary>
+    public string EventType { get; private set; }
+    /// <summary>
+    /// 敌人列表
+    /// </summary>
+    public string EnemyList { get; private set; }
+    /// <summary>
+    /// 奖励
+    /// </summary>
+    public string RewardList { get; private set; }
+    /// <summary>
+    /// 进事件池条件
+    /// </summary>
+    public string PoolCondition { get; private set; }
 
-    public const int __ID__ = 171642001;
+    public const int __ID__ = 2034869418;
     public override int GetTypeId() => __ID__;
 
-    public void Resolve(Dictionary<string, object> _tables)
+    public  void Resolve(Dictionary<string, object> _tables)
     {
         PostResolve();
     }
 
-    public void TranslateText(System.Func<string, string, string> translator)
+    public  void TranslateText(System.Func<string, string, string> translator)
     {
     }
 
     public override string ToString()
     {
         return "{ "
-            + "Id:" + Id + ","
-            + "Name:" + Name + ","
-            + "Desc:" + Desc + ","
-            + "CardType:" + CardType + ","
-            + "BattleId:" + BattleId + ","
-            + "DiceEnhanceId:" + DiceEnhanceId + ","
-            + "DrawWeight:" + DrawWeight + ","
-            + "SpriteName:" + SpriteName + ","
-            + "Enabled:" + Enabled + ","
-            + "}";
+        + "Id:" + Id + ","
+        + "Name:" + Name + ","
+        + "Desc:" + Desc + ","
+        + "SpriteName:" + SpriteName + ","
+        + "Enabled:" + Enabled + ","
+        + "DiceEnhanceId:" + DiceEnhanceId + ","
+        + "DrawWeight:" + DrawWeight + ","
+        + "Repeatable:" + Repeatable + ","
+        + "MutexGroup:" + MutexGroup + ","
+        + "FixedOrder:" + FixedOrder + ","
+        + "AvailableLayers:" + AvailableLayers + ","
+        + "CardType:" + CardType + ","
+        + "EventType:" + EventType + ","
+        + "EnemyList:" + EnemyList + ","
+        + "RewardList:" + RewardList + ","
+        + "PoolCondition:" + PoolCondition + ","
+        + "}";
     }
-
+    
     partial void PostInit();
     partial void PostResolve();
 }
-
 }

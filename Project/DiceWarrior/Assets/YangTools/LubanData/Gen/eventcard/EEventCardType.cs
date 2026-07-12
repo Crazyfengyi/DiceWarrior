@@ -8,7 +8,7 @@
 
 
 namespace cfg.eventcard
-{
+{ 
     public enum EEventCardType
     {
         /// <summary>
@@ -23,5 +23,19 @@ namespace cfg.eventcard
         /// 宝箱事件
         /// </summary>
         Treasure = 3,
+        /// <summary>
+        /// 恶意事件
+        /// </summary>
+        Spite = 4,
+        /// <summary>
+        /// 友好事件
+        /// </summary>
+        Friend = 5,
+        /// <summary>
+        /// 特殊事件
+        /// </summary>
+        Special
+ = 6,
     }
-}
+
+} 

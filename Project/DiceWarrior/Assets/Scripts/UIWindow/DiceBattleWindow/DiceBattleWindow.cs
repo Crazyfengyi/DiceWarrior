@@ -97,14 +97,14 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         base.OnOpen(userData);
         ValidateBindings();
 
-        if (windowData == null || windowData.BattleConfig == null)
+        if (windowData == null || windowData.EnemyData == null)
         {
             FloatTipWindow.Show("战斗配置错误");
             CloseSelfPanel();
             return;
         }
 
-        model = new DiceBattleModel(windowData.BattleConfig, windowData.PlayerDiceSlots);
+        model = new DiceBattleModel(windowData.EnemyData, windowData.PlayerDiceSlots);
         resultHandled = false;
         hoveredPlayerDieIndex = -1;
         battleEndLogged = false;
@@ -183,7 +183,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         RefreshEnemyHp();
         RefreshPlayerDiceItems();
         RefreshEnemyDiceItems();
-        RefreshStatusItemsAsync().Forget();
+        RefreshStatusItems();
         RefreshCurrentSkill();
         RefreshActionButtons();
         RefreshProbabilityPanelByState();
@@ -285,12 +285,12 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// <summary>
     /// 刷新敌方状态图标。
     /// </summary>
-    private async UniTaskVoid RefreshStatusItemsAsync()
+    private void RefreshStatusItems()
     {
         for (int i = 0; i < enemyStatusItems.Count; i++)
         {
-            DiceBattleEnemyStatusConfig status = i < model.EnemyStatuses.Count ? model.EnemyStatuses[i] : null;
-            Sprite sprite = status == null ? null : await LoadSpriteSafe(status.IconSpriteName);
+            BuffData status = i < model.EnemyStatuses.Count ? model.EnemyStatuses[i] : null;
+            Sprite sprite = null;
             if (enemyStatusItems[i] != null)
             {
                 enemyStatusItems[i].Refresh(sprite, status != null);
@@ -303,10 +303,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     private void RefreshCurrentSkill()
     {
-        DiceBattleEnemySkillConfig skill = model.CurrentSkill;
+        EnemySkillData skill = model.CurrentSkill;
         if (skillNameText != null)
         {
-            skillNameText.text = skill == null ? "当前技能" : skill.Name;
+            skillNameText.text = skill == null ? "当前技能" : skill.SkillName;
         }
 
         if (skillDescText != null)
@@ -542,10 +542,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             return;
         }
 
-        DiceBattleEnemyStatusConfig status = model.EnemyStatuses[statusIndex];
+        BuffData status = model.EnemyStatuses[statusIndex];
         if (statusHoverTitleText != null)
         {
-            statusHoverTitleText.text = status.Name;
+            statusHoverTitleText.text = status.BuffName;
         }
 
         if (statusHoverDescText != null)
@@ -577,10 +577,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             return;
         }
 
-        DiceBattleEnemySkillConfig skill = model.CurrentSkill;
+        EnemySkillData skill = model.CurrentSkill;
         if (skillHoverTitleText != null)
         {
-            skillHoverTitleText.text = skill == null ? "当前技能" : skill.Name;
+            skillHoverTitleText.text = skill == null ? "当前技能" : skill.SkillName;
         }
 
         if (skillHoverDescText != null)

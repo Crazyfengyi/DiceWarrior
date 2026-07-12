@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using cfg;
-using cfg.diceenhance;
 using GameMain;
 using TMPro;
 using UnityEngine;
@@ -25,7 +24,7 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
     [SerializeField] private UICustomButton closeButton;
 
     private IReadOnlyList<EquippedDiceSlotData> diceSlots;
-    private DiceEnhanceConfig enhanceConfig;
+    private EnhancementTypeData enhancementData;
     private int selectedDiceIndex;
     private int selectedFaceIndex;
     private bool hasSelectedFace;
@@ -39,8 +38,9 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
     {
         base.OnOpen(userData);
         ValidateBindings();
+        resultHandled = false;
 
-        if (windowData == null || windowData.EnhanceConfig == null || !windowData.EnhanceConfig.Enabled)
+        if (windowData == null || windowData.EnhancementData == null)
         {
             FloatTipWindow.Show("\u9ab0\u5b50\u5f3a\u5316\u914d\u7f6e\u9519\u8bef");
             resultHandled = true;
@@ -49,7 +49,7 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
         }
 
         diceSlots = windowData.DiceSlots;
-        enhanceConfig = windowData.EnhanceConfig;
+        enhancementData = windowData.EnhancementData;
         selectedDiceIndex = GetInitialDiceIndex();
         hasSelectedFace = false;
         selectedFaceIndex = 0;
@@ -151,17 +151,17 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
 
         if (effectTitleText != null)
         {
-            effectTitleText.text = enhanceConfig.Name;
+            effectTitleText.text = enhancementData.EnhancementName;
         }
 
         if (effectDescText != null)
         {
-            effectDescText.text = enhanceConfig.Desc;
+            effectDescText.text = enhancementData.Desc;
         }
 
         if (modeHintText != null)
         {
-            modeHintText.text = enhanceConfig.TargetMode == EDiceEnhanceTargetMode.WholeDice
+            modeHintText.text = DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData)
                 ? "\u672c\u6b21\u53ea\u80fd\u5f3a\u5316\u6574\u9897\u9ab0\u5b50"
                 : "\u672c\u6b21\u53ea\u80fd\u5f3a\u5316\u5355\u4e2a\u9762";
         }
@@ -193,8 +193,10 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
     private void RefreshPreview()
     {
         EquippedDiceSlotData selectedDice = GetSelectedDice();
-        DiceEnhancePreviewModel preview = new DiceEnhancePreviewModel(selectedDice, enhanceConfig,
-            enhanceConfig.TargetMode == EDiceEnhanceTargetMode.SingleFace && hasSelectedFace ? selectedFaceIndex : null);
+        DiceEnhancePreviewModel preview = new DiceEnhancePreviewModel(selectedDice, enhancementData,
+            !DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData) && hasSelectedFace
+                ? selectedFaceIndex
+                : null);
 
         if (previewNameText != null)
         {
@@ -205,7 +207,7 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
         {
             previewDescText.text = selectedDice == null || selectedDice.IsEmpty
                 ? "\u5f53\u524d\u6ca1\u6709\u53ef\u5f3a\u5316\u7684\u9ab0\u5b50"
-                : enhanceConfig.TargetMode == EDiceEnhanceTargetMode.WholeDice
+                : DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData)
                     ? "\u70b9\u51fb\u5de6\u4fa7\u9ab0\u5b50\u5361\u7247\u5207\u6362\u6574\u9897\u5f3a\u5316\u76ee\u6807"
                     : "\u5148\u9009\u5de6\u4fa7\u9ab0\u5b50\uff0c\u518d\u70b9\u4e0b\u65b9\u9762\u503c\u9009\u62e9\u5355\u9762\u5f3a\u5316";
         }
@@ -232,9 +234,9 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
         for (int i = 0; i < faceItems.Count; i++)
         {
             bool visible = preview.PreviewFaces != null && i < preview.PreviewFaces.Count;
-            bool selected = enhanceConfig.TargetMode == EDiceEnhanceTargetMode.SingleFace && hasSelectedFace &&
+            bool selected = !DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData) && hasSelectedFace &&
                 i == selectedFaceIndex;
-            bool interactable = visible && enhanceConfig.TargetMode == EDiceEnhanceTargetMode.SingleFace;
+            bool interactable = visible && !DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData);
             if (faceItems[i] != null)
             {
                 faceItems[i].Refresh(visible ? preview.PreviewFaces[i] : 0, selected, visible, interactable);
@@ -263,7 +265,7 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
     /// </summary>
     private void OnFaceItemClicked(int index)
     {
-        if (enhanceConfig.TargetMode != EDiceEnhanceTargetMode.SingleFace)
+        if (DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData))
         {
             return;
         }
@@ -295,14 +297,14 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
             return;
         }
 
-        if (enhanceConfig.TargetMode == EDiceEnhanceTargetMode.SingleFace && !hasSelectedFace)
+        if (!DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData) && !hasSelectedFace)
         {
             return;
         }
 
         resultHandled = true;
         windowData?.OnConfirm?.Invoke(selectedDiceIndex,
-            enhanceConfig.TargetMode == EDiceEnhanceTargetMode.SingleFace ? selectedFaceIndex : (int?)null);
+            !DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData) ? selectedFaceIndex : (int?)null);
         CloseSelfPanel();
     }
 
@@ -378,7 +380,7 @@ public sealed class DiceEnhanceWindow : UGUIPanelBase<DiceEnhanceWindowData>
     /// </summary>
     private void SyncSelectedFaceWithMode()
     {
-        if (enhanceConfig == null || enhanceConfig.TargetMode != EDiceEnhanceTargetMode.SingleFace)
+        if (enhancementData == null || DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData))
         {
             hasSelectedFace = false;
             selectedFaceIndex = 0;

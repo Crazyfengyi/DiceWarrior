@@ -1,0 +1,114 @@
+[
+  {
+    "id": 1,
+    "enhancementName": "1",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "数值增加",
+    "desc": "使骰子的某一面数值+1"
+  },
+  {
+    "id": 2,
+    "enhancementName": "2",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "数值增加",
+    "desc": "使骰子的某一面数值+2"
+  },
+  {
+    "id": 3,
+    "enhancementName": "4",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "数值增加",
+    "desc": "使骰子的某一面数值+4"
+  },
+  {
+    "id": 4,
+    "enhancementName": "全+1",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "数值增加",
+    "desc": "使骰子每一面数值都+1"
+  },
+  {
+    "id": 5,
+    "enhancementName": "10",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "数值改变",
+    "desc": "使骰子的某一面数值变为10"
+  },
+  {
+    "id": 6,
+    "enhancementName": "灌铅",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "概率增加",
+    "desc": "使骰子的某一面的概率+10%"
+  },
+  {
+    "id": 7,
+    "enhancementName": "魔法骰子",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "概率增加",
+    "desc": "使骰子的某一面的概率翻倍"
+  },
+  {
+    "id": 8,
+    "enhancementName": "斥力",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "面数减少",
+    "desc": "使骰子的某一面的概率为0"
+  },
+  {
+    "id": 9,
+    "enhancementName": "神",
+    "rarity": 1,
+    "bonusType": "增益",
+    "enhancementType": "效果",
+    "desc": "使骰子的某一面变为神，投掷到该面时结果为其他所有面的总和"
+  },
+  {
+    "id": 10,
+    "enhancementName": "-1",
+    "rarity": 1,
+    "bonusType": "负面",
+    "enhancementType": "数值减少",
+    "desc": "使骰子的某一面数值-1"
+  },
+  {
+    "id": 11,
+    "enhancementName": "-2",
+    "rarity": 1,
+    "bonusType": "负面",
+    "enhancementType": "数值减少",
+    "desc": "使骰子的某一面数值-2"
+  },
+  {
+    "id": 12,
+    "enhancementName": "-4",
+    "rarity": 1,
+    "bonusType": "负面",
+    "enhancementType": "数值减少",
+    "desc": "使骰子的某一面数值-4"
+  },
+  {
+    "id": 13,
+    "enhancementName": "全-1",
+    "rarity": 1,
+    "bonusType": "负面",
+    "enhancementType": "数值增加",
+    "desc": "使骰子每一面数值都-1"
+  },
+  {
+    "id": 14,
+    "enhancementName": "-10",
+    "rarity": 1,
+    "bonusType": "负面",
+    "enhancementType": "数值改变",
+    "desc": "使骰子的某一面数值变为-10"
+  }
+]

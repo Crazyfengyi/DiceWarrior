@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using cfg;
-using cfg.diceenhance;
 using cfg.eventcard;
 using UnityEngine;
 using YangTools.Scripts.Core.YangSaveData;
@@ -36,7 +35,7 @@ public sealed class GameRoot : MonoBehaviour
         InitializePlaceholderPlayerState();
         InitializeDefaultDiceSlots();
         ApplyCurrentLevelConfig();
-        InitializeLevelDropdown();
+        //InitializeLevelDropdown();
         InitializeEventCards();
         RefreshRouteHud();
     }
@@ -76,17 +75,17 @@ public sealed class GameRoot : MonoBehaviour
     /// </summary>
     public bool JumpToLevel(int levelId)
     {
-        if (GameTableManager.Instance?.Tables?.TBLevelCategory == null ||
-            !GameTableManager.Instance.Tables.TBLevelCategory.DataMap.ContainsKey(levelId))
-        {
-            FloatTipWindow.Show("\u8be5\u5173\u5361\u4e0d\u5b58\u5728");
-            return false;
-        }
-
-        Save_GameData gameData = YangSaveDataManager.Instance.DataCenter.GetLocalSave<Save_GameData>(true);
-        gameData.currentLevelId = levelId;
-        FloatTipWindow.Show("\u8df3\u8f6c\u6210\u529f");
-        RestartGame();
+        // if (GameTableManager.Instance?.Tables?.TBLevelCategory == null ||
+        //     !GameTableManager.Instance.Tables.TBLevelCategory.DataMap.ContainsKey(levelId))
+        // {
+        //     FloatTipWindow.Show("\u8be5\u5173\u5361\u4e0d\u5b58\u5728");
+        //     return false;
+        // }
+        //
+        // Save_GameData gameData = YangSaveDataManager.Instance.DataCenter.GetLocalSave<Save_GameData>(true);
+        // gameData.currentLevelId = levelId;
+        // FloatTipWindow.Show("\u8df3\u8f6c\u6210\u529f");
+        // RestartGame();
         return true;
     }
 
@@ -167,16 +166,16 @@ public sealed class GameRoot : MonoBehaviour
     /// <summary>
     /// 对整颗骰子应用强化。
     /// </summary>
-    public void ApplyWholeDiceEnhance(int diceIndex, DiceEnhanceConfig config)
+    public void ApplyWholeDiceEnhance(int diceIndex, EnhancementTypeData enhancementData)
     {
-        if (!TryGetDiceSlot(diceIndex, out EquippedDiceSlotData dice) || config == null)
+        if (!TryGetDiceSlot(diceIndex, out EquippedDiceSlotData dice) || enhancementData == null)
         {
             return;
         }
 
-        if (config.EffectType == EDiceEnhanceEffectType.AddValue)
+        if (DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData))
         {
-            dice.ApplyWholeDiceDelta(config.ValueDelta);
+            dice.ApplyWholeDiceDelta(DiceEnhancePreviewModel.GetValueDelta(enhancementData));
         }
 
         RefreshRouteHud();
@@ -185,33 +184,33 @@ public sealed class GameRoot : MonoBehaviour
     /// <summary>
     /// 对单个骰面应用强化。
     /// </summary>
-    public void ApplySingleFaceEnhance(int diceIndex, int faceIndex, DiceEnhanceConfig config)
+    public void ApplySingleFaceEnhance(int diceIndex, int faceIndex, EnhancementTypeData enhancementData)
     {
-        if (!TryGetDiceSlot(diceIndex, out EquippedDiceSlotData dice) || config == null)
+        if (!TryGetDiceSlot(diceIndex, out EquippedDiceSlotData dice) || enhancementData == null)
         {
             return;
         }
 
-        if (config.EffectType == EDiceEnhanceEffectType.AddValue)
+        if (!DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData))
         {
-            dice.ApplySingleFaceDelta(faceIndex, config.ValueDelta);
+            dice.ApplySingleFaceDelta(faceIndex, DiceEnhancePreviewModel.GetValueDelta(enhancementData));
         }
 
         RefreshRouteHud();
     }
 
-    /// <summary>
-    /// 初始化关卡下拉框内容。
-    /// </summary>
-    private void InitializeLevelDropdown()
-    {
-        if (GameTableManager.Instance?.Tables?.TBLevelCategory == null)
-        {
-            return;
-        }
-
-        view?.RefreshLevelDropdown(GameTableManager.Instance.Tables.TBLevelCategory.DataList);
-    }
+    // /// <summary>
+    // /// 初始化关卡下拉框内容。
+    // /// </summary>
+    // private void InitializeLevelDropdown()
+    // {
+    //     if (GameTableManager.Instance?.Tables?.TBLevelCategory == null)
+    //     {
+    //         return;
+    //     }
+    //
+    //     view?.RefreshLevelDropdown(GameTableManager.Instance.Tables.TBLevelCategory.DataList);
+    // }
 
     /// <summary>
     /// 初始化事件卡牌库与候选区。
@@ -227,8 +226,13 @@ public sealed class GameRoot : MonoBehaviour
             return;
         }
 
-        eventCardDeck.Initialize(category.DataList);
+        Save_GameData saveData = YangSaveDataManager.Instance.DataCenter.GetLocalSave<Save_GameData>();
+        int currentLevelId = saveData == null ? 1 : saveData.currentLevelId;
+        eventCardDeck.Initialize(category.DataList, currentLevelId);
         RefreshEventCards();
+        GameStart temp = new GameStart();
+        temp.levelName = "未知";
+        temp.SendEvent();
     }
 
     /// <summary>
@@ -279,14 +283,14 @@ public sealed class GameRoot : MonoBehaviour
             return;
         }
 
-        if (card.BattleId <= 0)
+        if (!TryGetEnemyId(card, out int enemyId))
         {
             FloatTipWindow.Show("\u6218\u6597\u5361\u914d\u7f6e\u9519\u8bef");
             return;
         }
 
-        DiceBattle battleConfig = GameTableManager.Instance?.Tables?.DiceBattleCategory?.GetOrDefault(card.BattleId);
-        if (battleConfig == null || !battleConfig.Enabled)
+        EnemyData enemyData = GameTableManager.Instance?.Tables?.EnemyDataCategory?.GetOrDefault(enemyId);
+        if (enemyData == null)
         {
             FloatTipWindow.Show("\u6218\u6597\u914d\u7f6e\u4e0d\u5b58\u5728");
             return;
@@ -299,7 +303,7 @@ public sealed class GameRoot : MonoBehaviour
             playerDiceSlots.Add(equippedDiceSlots[i].Clone());
         }
 
-        DiceBattleWindowData data = new DiceBattleWindowData(battleConfig, playerDiceSlots, isWin =>
+        DiceBattleWindowData data = new DiceBattleWindowData(enemyData, playerDiceSlots, isWin =>
         {
             eventWindowOpening = false;
             eventCardDeck.CommitSelectedCard(cardIndex);
@@ -329,6 +333,30 @@ public sealed class GameRoot : MonoBehaviour
     }
 
     /// <summary>
+    /// 从事件卡敌人列表中读取第一个敌人 ID。
+    /// </summary>
+    private static bool TryGetEnemyId(EventCard card, out int enemyId)
+    {
+        enemyId = 0;
+        if (card == null || string.IsNullOrWhiteSpace(card.EnemyList))
+        {
+            return false;
+        }
+
+        string[] values = card.EnemyList.Split(',', ' ', '/', '|');
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (int.TryParse(values[i], out enemyId))
+            {
+                return enemyId > 0;
+            }
+        }
+
+        enemyId = 0;
+        return false;
+    }
+
+    /// <summary>
     /// 打开骰子强化弹窗。
     /// </summary>
     private async void OpenDiceEnhance(int cardIndex, EventCard card)
@@ -338,9 +366,9 @@ public sealed class GameRoot : MonoBehaviour
             return;
         }
 
-        DiceEnhanceConfig config =
-            GameTableManager.Instance?.Tables?.DiceEnhanceConfigCategory?.GetOrDefault(card.DiceEnhanceId);
-        if (config == null || !config.Enabled)
+        EnhancementTypeData enhancementData =
+            GameTableManager.Instance?.Tables?.EnhancementTypeDataCategory?.GetOrDefault(card.DiceEnhanceId);
+        if (enhancementData == null)
         {
             FloatTipWindow.Show("\u9ab0\u5b50\u5f3a\u5316\u914d\u7f6e\u4e0d\u5b58\u5728");
             return;
@@ -361,16 +389,17 @@ public sealed class GameRoot : MonoBehaviour
             RefreshEventCards();
         };
 
-        DiceEnhanceWindowData data = new DiceEnhanceWindowData(config, equippedDiceSlots, FindFirstEnhanceableDiceIndex(),
+        DiceEnhanceWindowData data = new DiceEnhanceWindowData(enhancementData, equippedDiceSlots,
+            FindFirstEnhanceableDiceIndex(),
             (diceIndex, faceIndex) =>
             {
-                if (config.TargetMode == EDiceEnhanceTargetMode.WholeDice)
+                if (DiceEnhancePreviewModel.IsWholeDiceEnhancement(enhancementData))
                 {
-                    ApplyWholeDiceEnhance(diceIndex, config);
+                    ApplyWholeDiceEnhance(diceIndex, enhancementData);
                 }
                 else if (faceIndex.HasValue)
                 {
-                    ApplySingleFaceEnhance(diceIndex, faceIndex.Value, config);
+                    ApplySingleFaceEnhance(diceIndex, faceIndex.Value, enhancementData);
                 }
 
                 finishEventCard();

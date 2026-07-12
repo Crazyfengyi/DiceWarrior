@@ -557,7 +557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   needClickAudio: 1
   clipName: 
-  needAni: 1
+  needAni: 0
   useBigAni: 0
   clickInterval: 0.2
   btnImgList: []

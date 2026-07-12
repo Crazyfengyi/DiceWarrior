@@ -15,76 +15,76 @@ namespace cfg
 public sealed partial class Tables
 {
     public TbItemCategory TbItemCategory {get; }
-    public TBGuideSetCategory TBGuideSetCategory {get; }
     public TBLanguageCategory TBLanguageCategory {get; }
-    public TBLevelCategory TBLevelCategory {get; }
     public GlobalConfigCategory GlobalConfigCategory {get; }
-    public BallConfigCategory BallConfigCategory {get; }
-    public MoneyRewardAttenuationCategory MoneyRewardAttenuationCategory {get; }
     public TBEventCardCategory TBEventCardCategory {get; }
-    public DiceBattleCategory DiceBattleCategory {get; }
-    public DiceEnhanceConfigCategory DiceEnhanceConfigCategory {get; }
-    public DiceBattleEnemyStatusConfigCategory DiceBattleEnemyStatusConfigCategory {get; }
-    public DiceBattleEnemySkillConfigCategory DiceBattleEnemySkillConfigCategory {get; }
+    public ItemDataCategory ItemDataCategory {get; }
+    public BuffDataCategory BuffDataCategory {get; }
+    public EnemyDataCategory EnemyDataCategory {get; }
+    public EnemySkillDataCategory EnemySkillDataCategory {get; }
+    public DiceDataCategory DiceDataCategory {get; }
+    public EnhancementTypeDataCategory EnhancementTypeDataCategory {get; }
+    public RewardDataCategory RewardDataCategory {get; }
+    public RewardItemDataCategory RewardItemDataCategory {get; }
 
     public Tables(System.Func<string, JSONNode> loader)
     {
         var tables = new System.Collections.Generic.Dictionary<string, object>();
         TbItemCategory = new TbItemCategory(loader("tbitemcategory")); 
         tables.Add("TbItemCategory", TbItemCategory);
-        TBGuideSetCategory = new TBGuideSetCategory(loader("tbguidesetcategory")); 
-        tables.Add("TBGuideSetCategory", TBGuideSetCategory);
         TBLanguageCategory = new TBLanguageCategory(loader("tblanguagecategory")); 
         tables.Add("TBLanguageCategory", TBLanguageCategory);
-        TBLevelCategory = new TBLevelCategory(loader("tblevelcategory")); 
-        tables.Add("TBLevelCategory", TBLevelCategory);
         GlobalConfigCategory = new GlobalConfigCategory(loader("globalconfigcategory")); 
         tables.Add("GlobalConfigCategory", GlobalConfigCategory);
-        BallConfigCategory = new BallConfigCategory(loader("ballconfigcategory")); 
-        tables.Add("BallConfigCategory", BallConfigCategory);
-        MoneyRewardAttenuationCategory = new MoneyRewardAttenuationCategory(loader("moneyrewardattenuationcategory")); 
-        tables.Add("MoneyRewardAttenuationCategory", MoneyRewardAttenuationCategory);
-        TBEventCardCategory = new TBEventCardCategory(loader("tbeventcardcategory"));
+        TBEventCardCategory = new TBEventCardCategory(loader("tbeventcardcategory")); 
         tables.Add("TBEventCardCategory", TBEventCardCategory);
-        DiceBattleCategory = new DiceBattleCategory(loader("dicebattlecategory"));
-        tables.Add("DiceBattleCategory", DiceBattleCategory);
-        DiceEnhanceConfigCategory = new DiceEnhanceConfigCategory(loader("diceenhanceconfigcategory"));
-        tables.Add("DiceEnhanceConfigCategory", DiceEnhanceConfigCategory);
-        DiceBattleEnemyStatusConfigCategory = new DiceBattleEnemyStatusConfigCategory(loader("dicebattleenemystatusconfigcategory"));
-        tables.Add("DiceBattleEnemyStatusConfigCategory", DiceBattleEnemyStatusConfigCategory);
-        DiceBattleEnemySkillConfigCategory = new DiceBattleEnemySkillConfigCategory(loader("dicebattleenemyskillconfigcategory"));
-        tables.Add("DiceBattleEnemySkillConfigCategory", DiceBattleEnemySkillConfigCategory);
+        ItemDataCategory = new ItemDataCategory(loader("itemdatacategory")); 
+        tables.Add("ItemDataCategory", ItemDataCategory);
+        BuffDataCategory = new BuffDataCategory(loader("buffdatacategory")); 
+        tables.Add("BuffDataCategory", BuffDataCategory);
+        EnemyDataCategory = new EnemyDataCategory(loader("enemydatacategory")); 
+        tables.Add("EnemyDataCategory", EnemyDataCategory);
+        EnemySkillDataCategory = new EnemySkillDataCategory(loader("enemyskilldatacategory")); 
+        tables.Add("EnemySkillDataCategory", EnemySkillDataCategory);
+        DiceDataCategory = new DiceDataCategory(loader("dicedatacategory")); 
+        tables.Add("DiceDataCategory", DiceDataCategory);
+        EnhancementTypeDataCategory = new EnhancementTypeDataCategory(loader("enhancementtypedatacategory")); 
+        tables.Add("EnhancementTypeDataCategory", EnhancementTypeDataCategory);
+        RewardDataCategory = new RewardDataCategory(loader("rewarddatacategory")); 
+        tables.Add("RewardDataCategory", RewardDataCategory);
+        RewardItemDataCategory = new RewardItemDataCategory(loader("rewarditemdatacategory")); 
+        tables.Add("RewardItemDataCategory", RewardItemDataCategory);
         PostInit();
 
         TbItemCategory.Resolve(tables); 
-        TBGuideSetCategory.Resolve(tables); 
         TBLanguageCategory.Resolve(tables); 
-        TBLevelCategory.Resolve(tables); 
         GlobalConfigCategory.Resolve(tables); 
-        BallConfigCategory.Resolve(tables); 
-        MoneyRewardAttenuationCategory.Resolve(tables); 
-        TBEventCardCategory.Resolve(tables);
-        DiceBattleCategory.Resolve(tables);
-        DiceEnhanceConfigCategory.Resolve(tables);
-        DiceBattleEnemyStatusConfigCategory.Resolve(tables);
-        DiceBattleEnemySkillConfigCategory.Resolve(tables);
+        TBEventCardCategory.Resolve(tables); 
+        ItemDataCategory.Resolve(tables); 
+        BuffDataCategory.Resolve(tables); 
+        EnemyDataCategory.Resolve(tables); 
+        EnemySkillDataCategory.Resolve(tables); 
+        DiceDataCategory.Resolve(tables); 
+        EnhancementTypeDataCategory.Resolve(tables); 
+        RewardDataCategory.Resolve(tables); 
+        RewardItemDataCategory.Resolve(tables); 
         PostResolve();
     }
 
     public void TranslateText(System.Func<string, string, string> translator)
     {
         TbItemCategory.TranslateText(translator); 
-        TBGuideSetCategory.TranslateText(translator); 
         TBLanguageCategory.TranslateText(translator); 
-        TBLevelCategory.TranslateText(translator); 
         GlobalConfigCategory.TranslateText(translator); 
-        BallConfigCategory.TranslateText(translator); 
-        MoneyRewardAttenuationCategory.TranslateText(translator); 
-        TBEventCardCategory.TranslateText(translator);
-        DiceBattleCategory.TranslateText(translator);
-        DiceEnhanceConfigCategory.TranslateText(translator);
-        DiceBattleEnemyStatusConfigCategory.TranslateText(translator);
-        DiceBattleEnemySkillConfigCategory.TranslateText(translator);
+        TBEventCardCategory.TranslateText(translator); 
+        ItemDataCategory.TranslateText(translator); 
+        BuffDataCategory.TranslateText(translator); 
+        EnemyDataCategory.TranslateText(translator); 
+        EnemySkillDataCategory.TranslateText(translator); 
+        DiceDataCategory.TranslateText(translator); 
+        EnhancementTypeDataCategory.TranslateText(translator); 
+        RewardDataCategory.TranslateText(translator); 
+        RewardItemDataCategory.TranslateText(translator); 
     }
     
     partial void PostInit();
