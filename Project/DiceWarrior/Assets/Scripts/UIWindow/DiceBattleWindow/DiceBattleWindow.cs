@@ -430,6 +430,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         ResetAttackVisualState();
         isPlayingAttackAnimation = false;
         RefreshAll();
+        if (model.IsFinished)
+        {
+            OnSettleClicked();
+        }
     }
 
     /// <summary>

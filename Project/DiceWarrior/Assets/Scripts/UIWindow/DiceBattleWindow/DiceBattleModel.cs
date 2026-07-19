@@ -154,6 +154,7 @@ public sealed class DiceBattleModel
         RemainingSingleDieRerolls = SingleDieRerollLimitPerRound;
         RemainingAllDiceRerolls = AllDiceRerollLimitPerRound;
         LastMessage = "点击投出开始行动";
+        PrepareEnemyTurn();
     }
 
     public string EnemyName { get; }
@@ -297,9 +298,21 @@ public sealed class DiceBattleModel
             return false;
         }
 
-        RollEnemyDice();
         LastMessage = $"敌方总和：{EnemyCurrentResult}";
         return true;
+    }
+
+    /// <summary>
+    /// 在玩家行动前预先生成敌方本回合的骰子结果。
+    /// </summary>
+    public void PrepareEnemyTurn()
+    {
+        if (IsFinished || IsRoundResolved)
+        {
+            return;
+        }
+
+        RollEnemyDice();
     }
 
     /// <summary>
@@ -329,6 +342,7 @@ public sealed class DiceBattleModel
         string resolvedMessage = RoundResolvedMessage;
         CurrentRound++;
         ResetRoundForNextTurn();
+        PrepareEnemyTurn();
         LastMessage = $"{resolvedMessage}，进入下一回合";
     }
 

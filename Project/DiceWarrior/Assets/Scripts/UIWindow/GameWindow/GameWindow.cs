@@ -35,6 +35,10 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private const float MoneyFlyDelayStep = 0.035f; // 金币飞行延迟步长
     private const float MoneyFlyIconFallbackSize = 72f; // 金币图标默认大小
 
+    private const float EventCardDiscardDuration = 0.4f; // 弃牌动画时长
+    private const float EventCardDrawDuration = 0.6f; // 抽牌动画时长
+    private const float EventCardDrawStartScale = 0.08f; // 抽牌起始缩放
+    private const float EventCardDrawStartRotation = -18f; // 抽牌起始旋转角度
 
     // 公共UI元素
     public ItemUI_BagProp moneyProp; // 金钱道具UI
@@ -89,6 +93,11 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     [SerializeField] private TextMeshProUGUI hpText; // 生命值文本
     [SerializeField] private TextMeshProUGUI levelText; // 关卡标题文本
     private bool routeHudValidated; // 路线HUD验证标志
+    private Sequence eventCardTransitionSequence;
+    private readonly List<GameObject> eventCardAnimationObjects = new List<GameObject>();
+
+    public bool IsEventCardTransitionPlaying =>
+        eventCardTransitionSequence != null && eventCardTransitionSequence.IsActive();
 
     /// <summary>
     /// 析构函数，停止金币飞行效果
@@ -96,6 +105,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private void OnDestroy()
     {
         StopMoneyFlyEffect();
+        StopEventCardTransition();
     }
 
     /// <summary>
@@ -187,6 +197,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// <param name="userData">用户数据</param>
     public override void OnClose(bool isShutdown, object userData)
     {
+        StopEventCardTransition();
         base.OnClose(isShutdown, userData);
         // 释放游戏根对象
         gameRoot?.Dispose();
@@ -251,7 +262,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         // 处理游戏开始事件
         if (eventData.Args is GameStart gameStart)
         {
-            StartAni(gameStart);
+            //StartAni(gameStart);
         }
     }
 
@@ -294,7 +305,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     {
         // 设置开始动画文本
         startAniText.text = $"{gameStart.levelName}";
-        levelText.text = $"{gameStart.levelName}";
+        levelText.text = gameRoot != null ? gameRoot.CurrentLevelId.ToString() : gameStart.levelName;
 
         // 显示并播放动画
         startAni.gameObject.SetActive(true);
@@ -368,39 +379,6 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         (int id, SettingWindow panel) panel = await UIMonoInstance.OpenPanel<SettingWindow>(GroupType.弹窗2);
         // 设置重置回调函数
         panel.panel.ResetCallBack = () => { gameRoot?.RestartGame(); };
-    }
-
-    /// <summary>
-    /// 道具1按钮点击处理函数
-    /// </summary>
-    /// <param name="id">道具ID</param>
-    /// <param name="isFreeUse">是否免费使用</param>
-    /// <returns>是否使用成功</returns>
-    private bool Prop1Btn_OnClick(int id, bool isFreeUse)
-    {
-        return gameRoot != null && gameRoot.UseUndoProp(id, isFreeUse);
-    }
-
-    /// <summary>
-    /// 道具2按钮点击处理函数
-    /// </summary>
-    /// <param name="id">道具ID</param>
-    /// <param name="isFreeUse">是否免费使用</param>
-    /// <returns>是否使用成功</returns>
-    private bool Prop2Btn_OnClick(int id, bool isFreeUse)
-    {
-        return gameRoot != null && gameRoot.UseClearProp(id, isFreeUse);
-    }
-
-    /// <summary>
-    /// 道具3按钮点击处理函数
-    /// </summary>
-    /// <param name="id">道具ID</param>
-    /// <param name="isFreeUse">是否免费使用</param>
-    /// <returns>是否使用成功</returns>
-    private bool Prop3Btn_OnClick(int id, bool isFreeUse)
-    {
-        return gameRoot != null && gameRoot.UseShuffleProp(id, isFreeUse, GetScreenCenterWorldPosition());
     }
 
     /// <summary>
@@ -728,44 +706,8 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     }
 
     /// <summary>
-    /// 检查是否可以使用撤销道具
+    /// 刷新背包道具按钮的可用状态。
     /// </summary>
-    /// <param name="id">道具ID</param>
-    /// <returns>是否可以使用</returns>
-    private bool CanUseUndoProp(int id)
-    {
-        return gameRoot != null && gameRoot.CanUseUndoProp(id);
-    }
-
-    /// <summary>
-    /// 检查是否可以使用清除道具
-    /// </summary>
-    /// <param name="id">道具ID</param>
-    /// <returns>是否可以使用</returns>
-    private bool CanUseClearProp(int id)
-    {
-        return gameRoot != null && gameRoot.CanUseClearProp(id);
-    }
-
-    /// <summary>
-    /// 检查是否可以使用洗牌道具
-    /// </summary>
-    /// <param name="id">道具ID</param>
-    /// <returns>是否可以使用</returns>
-    private bool CanUseShuffleProp(int id)
-    {
-        return gameRoot != null && gameRoot.CanUseShuffleProp(id);
-    }
-
-    /// <summary>
-    /// 道具使用失败
-    /// </summary>
-    /// <param name="id">道具ID</param>
-    private void PropUseFailed(int id)
-    {
-        FloatTipWindow.Show("鏆傛椂鏃犳硶浣跨敤");
-    }
-
     private void RefreshUseBagPropButtonState()
     {
         for (int i = 0; i < useBagPropsBtns.Count; i++)
@@ -787,6 +729,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         ApplyPathCards(); // 应用路径卡牌
         RefreshPileCounters(); // 刷新牌堆计数器
         RefreshHpBar(); // 刷新血条显示
+        RefreshLevelText(); // 刷新关卡ID显示
     }
 
     /// <summary>
@@ -863,11 +806,11 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     {
         for (int i = 0; i < pathCardItems.Count; i++)
         {
-            // 获取对应的事件卡，如果超出范围则设为null
+            //获取对应的事件卡，如果超出范围则设为null
             EventCard card = i < pendingEventCards.Count ? pendingEventCards[i] : null;
             if (pathCardItems[i] != null)
             {
-                pathCardItems[i].Refresh($"\u8def\u5f84{i + 1}", card);
+                pathCardItems[i].Refresh($"事件{i + 1}", card);
             }
         }
     }
@@ -903,6 +846,17 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         hpFillImage.fillAmount = percent;
         // 更新血量文本显示
         hpText.text = $"{gameRoot.PlayerHp}/{gameRoot.PlayerMaxHp}";
+    }
+
+    /// <summary>
+    /// 刷新当前关卡ID文本。
+    /// </summary>
+    private void RefreshLevelText()
+    {
+        if (levelText != null && gameRoot != null)
+        {
+            levelText.text = gameRoot.CurrentLevelId.ToString();
+        }
     }
 
     /// <summary>
@@ -982,6 +936,155 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     {
         pendingEventCards = shownCards ?? Array.Empty<EventCard>();
         ApplyPathCards();
+    }
+
+    /// <summary>
+    /// 提交事件卡并播放弃牌和补牌动画。
+    /// </summary>
+    /// <summary>
+    /// 完成事件卡牌的过渡动画
+    /// </summary>
+    /// <param name="index">要处理的卡牌索引</param>
+    /// <param name="commitAction">执行完成后的回调动作</param>
+    public void CompleteEventCardTransition(int index, Action commitAction)
+    {
+        // 检查是否有过渡动画正在播放，或索引无效，或卡牌为空，或回调动作为空
+        if (IsEventCardTransitionPlaying || index < 0 || index >= pathCardItems.Count ||
+            pathCardItems[index] == null || commitAction == null)
+        {
+            // 如果有条件不满足，直接执行回调并返回
+            commitAction?.Invoke();
+            return;
+        }
+
+        // 获取源卡牌及其RectTransform
+        PathCardUI sourceCard = pathCardItems[index];
+        RectTransform sourceRect = sourceCard.RectTransform;
+        // 如果源卡牌的RectTransform为空，执行回调并返回
+        if (sourceRect == null)
+        {
+            commitAction.Invoke();
+            return;
+        }
+
+        // 创建用于动画的弃牌对象
+        GameObject discardObject = CreateEventCardAnimationObject(sourceCard.gameObject, sourceRect.position,
+            sourceRect.localScale);
+        // 隐藏源卡牌
+        sourceCard.gameObject.SetActive(false);
+        // 执行回调
+        commitAction.Invoke();
+
+        // 获取目标卡牌及其RectTransform
+        PathCardUI targetCard = index < pathCardItems.Count ? pathCardItems[index] : null;
+        // 如果目标卡牌或其RectTransform为空，销毁弃牌对象并返回
+        if (targetCard == null || targetCard.RectTransform == null)
+        {
+            DestroyEventCardAnimationObject(discardObject);
+            return;
+        }
+
+        // 获取目标卡牌的位置和缩放
+        RectTransform targetRect = targetCard.RectTransform;
+        Vector3 targetPosition = targetRect.position;
+        Vector3 targetScale = targetRect.localScale;
+        // 创建用于动画的抽牌对象
+        // 获取抽牌堆的位置，如果抽牌堆不存在则使用源卡牌位置
+        Vector3 drawPilePosition = drawPileUI != null && drawPileUI.RectTransform != null
+            ? drawPileUI.RectTransform.position
+            : sourceRect.position;
+        GameObject drawObject = CreateEventCardAnimationObject(targetCard.gameObject, drawPilePosition,
+            targetScale * EventCardDrawStartScale);
+        // 设置抽牌对象的初始旋转
+        drawObject.transform.localRotation = Quaternion.Euler(0f, 0f, EventCardDrawStartRotation);
+
+        // 获取弃牌堆的位置，如果弃牌堆不存在则使用源卡牌位置
+        Vector3 discardPosition = discardPileUI != null && discardPileUI.RectTransform != null
+            ? discardPileUI.RectTransform.position
+            : sourceRect.position;
+        // 创建DOTween动画序列
+        eventCardTransitionSequence = DOTween.Sequence().SetTarget(this)
+            // 第一部分：弃牌动画
+            .Append(discardObject.transform.DOMove(discardPosition, EventCardDiscardDuration).SetEase(Ease.InCubic))
+            .Join(discardObject.transform.DOScale(targetScale * 0.2f, EventCardDiscardDuration).SetEase(Ease.InCubic))
+            .AppendCallback(() =>
+            {
+                DestroyEventCardAnimationObject(discardObject);
+            })
+            // 第二部分：抽牌动画
+            .Append(drawObject.transform.DOMove(targetPosition, EventCardDrawDuration).SetEase(Ease.OutCubic))
+            .Join(drawObject.transform.DOScale(targetScale, EventCardDrawDuration).SetEase(Ease.OutBack))
+            .Join(drawObject.transform.DORotate(Vector3.zero, EventCardDrawDuration).SetEase(Ease.OutBack))
+            // 动画完成后的回调
+            .OnComplete(() =>
+            {
+                targetCard.gameObject.SetActive(true);
+                DestroyEventCardAnimationObject(discardObject);
+                DestroyEventCardAnimationObject(drawObject);
+                eventCardTransitionSequence = null;
+            })
+            // 动画被中断时的回调
+            .OnKill(() =>
+            {
+                targetCard.gameObject.SetActive(true);
+                DestroyEventCardAnimationObject(discardObject);
+                DestroyEventCardAnimationObject(drawObject);
+                eventCardTransitionSequence = null;
+            });
+    }
+
+    /// <summary>
+    /// 停止事件卡动画并清理临时对象。
+    /// </summary>
+    private void StopEventCardTransition()
+    {
+        eventCardTransitionSequence?.Kill();
+        eventCardTransitionSequence = null;
+        for (int i = eventCardAnimationObjects.Count - 1; i >= 0; i--)
+        {
+            if (eventCardAnimationObjects[i] != null)
+            {
+                Destroy(eventCardAnimationObjects[i]);
+            }
+        }
+
+        eventCardAnimationObjects.Clear();
+    }
+
+    /// <summary>
+    /// 创建事件卡动画副本并关闭其交互。
+    /// </summary>
+    private GameObject CreateEventCardAnimationObject(GameObject source, Vector3 position, Vector3 scale)
+    {
+        GameObject animationObject = Instantiate(source, routeHudRoot, true);
+        animationObject.SetActive(true);
+        animationObject.transform.position = position;
+        animationObject.transform.localScale = scale;
+        animationObject.transform.SetAsLastSibling();
+        CanvasGroup canvasGroup = animationObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = animationObject.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+        eventCardAnimationObjects.Add(animationObject);
+        return animationObject;
+    }
+
+    /// <summary>
+    /// 销毁事件卡动画副本。
+    /// </summary>
+    private void DestroyEventCardAnimationObject(GameObject animationObject)
+    {
+        if (animationObject == null)
+        {
+            return;
+        }
+
+        eventCardAnimationObjects.Remove(animationObject);
+        Destroy(animationObject);
     }
 
     /// <summary>

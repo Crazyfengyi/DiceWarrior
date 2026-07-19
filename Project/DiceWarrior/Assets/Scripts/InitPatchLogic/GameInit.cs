@@ -24,8 +24,6 @@ public class GameInit : MonoBehaviour
     {
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        Application.targetFrameRate = 60;
-        Application.runInBackground = true;
     }
     
     private IEnumerator Start()

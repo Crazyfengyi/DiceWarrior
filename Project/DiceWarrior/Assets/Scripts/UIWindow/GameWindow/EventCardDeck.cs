@@ -2,22 +2,29 @@ using System;
 using System.Collections.Generic;
 using cfg;
 
+using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
+/// <summary>
+/// 事件卡牌堆类，用于管理游戏中事件卡牌的生成、展示和选择逻辑。
+/// </summary>
 public sealed class EventCardDeck
 {
-    private const int EventPoolSize = 20;
-    private const int ShownCardCount = 3;
+    private const int EventPoolSize = 30;// 事件池卡牌数量
+    private const int ShownCardCount = 3;// 展示区卡牌数量
 
-    private readonly List<EventCard> drawPool = new List<EventCard>();
-    private readonly List<EventCard> shownCards = new List<EventCard>();
-    private readonly List<EventCard> graveyard = new List<EventCard>();
-    private readonly List<EventCard> eligibleCards = new List<EventCard>();
-    private readonly HashSet<int> selectedNonRepeatableIds = new HashSet<int>();
+    private readonly List<EventCard> drawPool = new List<EventCard>();      // 抽牌池
+    private readonly List<EventCard> shownCards = new List<EventCard>();     // 展示区
+    private readonly List<EventCard> graveyard = new List<EventCard>();      // 弃牌堆
+    private readonly List<EventCard> eligibleCards = new List<EventCard>();  // 符合条件的卡牌
+    private readonly HashSet<int> selectedNonRepeatableIds = new HashSet<int>(); // 已选非重复卡牌ID集合
 
-    public IReadOnlyList<EventCard> ShownCards => shownCards;
-    public IReadOnlyList<EventCard> Graveyard => graveyard;
-    public int DrawPileCount => drawPool.Count;
-    public int DiscardPileCount => graveyard.Count;
-    public int CurrentLevelId { get; private set; }
+    // 属性：只读展示区、只读弃牌堆、抽牌堆数量、弃牌堆数量、当前关卡ID
+    public IReadOnlyList<EventCard> ShownCards => shownCards;     // 展示区只读列表
+    public IReadOnlyList<EventCard> Graveyard => graveyard;       // 弃牌堆只读列表
+    public int DrawPileCount => drawPool.Count;                   // 抽牌堆数量
+    public int DiscardPileCount => graveyard.Count;               // 弃牌堆数量
+    public int CurrentLevelId { get; private set; }              // 当前关卡ID
 
     /// <summary>
     /// 按当前关卡初始化事件池。
@@ -122,11 +129,12 @@ public sealed class EventCardDeck
     }
 
     /// <summary>
-    /// 生成本关最多 20 个不重复事件，并应用权重、必选和互斥规则。
+    /// 生成事件池，并保证展示区抽走卡牌后抽牌堆仍保留指定数量。
     /// </summary>
     private void BuildEventPool()
     {
-        List<EventCard> selectedCards = new List<EventCard>(Math.Min(EventPoolSize, eligibleCards.Count));
+        int targetPoolSize = EventPoolSize + ShownCardCount;
+        List<EventCard> selectedCards = new List<EventCard>(Math.Min(targetPoolSize, eligibleCards.Count));
         HashSet<int> selectedIds = new HashSet<int>();
         HashSet<int> selectedMutexGroups = new HashSet<int>();
 
@@ -140,20 +148,57 @@ public sealed class EventCardDeck
         }
 
         mandatoryCards.Sort(CompareFixedOrderThenId);
-        for (int i = 0; i < mandatoryCards.Count && selectedCards.Count < EventPoolSize; i++)
+        for (int i = 0; i < mandatoryCards.Count && selectedCards.Count < targetPoolSize; i++)
         {
             TryAddCard(mandatoryCards[i], selectedCards, selectedIds, selectedMutexGroups);
         }
 
-        AddWeightedCards(selectedCards, selectedIds, selectedMutexGroups);
-        AddZeroWeightCards(selectedCards, selectedIds, selectedMutexGroups);
+        AddWeightedCards(selectedCards, selectedIds, selectedMutexGroups, targetPoolSize);
+        AddZeroWeightCards(selectedCards, selectedIds, selectedMutexGroups, targetPoolSize);
+        AddRepeatableCards(selectedCards, targetPoolSize);
         OrderEventPool(selectedCards);
         drawPool.AddRange(selectedCards);
 
-        if (selectedCards.Count < EventPoolSize)
+        if (selectedCards.Count < targetPoolSize)
         {
             UnityEngine.Debug.LogWarning(
-                $"当前关卡可生成事件不足 {EventPoolSize} 个，实际生成 {selectedCards.Count} 个。");
+                $"当前关卡可生成事件不足 {targetPoolSize} 个，实际生成 {selectedCards.Count} 个。");
+        }
+    }
+
+    /// <summary>
+    /// 使用可重复事件补足初始事件池数量。
+    /// </summary>
+    private void AddRepeatableCards(List<EventCard> selectedCards, int targetPoolSize)
+    {
+        List<EventCard> repeatableCards = new List<EventCard>();
+        List<EventCard> weightedCards = new List<EventCard>();
+        for (int i = 0; i < eligibleCards.Count; i++)
+        {
+            EventCard card = eligibleCards[i];
+            if (card.Repeatable == 0 || card.MutexGroup != 0)
+            {
+                continue;
+            }
+
+            repeatableCards.Add(card);
+            if (card.DrawWeight > 0)
+            {
+                weightedCards.Add(card);
+            }
+        }
+
+        while (selectedCards.Count < targetPoolSize && repeatableCards.Count > 0)
+        {
+            EventCard card = weightedCards.Count > 0
+                ? DrawWeightedCard(weightedCards)
+                : repeatableCards[UnityEngine.Random.Range(0, repeatableCards.Count)];
+            if (card == null)
+            {
+                break;
+            }
+
+            selectedCards.Add(card);
         }
     }
 
@@ -161,9 +206,9 @@ public sealed class EventCardDeck
     /// 按正权重随机补充事件卡。
     /// </summary>
     private void AddWeightedCards(List<EventCard> selectedCards, HashSet<int> selectedIds,
-        HashSet<int> selectedMutexGroups)
+        HashSet<int> selectedMutexGroups, int targetPoolSize)
     {
-        while (selectedCards.Count < EventPoolSize)
+        while (selectedCards.Count < targetPoolSize)
         {
             List<EventCard> candidates = GetAvailableCandidates(selectedIds, selectedMutexGroups, true);
             EventCard card = DrawWeightedCard(candidates);
@@ -180,11 +225,11 @@ public sealed class EventCardDeck
     /// 在正权重事件不足时用零权重事件补足事件池。
     /// </summary>
     private void AddZeroWeightCards(List<EventCard> selectedCards, HashSet<int> selectedIds,
-        HashSet<int> selectedMutexGroups)
+        HashSet<int> selectedMutexGroups, int targetPoolSize)
     {
         List<EventCard> candidates = GetAvailableCandidates(selectedIds, selectedMutexGroups, false);
         Shuffle(candidates);
-        for (int i = 0; i < candidates.Count && selectedCards.Count < EventPoolSize; i++)
+        for (int i = 0; i < candidates.Count && selectedCards.Count < targetPoolSize; i++)
         {
             TryAddCard(candidates[i], selectedCards, selectedIds, selectedMutexGroups);
         }

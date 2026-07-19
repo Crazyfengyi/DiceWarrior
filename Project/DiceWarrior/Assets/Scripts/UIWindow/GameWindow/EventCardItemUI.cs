@@ -18,6 +18,9 @@ public sealed class EventCardItemUI : MonoBehaviour
     private int cardIndex;
     private Action<int> clickCallback;
 
+    /// <summary>
+    /// 绑定事件卡项的界面引用。
+    /// </summary>
     public void Bind(UICustomButton bindButton, Image bindIcon, TextMeshProUGUI bindTitleText,
         TextMeshProUGUI bindTypeText, TextMeshProUGUI bindDescText)
     {
@@ -28,6 +31,9 @@ public sealed class EventCardItemUI : MonoBehaviour
         descText = bindDescText;
     }
 
+    /// <summary>
+    /// 初始化事件卡项并注册点击事件。
+    /// </summary>
     public void Init(int index, Action<int> onClick)
     {
         cardIndex = index;
@@ -44,6 +50,9 @@ public sealed class EventCardItemUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 刷新事件卡项的图标和文本显示。
+    /// </summary>
     public void Refresh(EventCard card)
     {
         bool hasCard = card != null;
@@ -83,11 +92,17 @@ public sealed class EventCardItemUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 转发当前事件卡项的点击事件。
+    /// </summary>
     private void OnClick()
     {
         clickCallback?.Invoke(cardIndex);
     }
 
+    /// <summary>
+    /// 获取事件卡类型的显示名称。
+    /// </summary>
     private static string GetTypeName(EEventCardType cardType)
     {
         switch (cardType)

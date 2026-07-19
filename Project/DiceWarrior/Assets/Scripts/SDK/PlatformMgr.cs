@@ -73,6 +73,7 @@ namespace GameMain
         {
             Platform = NewPlatform();
             Platform.Initialize();
+            Application.runInBackground = true;
             Debug.Log($"初始化平台成功:{Platform.GetType()}");
             switch (platformType)
             {
@@ -92,7 +93,8 @@ namespace GameMain
                     Application.targetFrameRate = 24;
                     break;
                 case PlatformType.Default:
-                    Application.targetFrameRate = 45;
+                    default:
+                    Application.targetFrameRate = 120;
                     break;
             }
         }

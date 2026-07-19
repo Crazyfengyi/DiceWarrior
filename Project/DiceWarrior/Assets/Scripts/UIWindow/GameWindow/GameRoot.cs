@@ -5,25 +5,32 @@ using cfg.eventcard;
 using UnityEngine;
 using YangTools.Scripts.Core.YangSaveData;
 using YangTools.Scripts.Core.YangUGUI;
+using UnityEngine; // 引入Unity引擎命名空间
 
+/// <summary>
+/// GameRoot类是一个密封的单例类，继承自MonoBehaviour，用于管理游戏的核心逻辑和状态。
+/// </summary>
 public sealed class GameRoot : MonoBehaviour
 {
-    private readonly EventCardDeck eventCardDeck = new EventCardDeck();
-    private readonly List<EquippedDiceSlotData> equippedDiceSlots = new List<EquippedDiceSlotData>();
+    // 私有字段
+    private readonly EventCardDeck eventCardDeck = new EventCardDeck(); // 事件卡牌库
+    private readonly List<EquippedDiceSlotData> equippedDiceSlots = new List<EquippedDiceSlotData>(); // 装备的骰子槽位数据
 
-    private GameWindow view;
-    private bool eventWindowOpening;
-    private float progress;
-    private int playerHp;
-    private int playerMaxHp;
+    private GameWindow view; // 游戏窗口视图
+    private bool eventWindowOpening; // 事件窗口是否正在打开
+    private float progress; // 游戏进度
+    private int playerHp; // 玩家生命值
+    private int playerMaxHp; // 玩家最大生命值
 
-    public float Progress => progress;
-    public IReadOnlyList<EventCard> ShownEventCards => eventCardDeck.ShownCards;
-    public int DrawPileCount => eventCardDeck.DrawPileCount;
-    public int DiscardPileCount => eventCardDeck.DiscardPileCount;
-    public int PlayerHp => playerHp;
-    public int PlayerMaxHp => playerMaxHp;
-    public IReadOnlyList<EquippedDiceSlotData> EquippedDiceSlots => equippedDiceSlots;
+    // 公共属性
+    public float Progress => progress; // 游戏进度属性
+    public IReadOnlyList<EventCard> ShownEventCards => eventCardDeck.ShownCards; // 显示的事件卡牌
+    public int DrawPileCount => eventCardDeck.DrawPileCount; // 抽牌堆数量
+    public int DiscardPileCount => eventCardDeck.DiscardPileCount; // 弃牌堆数量
+    public int CurrentLevelId => eventCardDeck.CurrentLevelId; // 当前关卡ID
+    public int PlayerHp => playerHp; // 玩家生命值属性
+    public int PlayerMaxHp => playerMaxHp; // 玩家最大生命值属性
+    public IReadOnlyList<EquippedDiceSlotData> EquippedDiceSlots => equippedDiceSlots; // 装备的骰子槽位
 
     /// <summary>
     /// 初始化主玩法根控制器。
@@ -89,44 +96,16 @@ public sealed class GameRoot : MonoBehaviour
         return true;
     }
 
-    public bool CanUseUndoProp(int id)
-    {
-        return false;
-    }
-
-    public bool CanUseClearProp(int id)
-    {
-        return false;
-    }
-
-    public bool CanUseShuffleProp(int id)
-    {
-        return false;
-    }
-
-    public bool UseUndoProp(int id, bool isFreeUse)
-    {
-        FloatTipWindow.Show("\u6682\u65f6\u65e0\u6cd5\u4f7f\u7528");
-        return false;
-    }
-
-    public bool UseClearProp(int id, bool isFreeUse)
-    {
-        FloatTipWindow.Show("\u6682\u65f6\u65e0\u6cd5\u4f7f\u7528");
-        return false;
-    }
-
-    public bool UseShuffleProp(int id, bool isFreeUse, Vector3 startWorldPosition)
-    {
-        FloatTipWindow.Show("\u6682\u65f6\u65e0\u6cd5\u4f7f\u7528");
-        return false;
-    }
-
     /// <summary>
     /// 处理事件卡选择。
     /// </summary>
     public void SelectEventCard(int index)
     {
+        if (view != null && view.IsEventCardTransitionPlaying)
+        {
+            return;
+        }
+
         EventCard selectedCard = eventCardDeck.GetShownCard(index);
         if (selectedCard == null)
         {
@@ -145,9 +124,8 @@ public sealed class GameRoot : MonoBehaviour
             return;
         }
 
-        eventCardDeck.CommitSelectedCard(index);
+        CompleteEventCard(index);
         FloatTipWindow.Show($"\u9009\u62e9\u4e86\uff1a{selectedCard.Name}");
-        RefreshEventCards();
     }
 
     /// <summary>
@@ -245,6 +223,25 @@ public sealed class GameRoot : MonoBehaviour
     }
 
     /// <summary>
+    /// 提交事件卡并触发卡牌过渡动画。
+    /// </summary>
+    private void CompleteEventCard(int cardIndex)
+    {
+        if (view == null)
+        {
+            eventCardDeck.CommitSelectedCard(cardIndex);
+            RefreshEventCards();
+            return;
+        }
+
+        view.CompleteEventCardTransition(cardIndex, () =>
+        {
+            eventCardDeck.CommitSelectedCard(cardIndex);
+            RefreshEventCards();
+        });
+    }
+
+    /// <summary>
     /// 刷新主界面路线 HUD。
     /// </summary>
     private void RefreshRouteHud()
@@ -306,8 +303,7 @@ public sealed class GameRoot : MonoBehaviour
         DiceBattleWindowData data = new DiceBattleWindowData(enemyData, playerDiceSlots, isWin =>
         {
             eventWindowOpening = false;
-            eventCardDeck.CommitSelectedCard(cardIndex);
-            RefreshEventCards();
+            CompleteEventCard(cardIndex);
             if (!isWin)
             {
                 ForceLoseFromEventBattle();
@@ -385,8 +381,7 @@ public sealed class GameRoot : MonoBehaviour
 
             callbackHandled = true;
             eventWindowOpening = false;
-            eventCardDeck.CommitSelectedCard(cardIndex);
-            RefreshEventCards();
+            CompleteEventCard(cardIndex);
         };
 
         DiceEnhanceWindowData data = new DiceEnhanceWindowData(enhancementData, equippedDiceSlots,

@@ -16,6 +16,11 @@ public sealed class PileCounterUI : MonoBehaviour, IPointerEnterHandler, IPointe
     private Action<string, Vector2> showHoverCallback;
     private Action hideHoverCallback;
 
+    public RectTransform RectTransform => transform as RectTransform;
+
+    /// <summary>
+    /// 绑定牌堆计数器的界面引用。
+    /// </summary>
     public void Bind(UICustomButton bindButton, TextMeshProUGUI bindTitleText, TextMeshProUGUI bindCountText,
         Image bindBackground)
     {
@@ -25,12 +30,18 @@ public sealed class PileCounterUI : MonoBehaviour, IPointerEnterHandler, IPointe
         background = bindBackground;
     }
 
+    /// <summary>
+    /// 初始化牌堆计数器的悬停事件回调。
+    /// </summary>
     public void Init(Action<string, Vector2> onShowHover, Action onHideHover)
     {
         showHoverCallback = onShowHover;
         hideHoverCallback = onHideHover;
     }
 
+    /// <summary>
+    /// 刷新牌堆标题、数量和悬停提示文本。
+    /// </summary>
     public void Refresh(string title, int count, string countHoverText)
     {
         hoverText = countHoverText;
@@ -50,11 +61,17 @@ public sealed class PileCounterUI : MonoBehaviour, IPointerEnterHandler, IPointe
         }
     }
 
+    /// <summary>
+    /// 显示牌堆的悬停提示。
+    /// </summary>
     public void OnPointerEnter(PointerEventData eventData)
     {
         showHoverCallback?.Invoke(hoverText, eventData.position);
     }
 
+    /// <summary>
+    /// 隐藏牌堆的悬停提示。
+    /// </summary>
     public void OnPointerExit(PointerEventData eventData)
     {
         hideHoverCallback?.Invoke();
