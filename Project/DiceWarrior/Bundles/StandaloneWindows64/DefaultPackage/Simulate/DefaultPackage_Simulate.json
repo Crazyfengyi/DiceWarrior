@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/7/26 21:55:13",
+    "PackageNote": "2026/7/26 22:59:35",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -1437,7 +1437,7 @@
             "UnityCrc": 0,
             "FileHash": "452625d7287832ee5eb069451304b57e",
             "FileCrc": 0,
-            "FileSize": 20698,
+            "FileSize": 24162,
             "IsEncrypted": false,
             "Tags": [
                 "LubanData"

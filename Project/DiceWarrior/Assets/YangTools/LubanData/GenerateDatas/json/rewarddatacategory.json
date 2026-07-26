@@ -2,31 +2,51 @@
   {
     "id": 1,
     "rarity": 1,
-    "rewardList": "1"
+    "rewardList": [
+      1
+    ]
   },
   {
     "id": 2,
     "rarity": 1,
-    "rewardList": "2"
+    "rewardList": [
+      2
+    ]
   },
   {
     "id": 1001,
     "rarity": 2,
-    "rewardList": "1 1 2"
+    "rewardList": [
+      1,
+      1,
+      2
+    ]
   },
   {
     "id": 1002,
     "rarity": 2,
-    "rewardList": "1 2 2"
+    "rewardList": [
+      1,
+      2,
+      2
+    ]
   },
   {
     "id": 1003,
     "rarity": 3,
-    "rewardList": ""
+    "rewardList": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "id": 1004,
     "rarity": 4,
-    "rewardList": ""
+    "rewardList": [
+      2,
+      3,
+      3
+    ]
   }
 ]

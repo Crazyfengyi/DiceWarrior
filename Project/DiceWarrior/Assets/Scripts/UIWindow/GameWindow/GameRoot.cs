@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using cfg;
 using cfg.eventcard;
+using GameMain;
 using UnityEngine;
 using YangTools.Scripts.Core.YangSaveData;
 using YangTools.Scripts.Core.YangUGUI;
@@ -227,9 +228,11 @@ public sealed class GameRoot : MonoBehaviour
     /// </summary>
     private void CompleteEventCard(int cardIndex)
     {
+        EventCard selectedCard = eventCardDeck.GetShownCard(cardIndex);
         if (view == null)
         {
             eventCardDeck.CommitSelectedCard(cardIndex);
+            GrantEventCardReward(selectedCard);
             RefreshEventCards();
             return;
         }
@@ -237,8 +240,98 @@ public sealed class GameRoot : MonoBehaviour
         view.CompleteEventCardTransition(cardIndex, () =>
         {
             eventCardDeck.CommitSelectedCard(cardIndex);
+            GrantEventCardReward(selectedCard);
             RefreshEventCards();
         });
+    }
+
+    /// <summary>
+    /// 根据事件卡配置随机选择奖励表并发放奖励。
+    /// </summary>
+    /// <param name="card">已完成的事件卡</param>
+    private static void GrantEventCardReward(EventCard card)
+    {
+        if (card == null || card.RewardList == null || card.RewardList.Count == 0)
+        {
+            return;
+        }
+
+        Tables tables = GameTableManager.Instance?.Tables;
+        if (tables == null || tables.RewardDataCategory == null || tables.RewardItemDataCategory == null)
+        {
+            Debug.LogWarning($"事件卡奖励表未加载，无法发放奖励。cardId={card.Id}");
+            return;
+        }
+
+        int rewardDataId = SelectWeightedRewardId(card.RewardList);
+        if (rewardDataId <= 0)
+        {
+            Debug.LogWarning($"事件卡奖励权重无效，无法选择奖励表。cardId={card.Id}");
+            return;
+        }
+
+        RewardData rewardData = tables.RewardDataCategory.GetOrDefault(rewardDataId);
+        if (rewardData == null || rewardData.RewardList == null)
+        {
+            Debug.LogWarning($"奖励表不存在。rewardDataId={rewardDataId}, cardId={card.Id}");
+            return;
+        }
+
+        for (int i = 0; i < rewardData.RewardList.Count; i++)
+        {
+            int rewardItemId = rewardData.RewardList[i];
+            RewardItemData rewardItem = tables.RewardItemDataCategory.GetOrDefault(rewardItemId);
+            if (rewardItem == null || rewardItem.BagId <= 0 || rewardItem.Num <= 0f)
+            {
+                Debug.LogWarning($"奖励项无效。rewardItemId={rewardItemId}, rewardDataId={rewardDataId}");
+                continue;
+            }
+
+            BagMgr.Instance.AddBagProp(rewardItem.BagId, rewardItem.Num, true, "事件卡奖励");
+            string rewardName = string.IsNullOrWhiteSpace(rewardItem.Name)
+                ? $"物品{rewardItem.BagId}"
+                : rewardItem.Name;
+            FloatTipWindow.Show($"{rewardName}+{rewardItem.Num:0.##}");
+        }
+    }
+
+    /// <summary>
+    /// 按奖励表权重随机选择一个奖励表 ID。
+    /// </summary>
+    /// <param name="rewardList">奖励表 ID 和权重</param>
+    /// <returns>选中的奖励表 ID</returns>
+    private static int SelectWeightedRewardId(IReadOnlyDictionary<int, int> rewardList)
+    {
+        int totalWeight = 0;
+        foreach (KeyValuePair<int, int> reward in rewardList)
+        {
+            if (reward.Key > 0 && reward.Value > 0)
+            {
+                totalWeight += reward.Value;
+            }
+        }
+
+        if (totalWeight <= 0)
+        {
+            return 0;
+        }
+
+        int roll = UnityEngine.Random.Range(0, totalWeight);
+        foreach (KeyValuePair<int, int> reward in rewardList)
+        {
+            if (reward.Key <= 0 || reward.Value <= 0)
+            {
+                continue;
+            }
+
+            roll -= reward.Value;
+            if (roll < 0)
+            {
+                return reward.Key;
+            }
+        }
+
+        return 0;
     }
 
     /// <summary>

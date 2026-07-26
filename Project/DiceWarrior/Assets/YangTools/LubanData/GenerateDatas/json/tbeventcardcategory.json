@@ -14,7 +14,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1",
-    "rewardList": "100 50 20 5",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -32,7 +45,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "2",
-    "rewardList": "100 50 20 5",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -50,7 +76,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "3",
-    "rewardList": "100 50 20 5",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -68,7 +107,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1001",
-    "rewardList": "0 0 2 1",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -86,7 +138,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1001",
-    "rewardList": "0 0 2 1",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -104,7 +169,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1001",
-    "rewardList": "0 0 2 1",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -122,7 +200,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1001",
-    "rewardList": "0 0 2 1",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -140,7 +231,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1001",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -158,7 +262,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "1001",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -176,7 +293,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "9001",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": "数据表1为1"
   },
   {
@@ -194,7 +324,20 @@
     "cardType": 1,
     "eventType": "战斗",
     "enemyList": "9001",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": "数据表1为1"
   },
   {
@@ -212,7 +355,20 @@
     "cardType": 4,
     "eventType": "恶意",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -230,7 +386,20 @@
     "cardType": 4,
     "eventType": "恶意",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -248,7 +417,20 @@
     "cardType": 2,
     "eventType": "中立",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -266,7 +448,20 @@
     "cardType": 2,
     "eventType": "中立",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -284,7 +479,20 @@
     "cardType": 5,
     "eventType": "友好",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -302,7 +510,20 @@
     "cardType": 5,
     "eventType": "友好",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -320,7 +541,20 @@
     "cardType": 5,
     "eventType": "友好",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -338,7 +572,20 @@
     "cardType": 6,
     "eventType": "特殊",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -356,7 +603,20 @@
     "cardType": 6,
     "eventType": "特殊",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": ""
   },
   {
@@ -374,7 +634,20 @@
     "cardType": 6,
     "eventType": "特殊",
     "enemyList": "",
-    "rewardList": "",
+    "rewardList": [
+      [
+        1,
+        100
+      ],
+      [
+        2,
+        50
+      ],
+      [
+        1001,
+        20
+      ]
+    ],
     "poolCondition": "数据表1为0"
   }
 ]

@@ -20,11 +20,11 @@ public sealed partial class RewardData :  Bright.Config.BeanBase
     {
         { if(!_json["id"].IsNumber) { throw new SerializationException(); }  Id = _json["id"]; }
         { if(!_json["rarity"].IsNumber) { throw new SerializationException(); }  Rarity = _json["rarity"]; }
-        { if(!_json["rewardList"].IsString) { throw new SerializationException(); }  RewardList = _json["rewardList"]; }
+        { var __json0 = _json["rewardList"]; if(!__json0.IsArray) { throw new SerializationException(); } RewardList = new System.Collections.Generic.List<int>(__json0.Count); foreach(JSONNode __e0 in __json0.Children) { int __v0;  { if(!__e0.IsNumber) { throw new SerializationException(); }  __v0 = __e0; }  RewardList.Add(__v0); }   }
         PostInit();
     }
 
-    public RewardData(int id, int rarity, string rewardList ) 
+    public RewardData(int id, int rarity, System.Collections.Generic.List<int> rewardList ) 
     {
         this.Id = id;
         this.Rarity = rarity;
@@ -37,9 +37,18 @@ public sealed partial class RewardData :  Bright.Config.BeanBase
         return new RewardData(_json);
     }
 
+    /// <summary>
+    /// ID
+    /// </summary>
     public int Id { get; private set; }
+    /// <summary>
+    /// 稀有度
+    /// </summary>
     public int Rarity { get; private set; }
-    public string RewardList { get; private set; }
+    /// <summary>
+    /// 奖励
+    /// </summary>
+    public System.Collections.Generic.List<int> RewardList { get; private set; }
 
     public const int __ID__ = -610771047;
     public override int GetTypeId() => __ID__;
@@ -58,7 +67,7 @@ public sealed partial class RewardData :  Bright.Config.BeanBase
         return "{ "
         + "Id:" + Id + ","
         + "Rarity:" + Rarity + ","
-        + "RewardList:" + RewardList + ","
+        + "RewardList:" + Bright.Common.StringUtil.CollectionToString(RewardList) + ","
         + "}";
     }
     

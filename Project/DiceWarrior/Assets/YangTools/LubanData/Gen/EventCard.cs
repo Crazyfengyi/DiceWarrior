@@ -32,12 +32,12 @@ public sealed partial class EventCard :  Bright.Config.BeanBase
         { if(!_json["cardType"].IsNumber) { throw new SerializationException(); }  CardType = (eventcard.EEventCardType)_json["cardType"].AsInt; }
         { if(!_json["eventType"].IsString) { throw new SerializationException(); }  EventType = _json["eventType"]; }
         { if(!_json["enemyList"].IsString) { throw new SerializationException(); }  EnemyList = _json["enemyList"]; }
-        { if(!_json["rewardList"].IsString) { throw new SerializationException(); }  RewardList = _json["rewardList"]; }
+        { var __json0 = _json["rewardList"]; if(!__json0.IsArray) { throw new SerializationException(); } RewardList = new System.Collections.Generic.Dictionary<int, int>(__json0.Count); foreach(JSONNode __e0 in __json0.Children) { int _k0;  { if(!__e0[0].IsNumber) { throw new SerializationException(); }  _k0 = __e0[0]; } int _v0;  { if(!__e0[1].IsNumber) { throw new SerializationException(); }  _v0 = __e0[1]; }  RewardList.Add(_k0, _v0); }   }
         { if(!_json["poolCondition"].IsString) { throw new SerializationException(); }  PoolCondition = _json["poolCondition"]; }
         PostInit();
     }
 
-    public EventCard(int id, string name, string desc, string spriteName, bool enabled, int DiceEnhanceId, int DrawWeight, int repeatable, int mutexGroup, string fixedOrder, string availableLayers, eventcard.EEventCardType cardType, string eventType, string enemyList, string rewardList, string poolCondition ) 
+    public EventCard(int id, string name, string desc, string spriteName, bool enabled, int DiceEnhanceId, int DrawWeight, int repeatable, int mutexGroup, string fixedOrder, string availableLayers, eventcard.EEventCardType cardType, string eventType, string enemyList, System.Collections.Generic.Dictionary<int, int> rewardList, string poolCondition ) 
     {
         this.Id = id;
         this.Name = name;
@@ -105,9 +105,9 @@ public sealed partial class EventCard :  Bright.Config.BeanBase
     /// </summary>
     public string EnemyList { get; private set; }
     /// <summary>
-    /// 奖励
+    /// 奖励表ID和权重
     /// </summary>
-    public string RewardList { get; private set; }
+    public System.Collections.Generic.Dictionary<int, int> RewardList { get; private set; }
     /// <summary>
     /// 进事件池条件
     /// </summary>
@@ -142,7 +142,7 @@ public sealed partial class EventCard :  Bright.Config.BeanBase
         + "CardType:" + CardType + ","
         + "EventType:" + EventType + ","
         + "EnemyList:" + EnemyList + ","
-        + "RewardList:" + RewardList + ","
+        + "RewardList:" + Bright.Common.StringUtil.CollectionToString(RewardList) + ","
         + "PoolCondition:" + PoolCondition + ","
         + "}";
     }

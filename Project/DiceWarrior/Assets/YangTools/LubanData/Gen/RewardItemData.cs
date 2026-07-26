@@ -19,16 +19,20 @@ public sealed partial class RewardItemData :  Bright.Config.BeanBase
     public RewardItemData(JSONNode _json) 
     {
         { if(!_json["id"].IsNumber) { throw new SerializationException(); }  Id = _json["id"]; }
-        { if(!_json["rewardType"].IsString) { throw new SerializationException(); }  RewardType = _json["rewardType"]; }
-        { if(!_json["parameter"].IsString) { throw new SerializationException(); }  Parameter = _json["parameter"]; }
+        { if(!_json["bagId"].IsNumber) { throw new SerializationException(); }  BagId = _json["bagId"]; }
+        { if(!_json["num"].IsNumber) { throw new SerializationException(); }  Num = _json["num"]; }
+        { if(!_json["name"].IsString) { throw new SerializationException(); }  Name = _json["name"]; }
+        { if(!_json["des"].IsString) { throw new SerializationException(); }  Des = _json["des"]; }
         PostInit();
     }
 
-    public RewardItemData(int id, string rewardType, string parameter ) 
+    public RewardItemData(int id, int bagId, float num, string name, string des ) 
     {
         this.Id = id;
-        this.RewardType = rewardType;
-        this.Parameter = parameter;
+        this.BagId = bagId;
+        this.Num = num;
+        this.Name = name;
+        this.Des = des;
         PostInit();
     }
 
@@ -38,8 +42,22 @@ public sealed partial class RewardItemData :  Bright.Config.BeanBase
     }
 
     public int Id { get; private set; }
-    public string RewardType { get; private set; }
-    public string Parameter { get; private set; }
+    /// <summary>
+    /// 物品表id
+    /// </summary>
+    public int BagId { get; private set; }
+    /// <summary>
+    /// 数量
+    /// </summary>
+    public float Num { get; private set; }
+    /// <summary>
+    /// 名称
+    /// </summary>
+    public string Name { get; private set; }
+    /// <summary>
+    /// 描述
+    /// </summary>
+    public string Des { get; private set; }
 
     public const int __ID__ = 1852440012;
     public override int GetTypeId() => __ID__;
@@ -57,8 +75,10 @@ public sealed partial class RewardItemData :  Bright.Config.BeanBase
     {
         return "{ "
         + "Id:" + Id + ","
-        + "RewardType:" + RewardType + ","
-        + "Parameter:" + Parameter + ","
+        + "BagId:" + BagId + ","
+        + "Num:" + Num + ","
+        + "Name:" + Name + ","
+        + "Des:" + Des + ","
         + "}";
     }
     

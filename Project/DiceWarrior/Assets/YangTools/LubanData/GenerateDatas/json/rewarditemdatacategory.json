@@ -1,117 +1,163 @@
 [
   {
     "id": 1,
-    "rewardType": "钱",
-    "parameter": "20"
+    "bagId": 2,
+    "num": 10,
+    "name": "金币",
+    "des": "少量金币"
   },
   {
     "id": 2,
-    "rewardType": "钱",
-    "parameter": "30"
+    "bagId": 2,
+    "num": 30,
+    "name": "金币",
+    "des": "金币"
   },
   {
     "id": 3,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 2,
+    "num": 100,
+    "name": "金币",
+    "des": "大量金币"
   },
   {
     "id": 4,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 5,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 6,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 7,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 8,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 9,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 10,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 11,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 12,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 13,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 14,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 15,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 16,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 17,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 18,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 19,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 20,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 21,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 22,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   },
   {
     "id": 23,
-    "rewardType": "",
-    "parameter": ""
+    "bagId": 0,
+    "num": 0,
+    "name": "",
+    "des": ""
   }
 ]

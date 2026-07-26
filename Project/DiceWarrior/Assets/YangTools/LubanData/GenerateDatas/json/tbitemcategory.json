@@ -25,25 +25,25 @@
   },
   {
     "id": 3,
-    "name": "回退道具",
+    "name": "道具1",
     "spriteName": "prop3",
-    "desc": "通用货币3",
+    "desc": "道具1",
     "price": 100,
     "quality": 1
   },
   {
     "id": 4,
-    "name": "清除道具",
+    "name": "道具2",
     "spriteName": "prop4",
-    "desc": "通用货币4",
+    "desc": "道具2",
     "price": 100,
     "quality": 1
   },
   {
     "id": 5,
-    "name": "洗牌道具",
+    "name": "道具3",
     "spriteName": "prop5",
-    "desc": "通用货币5",
+    "desc": "道具3",
     "price": 100,
     "quality": 1
   }
