@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using YangTools.Scripts.Core.YangUGUI;
 
 /// <summary>
 /// 骰子装备面板UI类
@@ -16,7 +17,6 @@ using System;
 public sealed class DiceEquipmentPanelUI : MonoBehaviour
 {
     // UI组件引用
-    [SerializeField] private UICustomButton closeButton; // 关闭按钮
     [SerializeField] private TextMeshProUGUI titleText; // 标题文本
     [SerializeField] private TextMeshProUGUI descText; // 描述文本
     [SerializeField] private TextMeshProUGUI detailText; // 详细信息文本
@@ -28,18 +28,6 @@ public sealed class DiceEquipmentPanelUI : MonoBehaviour
     /// </summary>
     public void Init()
     {
-        if (closeButton == null)
-        {
-            // 查找子对象中的关闭按钮
-            closeButton = GetComponentInChildren<UICustomButton>(true);
-        }
-
-        if (closeButton != null)
-        {
-            // 添加关闭按钮点击事件
-            closeButton.AddListener(Hide);
-        }
-
         // 初始状态为隐藏
         Hide();
     }
@@ -76,6 +64,49 @@ public sealed class DiceEquipmentPanelUI : MonoBehaviour
         // 更新骰子基础信息和概率列表
         RefreshBasicInfo(selectedDice);
         RefreshProbabilityItems(selectedDice);
+    }
+
+    /// <summary>
+    /// 显示当前选中骰子的详细信息，并将面板放到鼠标下方。
+    /// </summary>
+    /// <param name="diceSlots">骰子槽位数据列表</param>
+    /// <param name="selectedIndex">选中的骰子索引</param>
+    /// <param name="screenPosition">鼠标屏幕坐标</param>
+    public void Show(IReadOnlyList<EquippedDiceSlotData> diceSlots, int selectedIndex, Vector2 screenPosition)
+    {
+        Show(diceSlots, selectedIndex);
+        SetScreenPosition(screenPosition);
+    }
+
+    /// <summary>
+    /// 根据鼠标屏幕坐标更新面板位置，并保持面板位于鼠标下方。
+    /// </summary>
+    /// <param name="screenPosition">鼠标屏幕坐标</param>
+    public void SetScreenPosition(Vector2 screenPosition)
+    {
+        RectTransform panelRoot = transform as RectTransform;
+        RectTransform parentRoot = panelRoot != null ? panelRoot.parent as RectTransform : null;
+        if (panelRoot == null || parentRoot == null)
+        {
+            return;
+        }
+
+        Camera uiCamera = UIMonoInstance.Instance != null ? UIMonoInstance.Instance.uiCamera : null;
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRoot, screenPosition, uiCamera,
+                out Vector2 localPoint))
+        {
+            return;
+        }
+
+        float belowOffset = panelRoot.rect.height * (1f - panelRoot.pivot.y) + 12f;
+        Vector2 targetPosition = localPoint + Vector2.down * belowOffset;
+        float minX = parentRoot.rect.xMin + panelRoot.rect.width * panelRoot.pivot.x;
+        float maxX = parentRoot.rect.xMax - panelRoot.rect.width * (1f - panelRoot.pivot.x);
+        float minY = parentRoot.rect.yMin + panelRoot.rect.height * panelRoot.pivot.y;
+        float maxY = parentRoot.rect.yMax - panelRoot.rect.height * (1f - panelRoot.pivot.y);
+        targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
+        targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
+        panelRoot.anchoredPosition = targetPosition;
     }
 
     /// <summary>

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using GameMain;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /**
  * 已装备骰子槽位UI类
  */
-public sealed class EquippedDiceSlotUI : MonoBehaviour
+public sealed class EquippedDiceSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
 {
     [SerializeField] private UICustomButton button; // 自定义按钮组件
     [SerializeField] private Image background; // 背景图片
@@ -17,7 +18,9 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
     [SerializeField] private List<Image> faceImages = new List<Image>(); // 骰面图片列表
     [SerializeField] private List<TextMeshProUGUI> faceValueTexts = new List<TextMeshProUGUI>(); // 骰面数值文本列表
     private int slotIndex; // 槽位索引
-    private Action<int> clickCallback; // 点击回调函数
+    private Action<int, Vector2> hoverEnterCallback; // 鼠标进入回调
+    private Action<Vector2> hoverMoveCallback; // 鼠标移动回调
+    private Action hoverExitCallback; // 鼠标离开回调
 
     /// <summary>
     /// 绑定骰子槽位的界面引用。
@@ -33,24 +36,41 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 初始化骰子槽位并注册点击事件。
+    /// 初始化骰子槽位并注册悬停事件。
     /// </summary>
-    public void Init(int index, Action<int> onClick)
+    public void Init(int index, Action<int, Vector2> onHoverEnter,
+        Action<Vector2> onHoverMove, Action onHoverExit)
     {
         slotIndex = index; // 设置槽位索引
-        clickCallback = onClick; // 设置点击回调
-
-        if (button == null) // 如果按钮未绑定，尝试获取组件
-        {
-            button = GetComponent<UICustomButton>();
-        }
-
-        if (button != null) // 注册点击事件
-        {
-            button.AddListener(OnClick);
-        }
+        hoverEnterCallback = onHoverEnter;
+        hoverMoveCallback = onHoverMove;
+        hoverExitCallback = onHoverExit;
 
         CacheFaceImagesIfNeeded(); // 缓存骰面图片
+    }
+
+    /// <summary>
+    /// 鼠标进入骰子槽位时显示装备面板。
+    /// </summary>
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        hoverEnterCallback?.Invoke(slotIndex, eventData.position);
+    }
+
+    /// <summary>
+    /// 鼠标在骰子槽位上移动时更新装备面板位置。
+    /// </summary>
+    public void OnPointerMove(PointerEventData eventData)
+    {
+        hoverMoveCallback?.Invoke(eventData.position);
+    }
+
+    /// <summary>
+    /// 鼠标离开骰子槽位时隐藏装备面板。
+    /// </summary>
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        hoverExitCallback?.Invoke();
     }
 
     /// <summary>
@@ -178,13 +198,4 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour
         CacheFaceValueTextsIfNeeded();
     }
 
-    // 缓存骰面文本
-    /// <summary>
-    /// 转发当前骰子槽位的点击事件。
-    /// </summary>
-    private void OnClick()
-    {
-        clickCallback?.Invoke(slotIndex);
-    }
-    // 触发点击回调
 }

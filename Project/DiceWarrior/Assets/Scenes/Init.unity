@@ -139,6 +139,18 @@ PrefabInstance:
       propertyPath: near clip plane
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 213336442279088910, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.69014126
+      objectReference: {fileID: 0}
+    - target: {fileID: 213336442279088910, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.754717
+      objectReference: {fileID: 0}
+    - target: {fileID: 213336442279088910, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.2254657
+      objectReference: {fileID: 0}
     - target: {fileID: 3616080001169822314, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -189,7 +201,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5340501709386526577, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7154779246095046968, guid: 254caf998a39ab646a3c3adf2ba58cc9, type: 3}
       propertyPath: serializationData.Prefab

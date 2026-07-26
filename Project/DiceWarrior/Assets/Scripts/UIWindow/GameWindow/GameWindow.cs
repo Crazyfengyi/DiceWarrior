@@ -762,7 +762,8 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         {
             if (equippedDiceSlotItems[i] != null)
             {
-                equippedDiceSlotItems[i].Init(i, ShowDiceEquipmentPanel);
+                equippedDiceSlotItems[i].Init(i, ShowDiceEquipmentPanel, ShowDiceEquipmentPanelAtPointer,
+                    HideDiceEquipmentPanel);
             }
         }
 
@@ -860,12 +861,31 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     }
 
     /// <summary>
-    /// 显示骰子装备面板
+    /// 在鼠标下方显示骰子装备面板。
     /// </summary>
-    /// <param name="slotIndex">槽位索引</param>
-    private void ShowDiceEquipmentPanel(int slotIndex)
+    /// <param name="slotIndex">骰子槽位索引</param>
+    /// <param name="screenPosition">鼠标屏幕坐标</param>
+    private void ShowDiceEquipmentPanel(int slotIndex, Vector2 screenPosition)
     {
-        diceEquipmentPanelUI?.Show(gameRoot != null ? gameRoot.EquippedDiceSlots : null, slotIndex);
+        diceEquipmentPanelUI?.Show(gameRoot != null ? gameRoot.EquippedDiceSlots : null, slotIndex,
+            screenPosition);
+    }
+
+    /// <summary>
+    /// 更新骰子装备面板的鼠标跟随位置。
+    /// </summary>
+    /// <param name="screenPosition">鼠标屏幕坐标</param>
+    private void ShowDiceEquipmentPanelAtPointer(Vector2 screenPosition)
+    {
+        diceEquipmentPanelUI?.SetScreenPosition(screenPosition);
+    }
+
+    /// <summary>
+    /// 隐藏鼠标悬停时显示的骰子装备面板。
+    /// </summary>
+    private void HideDiceEquipmentPanel()
+    {
+        diceEquipmentPanelUI?.Hide();
     }
 
     /// <summary>

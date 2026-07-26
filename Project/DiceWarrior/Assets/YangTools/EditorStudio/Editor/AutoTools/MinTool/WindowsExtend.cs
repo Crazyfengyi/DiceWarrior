@@ -24,8 +24,8 @@ namespace YangTools
         [InitializeOnLoadMethod]
         static void InitializeOnLoad()
         {
-            EditorApplication.hierarchyWindowItemOnGUI -= HierarchyWindowItemOnGUI;
-            EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
+            //EditorApplication.hierarchyWindowItemOnGUI -= HierarchyWindowItemOnGUI;
+            //EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
         }
 
         private static readonly List<Type> Types = new List<Type>();
@@ -59,8 +59,8 @@ namespace YangTools
         [InitializeOnLoadMethod]
         static void InitializeOnLoad()
         {
-            EditorApplication.projectWindowItemOnGUI -= OnProjectWindowItemOnGUI;
-            EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemOnGUI;
+            //EditorApplication.projectWindowItemOnGUI -= OnProjectWindowItemOnGUI;
+            //EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemOnGUI;
         }
 
         private static void OnProjectWindowItemOnGUI(string guid, Rect selectionRect)

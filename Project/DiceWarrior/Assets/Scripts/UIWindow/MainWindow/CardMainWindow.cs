@@ -193,7 +193,7 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
     public void AnimateToIndex(int index)
     {
         selectedIndex = WrapIndex(index);
-        float targetAngle = -index * AngleStep;
+        float targetAngle = currentAngle + Mathf.DeltaAngle(currentAngle, -selectedIndex * AngleStep);
         KillRotate();
         rotateSequence = DOTween.Sequence()
             .Append(DOTween.To(() => currentAngle, value =>

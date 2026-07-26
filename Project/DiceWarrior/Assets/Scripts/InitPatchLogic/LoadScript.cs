@@ -31,8 +31,8 @@ public class LoadScript : MonoBehaviour
         if (!Mathf.Approximately(slider.value, targetValue))
         {
             slider.value = Mathf.Lerp(slider.value, targetValue, 0.2f);
-            barEffect.anchoredPosition = new Vector2(slider.value * barEffectParent.rect.width - 10, barEffect.anchoredPosition.y);
-            barEffect.gameObject.SetActive(0.02f < slider.value && slider.value < 0.98f);
+            //barEffect.anchoredPosition = new Vector2(slider.value * barEffectParent.rect.width - 10, barEffect.anchoredPosition.y);
+            //barEffect.gameObject.SetActive(0.02f < slider.value && slider.value < 0.98f);
             if (slider.value >= 0.99f)
             {
                 isLoadAniOver = true;
