@@ -39,6 +39,9 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private const float EventCardDrawDuration = 0.6f; // 抽牌动画时长
     private const float EventCardDrawStartScale = 0.08f; // 抽牌起始缩放
     private const float EventCardDrawStartRotation = -18f; // 抽牌起始旋转角度
+    private const float CardSelectionScale = 1.35f; // 选择卡牌的放大比例
+    private const float CardSelectionButtonWidth = 220f; // 选择按钮宽度
+    private const float CardSelectionButtonHeight = 78f; // 选择按钮高度
 
     // 公共UI元素
     public ItemUI_BagProp moneyProp; // 金钱道具UI
@@ -95,6 +98,12 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private bool routeHudValidated; // 路线HUD验证标志
     private Sequence eventCardTransitionSequence;
     private readonly List<GameObject> eventCardAnimationObjects = new List<GameObject>();
+    private Sequence cardSelectionSequence;
+    private GameObject cardSelectionPreviewObject;
+    private PathCardUI cardSelectionSource;
+    private int cardSelectionIndex = -1;
+    private int cardSelectionParentSiblingIndex = -1;
+    private bool cardSelectionClosing;
 
     public bool IsEventCardTransitionPlaying =>
         eventCardTransitionSequence != null && eventCardTransitionSequence.IsActive();
@@ -197,6 +206,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// <param name="userData">用户数据</param>
     public override void OnClose(bool isShutdown, object userData)
     {
+        HideCardSelection();
         StopEventCardTransition();
         base.OnClose(isShutdown, userData);
         // 释放游戏根对象
@@ -762,8 +772,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         {
             if (equippedDiceSlotItems[i] != null)
             {
-                equippedDiceSlotItems[i].Init(i, ShowDiceEquipmentPanel, ShowDiceEquipmentPanelAtPointer,
-                    HideDiceEquipmentPanel);
+                equippedDiceSlotItems[i].Init(i, ShowDiceEquipmentPanel, HideDiceEquipmentPanel);
             }
         }
 
@@ -869,15 +878,6 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     {
         diceEquipmentPanelUI?.Show(gameRoot != null ? gameRoot.EquippedDiceSlots : null, slotIndex,
             screenPosition);
-    }
-
-    /// <summary>
-    /// 更新骰子装备面板的鼠标跟随位置。
-    /// </summary>
-    /// <param name="screenPosition">鼠标屏幕坐标</param>
-    private void ShowDiceEquipmentPanelAtPointer(Vector2 screenPosition)
-    {
-        diceEquipmentPanelUI?.SetScreenPosition(screenPosition);
     }
 
     /// <summary>
@@ -1123,12 +1123,281 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     }
 
     /// <summary>
-    /// 选择事件卡
+    /// 开始预览事件卡。
     /// </summary>
     /// <param name="index">事件卡索引</param>
     private void SelectEventCard(int index)
     {
-        gameRoot?.SelectEventCard(index);
+        ShowCardSelection(index);
+    }
+
+    /// <summary>
+    /// 创建并显示事件卡选择遮罩。
+    /// </summary>
+    /// <param name="index">事件卡索引</param>
+    private void ShowCardSelection(int index)
+    {
+        if (cardSelectionSource != null || cardSelectionClosing || index < 0 || index >= pathCardItems.Count ||
+            pathCardItems[index] == null || !pathCardItems[index].gameObject.activeSelf)
+        {
+            return;
+        }
+
+        EnsureCardSelectionOverlay();
+        if (eventCardRoot == null)
+        {
+            return;
+        }
+
+        cardSelectionSource = pathCardItems[index];
+        cardSelectionIndex = index;
+        RectTransform sourceRect = cardSelectionSource.RectTransform;
+        if (sourceRect == null)
+        {
+            HideCardSelection();
+            return;
+        }
+
+        cardSelectionPreviewObject = Instantiate(cardSelectionSource.gameObject, eventCardRoot, true);
+        cardSelectionPreviewObject.name = "CardSelectionPreview";
+        cardSelectionPreviewObject.transform.position = sourceRect.position;
+        cardSelectionPreviewObject.transform.localScale = sourceRect.localScale;
+        CanvasGroup previewCanvasGroup = cardSelectionPreviewObject.GetComponent<CanvasGroup>();
+        if (previewCanvasGroup == null)
+        {
+            previewCanvasGroup = cardSelectionPreviewObject.AddComponent<CanvasGroup>();
+        }
+
+        previewCanvasGroup.interactable = false;
+        previewCanvasGroup.blocksRaycasts = false;
+        cardSelectionSource.gameObject.SetActive(false);
+        eventCardRoot.gameObject.SetActive(true);
+        eventCardRoot.SetAsLastSibling();
+        Transform overlayParent = eventCardRoot.parent;
+        if (overlayParent != null)
+        {
+            cardSelectionParentSiblingIndex = overlayParent.GetSiblingIndex();
+            overlayParent.SetAsLastSibling();
+        }
+
+        Vector3 targetPosition = eventCardRoot.TransformPoint(eventCardRoot.rect.center);
+        Vector3 targetScale = sourceRect.localScale * CardSelectionScale;
+        cardSelectionPreviewObject.transform.SetAsLastSibling();
+        CreateCardSelectionButtons();
+        cardSelectionSequence = DOTween.Sequence().SetTarget(this)
+            .Append(cardSelectionPreviewObject.transform.DOMove(targetPosition, EventCardDrawDuration)
+                .SetEase(Ease.OutCubic))
+            .Join(cardSelectionPreviewObject.transform.DOScale(targetScale, EventCardDrawDuration)
+                .SetEase(Ease.OutBack))
+            .OnComplete(() => cardSelectionSequence = null);
+    }
+
+    /// <summary>
+    /// 初始化事件卡选择遮罩和按钮。
+    /// </summary>
+    private void EnsureCardSelectionOverlay()
+    {
+        if (eventCardRoot == null)
+        {
+            return;
+        }
+
+        HorizontalOrVerticalLayoutGroup layoutGroup = eventCardRoot.GetComponent<HorizontalOrVerticalLayoutGroup>();
+        if (layoutGroup != null)
+        {
+            layoutGroup.enabled = false;
+        }
+
+        Image mask = eventCardRoot.GetComponent<Image>();
+        if (mask == null)
+        {
+            mask = eventCardRoot.gameObject.AddComponent<Image>();
+        }
+
+        mask.color = new Color(0f, 0f, 0f, 0.78f);
+        mask.raycastTarget = true;
+    }
+
+    /// <summary>
+    /// 创建事件卡选择按钮并绑定确认和取消操作。
+    /// </summary>
+    private void CreateCardSelectionButtons()
+    {
+        RemoveCardSelectionButtons();
+        float buttonY = -Mathf.Min(330f, eventCardRoot.rect.height * 0.5f - 80f);
+        UICustomButton confirmButton = CreateCardSelectionButton("ConfirmCardButton", "确定",
+            new Vector2(-130f, buttonY), new Color(0.16f, 0.48f, 0.78f, 1f));
+        UICustomButton cancelButton = CreateCardSelectionButton("CancelCardButton", "取消",
+            new Vector2(130f, buttonY), new Color(0.32f, 0.36f, 0.44f, 1f));
+        confirmButton.AddListener(ConfirmCardSelection);
+        cancelButton.AddListener(CancelCardSelection);
+    }
+
+    /// <summary>
+    /// 创建单个事件卡选择按钮。
+    /// </summary>
+    /// <param name="objectName">按钮对象名称</param>
+    /// <param name="text">按钮文本</param>
+    /// <param name="position">按钮位置</param>
+    /// <param name="color">按钮颜色</param>
+    /// <returns>创建的按钮组件</returns>
+    private UICustomButton CreateCardSelectionButton(string objectName, string text, Vector2 position, Color color)
+    {
+        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer),
+            typeof(Image), typeof(Button), typeof(UICustomButton));
+        buttonObject.layer = LayerMask.NameToLayer("UI");
+        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
+        buttonRect.SetParent(eventCardRoot, false);
+        buttonRect.anchorMin = buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
+        buttonRect.anchoredPosition = position;
+        buttonRect.sizeDelta = new Vector2(CardSelectionButtonWidth, CardSelectionButtonHeight);
+
+        Image image = buttonObject.GetComponent<Image>();
+        image.color = color;
+        Button button = buttonObject.GetComponent<Button>();
+        button.transition = Selectable.Transition.None;
+
+        TextMeshProUGUI label = CreateCardSelectionText(buttonRect, text);
+        label.color = Color.white;
+        UICustomButton customButton = buttonObject.GetComponent<UICustomButton>();
+        customButton.needClickAudio = true;
+        customButton.needAni = true;
+        return customButton;
+    }
+
+    /// <summary>
+    /// 创建事件卡选择按钮文本。
+    /// </summary>
+    /// <param name="parent">文本父节点</param>
+    /// <param name="text">文本内容</param>
+    /// <returns>创建的文本组件</returns>
+    private static TextMeshProUGUI CreateCardSelectionText(RectTransform parent, string text)
+    {
+        GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer),
+            typeof(TextMeshProUGUI));
+        textObject.layer = LayerMask.NameToLayer("UI");
+        RectTransform textRect = textObject.GetComponent<RectTransform>();
+        textRect.SetParent(parent, false);
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI label = textObject.GetComponent<TextMeshProUGUI>();
+        label.font = GameManager.Instance.font;
+        label.text = text;
+        label.fontSize = 32f;
+        label.alignment = TextAlignmentOptions.Center;
+        label.raycastTarget = false;
+        return label;
+    }
+
+    /// <summary>
+    /// 确认当前预览的事件卡并继续原有事件处理。
+    /// </summary>
+    private void ConfirmCardSelection()
+    {
+        if (cardSelectionClosing)
+        {
+            return;
+        }
+
+        int index = cardSelectionIndex;
+        HideCardSelection();
+        if (index >= 0)
+        {
+            gameRoot?.SelectEventCard(index);
+        }
+    }
+
+    /// <summary>
+    /// 取消当前事件卡预览。
+    /// </summary>
+    private void CancelCardSelection()
+    {
+        if (cardSelectionClosing || cardSelectionPreviewObject == null || cardSelectionSource == null)
+        {
+            return;
+        }
+
+        RectTransform sourceRect = cardSelectionSource.RectTransform;
+        if (sourceRect == null)
+        {
+            HideCardSelection();
+            return;
+        }
+
+        cardSelectionClosing = true;
+        RemoveCardSelectionButtons();
+        cardSelectionSequence?.Kill();
+        cardSelectionSequence = DOTween.Sequence().SetTarget(this)
+            .Append(cardSelectionPreviewObject.transform.DOMove(sourceRect.position, EventCardDrawDuration)
+                .SetEase(Ease.InOutCubic))
+            .Join(cardSelectionPreviewObject.transform.DOScale(sourceRect.localScale, EventCardDrawDuration)
+                .SetEase(Ease.InOutCubic))
+            .OnComplete(HideCardSelection);
+    }
+
+    /// <summary>
+    /// 清理事件卡选择状态并恢复原卡牌。
+    /// </summary>
+    private void HideCardSelection()
+    {
+        cardSelectionSequence?.Kill();
+        cardSelectionSequence = null;
+        RemoveCardSelectionButtons();
+        if (cardSelectionSource != null)
+        {
+            cardSelectionSource.gameObject.SetActive(true);
+        }
+
+        if (cardSelectionPreviewObject != null)
+        {
+            Destroy(cardSelectionPreviewObject);
+        }
+
+        cardSelectionPreviewObject = null;
+        cardSelectionSource = null;
+        cardSelectionIndex = -1;
+        if (eventCardRoot != null && eventCardRoot.parent != null && eventCardRoot.parent.parent != null &&
+            cardSelectionParentSiblingIndex >= 0)
+        {
+            int siblingIndex = Mathf.Min(cardSelectionParentSiblingIndex, eventCardRoot.parent.parent.childCount - 1);
+            eventCardRoot.parent.SetSiblingIndex(siblingIndex);
+        }
+
+        cardSelectionParentSiblingIndex = -1;
+        cardSelectionClosing = false;
+        if (eventCardRoot != null)
+        {
+            eventCardRoot.gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 移除事件卡选择遮罩下创建的按钮。
+    /// </summary>
+    private void RemoveCardSelectionButtons()
+    {
+        if (eventCardRoot == null)
+        {
+            return;
+        }
+
+        for (int i = eventCardRoot.childCount - 1; i >= 0; i--)
+        {
+            Transform child = eventCardRoot.GetChild(i);
+            if (child.gameObject == cardSelectionPreviewObject)
+            {
+                continue;
+            }
+
+            if (child.name == "ConfirmCardButton" || child.name == "CancelCardButton")
+            {
+                child.gameObject.SetActive(false);
+                Destroy(child.gameObject);
+            }
+        }
     }
 
     /// <summary>

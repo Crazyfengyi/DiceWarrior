@@ -9,7 +9,7 @@ using UnityEngine.UI;
 /**
  * 已装备骰子槽位UI类
  */
-public sealed class EquippedDiceSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
+public sealed class EquippedDiceSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private UICustomButton button; // 自定义按钮组件
     [SerializeField] private Image background; // 背景图片
@@ -19,31 +19,15 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour, IPointerEnterHandler, IP
     [SerializeField] private List<TextMeshProUGUI> faceValueTexts = new List<TextMeshProUGUI>(); // 骰面数值文本列表
     private int slotIndex; // 槽位索引
     private Action<int, Vector2> hoverEnterCallback; // 鼠标进入回调
-    private Action<Vector2> hoverMoveCallback; // 鼠标移动回调
     private Action hoverExitCallback; // 鼠标离开回调
-
-    /// <summary>
-    /// 绑定骰子槽位的界面引用。
-    /// </summary>
-    public void Bind(UICustomButton bindButton, Image bindBackground, TextMeshProUGUI bindNameText,
-        RectTransform bindFaceRoot, List<Image> bindFaceImages)
-    {
-        button = bindButton;
-        background = bindBackground;
-        nameText = bindNameText;
-        faceRoot = bindFaceRoot;
-        faceImages = bindFaceImages;
-    }
 
     /// <summary>
     /// 初始化骰子槽位并注册悬停事件。
     /// </summary>
-    public void Init(int index, Action<int, Vector2> onHoverEnter,
-        Action<Vector2> onHoverMove, Action onHoverExit)
+    public void Init(int index, Action<int, Vector2> onHoverEnter, Action onHoverExit)
     {
         slotIndex = index; // 设置槽位索引
         hoverEnterCallback = onHoverEnter;
-        hoverMoveCallback = onHoverMove;
         hoverExitCallback = onHoverExit;
 
         CacheFaceImagesIfNeeded(); // 缓存骰面图片
@@ -55,14 +39,6 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour, IPointerEnterHandler, IP
     public void OnPointerEnter(PointerEventData eventData)
     {
         hoverEnterCallback?.Invoke(slotIndex, eventData.position);
-    }
-
-    /// <summary>
-    /// 鼠标在骰子槽位上移动时更新装备面板位置。
-    /// </summary>
-    public void OnPointerMove(PointerEventData eventData)
-    {
-        hoverMoveCallback?.Invoke(eventData.position);
     }
 
     /// <summary>
@@ -83,14 +59,6 @@ public sealed class EquippedDiceSlotUI : MonoBehaviour, IPointerEnterHandler, IP
         {
             nameText.text = isEmpty ? "\u7a7a" : data.Name;
         }
-
-        if (background != null)
-        {
-            // 更新背景颜色
-            background.color = isEmpty
-                ? new Color(0.22f, 0.34f, 0.57f, 1f)
-                : new Color(0.28f, 0.45f, 0.78f, 1f);
-        } // 空槽位背景色
 
         // 有骰子背景色
         int faceCount = isEmpty || data.Faces == null ? 0 : data.Faces.Count;
