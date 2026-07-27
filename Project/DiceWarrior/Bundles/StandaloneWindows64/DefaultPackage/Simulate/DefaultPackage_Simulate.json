@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/7/26 22:59:35",
+    "PackageNote": "2026/7/27 23:46:39",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -781,9 +781,25 @@
             "DependentBundleIDs": []
         },
         {
+            "Address": "3DScene",
+            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/3DScene.prefab",
+            "AssetGuid": "3e08edc2ea083a546b89a28b5008b5f2",
+            "AssetTags": [],
+            "BundleID": 16,
+            "DependentBundleIDs": []
+        },
+        {
             "Address": "GameWindow",
             "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/GameWindow.prefab",
             "AssetGuid": "9f51a00eb9e1cdb459f1829b577a94e5",
+            "AssetTags": [],
+            "BundleID": 16,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "ItemPrefab",
+            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/ItemPrefab.prefab",
+            "AssetGuid": "976e806dfb6439940a0c075952253f14",
             "AssetTags": [],
             "BundleID": 16,
             "DependentBundleIDs": []
@@ -1267,7 +1283,7 @@
             "UnityCrc": 0,
             "FileHash": "c8489a0880750c29b44f05445d90cc29",
             "FileCrc": 0,
-            "FileSize": 29275903,
+            "FileSize": 29276967,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -1347,7 +1363,7 @@
             "UnityCrc": 0,
             "FileHash": "2b66a442c2eb3cbad892ebaa56a930eb",
             "FileCrc": 0,
-            "FileSize": 348093,
+            "FileSize": 377244,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []

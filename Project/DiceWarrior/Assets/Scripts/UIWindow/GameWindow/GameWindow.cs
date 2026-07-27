@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using cfg;
+using Cysharp.Threading.Tasks;
 using GameMain;
 using Manager;
 using Spine;
@@ -42,6 +43,10 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private const float CardSelectionScale = 1.35f; // 选择卡牌的放大比例
     private const float CardSelectionButtonWidth = 220f; // 选择按钮宽度
     private const float CardSelectionButtonHeight = 78f; // 选择按钮高度
+    private const string ScenePrefabAddress = "3DScene"; // 3D场景预制体地址
+    private const string EventRewardItemPrefabAddress = "ItemPrefab"; // 事件奖励物体预制体地址
+    private const int SceneRenderTextureFallbackSize = 512; // 3D场景渲染纹理默认尺寸
+    private const float EventRewardItemSpacing = 1.4f; // 奖励物体之间的间距
 
     // 公共UI元素
     public ItemUI_BagProp moneyProp; // 金钱道具UI
@@ -95,6 +100,8 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     [SerializeField] private Image hpFillImage; // 生命值填充图片
     [SerializeField] private TextMeshProUGUI hpText; // 生命值文本
     [SerializeField] private TextMeshProUGUI levelText; // 关卡标题文本
+    [SerializeField] private RawImage sceneRawImage; // 3D场景显示区域
+    [SerializeField] private UICustomButton leaveRewardButton; // 离开奖励按钮
     private bool routeHudValidated; // 路线HUD验证标志
     private Sequence eventCardTransitionSequence;
     private readonly List<GameObject> eventCardAnimationObjects = new List<GameObject>();
@@ -104,6 +111,16 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private int cardSelectionIndex = -1;
     private int cardSelectionParentSiblingIndex = -1;
     private bool cardSelectionClosing;
+    private GameObject sceneInstance;
+    private Camera sceneCamera;
+    private RenderTexture sceneRenderTexture;
+    private int sceneLoadVersion;
+    private readonly List<EventRewardItem> eventRewardItems = new List<EventRewardItem>();
+    private IReadOnlyList<RewardItemData> pendingEventRewards;
+    private Action eventRewardLeaveCallback;
+    private bool isShowingEventRewards;
+    private int eventRewardLoadVersion;
+    private bool leaveRewardButtonInitialized;
 
     public bool IsEventCardTransitionPlaying =>
         eventCardTransitionSequence != null && eventCardTransitionSequence.IsActive();
@@ -115,6 +132,9 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     {
         StopMoneyFlyEffect();
         StopEventCardTransition();
+        CleanupEventRewards(false);
+        sceneLoadVersion++;
+        Cleanup3DScenePreview();
     }
 
     /// <summary>
@@ -159,6 +179,11 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         clearButton.AddListener(ClearBtn_OnClick);
         addButton.AddListener(AddBtn_OnClick);
         jumpButton.AddListener(JumpBtn_OnClick);
+        if (!leaveRewardButtonInitialized && leaveRewardButton != null)
+        {
+            leaveRewardButton.AddListener(LeaveReward);
+            leaveRewardButtonInitialized = true;
+        }
 
         // 初始化背包道具按钮（已被注释）
         // useBagPropsBtns[0].Init(CanUseUndoProp, PropUseFailed, Prop1Btn_OnClick, false);
@@ -183,11 +208,13 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
 
         // 验证路线HUD绑定
         ValidateRouteHudBindings();
+        CleanupEventRewards(true);
         gameRoot.Initialize(this);
         // 播放背景音乐
         YangAudioManager.Instance.PlayBGM("level_bgm");
         // 强制更新画布
         Canvas.ForceUpdateCanvases();
+        Start3DScenePreview();
     }
 
     /// <summary>
@@ -206,8 +233,11 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// <param name="userData">用户数据</param>
     public override void OnClose(bool isShutdown, object userData)
     {
+        CleanupEventRewards(true);
         HideCardSelection();
         StopEventCardTransition();
+        sceneLoadVersion++;
+        Cleanup3DScenePreview();
         base.OnClose(isShutdown, userData);
         // 释放游戏根对象
         gameRoot?.Dispose();
@@ -240,6 +270,324 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     }
 
     /// <summary>
+    /// 开始创建3D场景预览。
+    /// </summary>
+    private void Start3DScenePreview()
+    {
+        Cleanup3DScenePreview();
+        int requestVersion = ++sceneLoadVersion;
+        Create3DScenePreviewAsync(requestVersion).Forget();
+    }
+
+    /// <summary>
+    /// 异步加载并绑定3D场景预览。
+    /// </summary>
+    private async UniTask Create3DScenePreviewAsync(int requestVersion)
+    {
+        if (sceneRawImage == null)
+        {
+            Debug.LogError("GameWindow SceneRawImage 未绑定。", this);
+            return;
+        }
+
+        try
+        {
+            GameObject scenePrefab = await ResourceManager.LoadAssetAsync<GameObject>(ScenePrefabAddress);
+            if (requestVersion != sceneLoadVersion || !isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (scenePrefab == null)
+            {
+                Debug.LogError($"3D场景预制体加载失败：{ScenePrefabAddress}", this);
+                return;
+            }
+
+            GameObject instance = Instantiate(scenePrefab);
+            if (requestVersion != sceneLoadVersion || !isActiveAndEnabled)
+            {
+                Destroy(instance);
+                return;
+            }
+
+            sceneInstance = instance;
+            sceneCamera = sceneInstance.GetComponentInChildren<Camera>(true);
+            if (sceneCamera == null)
+            {
+                Debug.LogError("3D场景预制体中未找到相机。", sceneInstance);
+                Cleanup3DScenePreview();
+                return;
+            }
+
+            AudioListener[] audioListeners = sceneInstance.GetComponentsInChildren<AudioListener>(true);
+            for (int i = 0; i < audioListeners.Length; i++)
+            {
+                audioListeners[i].enabled = false;
+            }
+
+            Vector2 renderSize = GetSceneRenderSize();
+            sceneRenderTexture = new RenderTexture((int) renderSize.x, (int) renderSize.y, 24,
+                RenderTextureFormat.ARGB32)
+            {
+                name = "GameWindowSceneRenderTexture"
+            };
+            sceneRenderTexture.Create();
+            sceneCamera.targetTexture = sceneRenderTexture;
+            sceneCamera.enabled = true;
+            sceneRawImage.texture = sceneRenderTexture;
+            if (isShowingEventRewards && pendingEventRewards != null && eventRewardItems.Count == 0)
+            {
+                int rewardRequestVersion = ++eventRewardLoadVersion;
+                CreateEventRewardItemsAsync(pendingEventRewards, rewardRequestVersion).Forget();
+            }
+        }
+        catch (Exception exception)
+        {
+            if (requestVersion == sceneLoadVersion)
+            {
+                Debug.LogException(exception, this);
+                Cleanup3DScenePreview();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取3D场景渲染纹理尺寸。
+    /// </summary>
+    private Vector2 GetSceneRenderSize()
+    {
+        Rect rect = sceneRawImage.rectTransform.rect;
+        int width = Mathf.CeilToInt(rect.width);
+        int height = Mathf.CeilToInt(rect.height);
+        if (width <= 0 || height <= 0)
+        {
+            width = SceneRenderTextureFallbackSize;
+            height = SceneRenderTextureFallbackSize;
+        }
+
+        return new Vector2(width, height);
+    }
+
+    /// <summary>
+    /// 清理3D场景预览实例和渲染纹理。
+    /// </summary>
+    private void Cleanup3DScenePreview()
+    {
+        if (sceneCamera != null)
+        {
+            sceneCamera.targetTexture = null;
+        }
+
+        if (sceneRawImage != null && sceneRawImage.texture == sceneRenderTexture)
+        {
+            sceneRawImage.texture = null;
+        }
+
+        if (sceneInstance != null)
+        {
+            Destroy(sceneInstance);
+        }
+
+        if (sceneRenderTexture != null)
+        {
+            sceneRenderTexture.Release();
+            Destroy(sceneRenderTexture);
+        }
+
+        sceneInstance = null;
+        sceneCamera = null;
+        sceneRenderTexture = null;
+    }
+
+    /// <summary>
+    /// 显示事件卡奖励并在3D场景中创建奖励物体。
+    /// </summary>
+    public void ShowEventRewards(IReadOnlyList<RewardItemData> rewards)
+    {
+        ShowEventRewards(rewards, null);
+    }
+
+    /// <summary>
+    /// 显示事件卡奖励，并在点击离开后执行后续卡牌流程。
+    /// </summary>
+    public void ShowEventRewards(IReadOnlyList<RewardItemData> rewards, Action onLeave)
+    {
+        CleanupEventRewards(false);
+        if (rewards == null || rewards.Count == 0)
+        {
+            return;
+        }
+
+        isShowingEventRewards = true;
+        pendingEventRewards = rewards;
+        eventRewardLeaveCallback = onLeave;
+        SetPathCardsVisible(false);
+        if (leaveRewardButton != null)
+        {
+            leaveRewardButton.gameObject.SetActive(true);
+        }
+
+        int requestVersion = ++eventRewardLoadVersion;
+        CreateEventRewardItemsAsync(rewards, requestVersion).Forget();
+    }
+
+    /// <summary>
+    /// 异步加载奖励物体预制体并创建奖励实例。
+    /// </summary>
+    private async UniTask CreateEventRewardItemsAsync(IReadOnlyList<RewardItemData> rewards, int requestVersion)
+    {
+        GameObject itemPrefab = await ResourceManager.LoadAssetAsync<GameObject>(EventRewardItemPrefabAddress);
+        if (requestVersion != eventRewardLoadVersion || !isShowingEventRewards || !isActiveAndEnabled ||
+            sceneInstance == null || itemPrefab == null)
+        {
+            return;
+        }
+
+        int count = 0;
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            if (rewards[i] != null && rewards[i].BagId > 0 && rewards[i].Num > 0f)
+            {
+                count++;
+            }
+        }
+
+        float startX = -(count - 1) * EventRewardItemSpacing * 0.5f;
+        int createdCount = 0;
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            RewardItemData reward = rewards[i];
+            if (reward == null || reward.BagId <= 0 || reward.Num <= 0f)
+            {
+                continue;
+            }
+
+            GameObject instance = Instantiate(itemPrefab, sceneInstance.transform);
+            instance.name = $"EventRewardItem_{reward.BagId}_{i}";
+            instance.transform.localPosition = new Vector3(startX + createdCount * EventRewardItemSpacing, 1f, 0f);
+            EventRewardItem rewardItem = instance.GetComponent<EventRewardItem>();
+            if (rewardItem == null)
+            {
+                rewardItem = instance.AddComponent<EventRewardItem>();
+            }
+
+            rewardItem.Initialize(reward, ClaimEventReward);
+            eventRewardItems.Add(rewardItem);
+            createdCount++;
+        }
+    }
+
+    /// <summary>
+    /// 处理奖励物体点击并发放对应奖励。
+    /// </summary>
+    private void ClaimEventReward(EventRewardItem rewardItem)
+    {
+        if (rewardItem == null || rewardItem.RewardItemData == null || gameRoot == null)
+        {
+            return;
+        }
+
+        gameRoot.GrantEventReward(rewardItem.RewardItemData);
+        eventRewardItems.Remove(rewardItem);
+        Destroy(rewardItem.gameObject);
+        if (eventRewardItems.Count == 0)
+        {
+            LeaveReward();
+        }
+    }
+
+    /// <summary>
+    /// 将屏幕中的奖励区域转换为3D射线并处理命中物体。
+    /// </summary>
+    private void HandleEventRewardPointer()
+    {
+        if (!isShowingEventRewards || !Input.GetMouseButtonDown(0) || sceneRawImage == null || sceneCamera == null)
+        {
+            return;
+        }
+
+        RectTransform rawImageRect = sceneRawImage.rectTransform;
+        Canvas canvas = rawImageRect.GetComponentInParent<Canvas>();
+        Camera uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rawImageRect, Input.mousePosition, uiCamera,
+                out Vector2 localPoint))
+        {
+            return;
+        }
+
+        Rect rect = rawImageRect.rect;
+        if (!rect.Contains(localPoint) || rect.width <= 0f || rect.height <= 0f)
+        {
+            return;
+        }
+
+        Vector2 viewportPoint = new Vector2((localPoint.x - rect.x) / rect.width,
+            (localPoint.y - rect.y) / rect.height);
+        Ray ray = sceneCamera.ViewportPointToRay(viewportPoint);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            EventRewardItem rewardItem = hit.collider.GetComponentInParent<EventRewardItem>();
+            rewardItem?.HandleClick();
+        }
+    }
+
+    /// <summary>
+    /// 离开奖励展示并恢复路径事件卡。
+    /// </summary>
+    private void LeaveReward()
+    {
+        Action onLeave = eventRewardLeaveCallback;
+        CleanupEventRewards(true);
+        onLeave?.Invoke();
+    }
+
+    /// <summary>
+    /// 清理奖励实例、按钮和奖励展示状态。
+    /// </summary>
+    private void CleanupEventRewards(bool restorePathCards)
+    {
+        eventRewardLoadVersion++;
+        for (int i = eventRewardItems.Count - 1; i >= 0; i--)
+        {
+            if (eventRewardItems[i] != null)
+            {
+                Destroy(eventRewardItems[i].gameObject);
+            }
+        }
+
+        eventRewardItems.Clear();
+        pendingEventRewards = null;
+        eventRewardLeaveCallback = null;
+        isShowingEventRewards = false;
+        if (leaveRewardButton != null)
+        {
+            leaveRewardButton.gameObject.SetActive(false);
+        }
+
+        if (restorePathCards)
+        {
+            SetPathCardsVisible(true);
+        }
+    }
+
+    /// <summary>
+    /// 设置所有路径事件卡的显示状态。
+    /// </summary>
+    private void SetPathCardsVisible(bool visible)
+    {
+        for (int i = 0; i < pathCardItems.Count; i++)
+        {
+            if (pathCardItems[i] != null)
+            {
+                pathCardItems[i].gameObject.SetActive(visible);
+            }
+        }
+    }
+
+    /// <summary>
     /// 每帧更新函数
     /// </summary>
     private void Update()
@@ -248,6 +596,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         UpdateBarShow(gameRoot != null ? gameRoot.Progress : 0f);
         // 刷新背包道具按钮状态
         RefreshUseBagPropButtonState();
+        HandleEventRewardPointer();
     }
 
     /// <summary>
@@ -1038,7 +1387,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             // 动画完成后的回调
             .OnComplete(() =>
             {
-                targetCard.gameObject.SetActive(true);
+                targetCard.gameObject.SetActive(!isShowingEventRewards);
                 DestroyEventCardAnimationObject(discardObject);
                 DestroyEventCardAnimationObject(drawObject);
                 eventCardTransitionSequence = null;
@@ -1046,7 +1395,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             // 动画被中断时的回调
             .OnKill(() =>
             {
-                targetCard.gameObject.SetActive(true);
+                targetCard.gameObject.SetActive(!isShowingEventRewards);
                 DestroyEventCardAnimationObject(discardObject);
                 DestroyEventCardAnimationObject(drawObject);
                 eventCardTransitionSequence = null;
@@ -1128,6 +1477,11 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// <param name="index">事件卡索引</param>
     private void SelectEventCard(int index)
     {
+        if (isShowingEventRewards)
+        {
+            return;
+        }
+
         ShowCardSelection(index);
     }
 
