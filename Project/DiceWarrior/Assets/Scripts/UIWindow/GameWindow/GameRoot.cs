@@ -229,10 +229,22 @@ public sealed class GameRoot : MonoBehaviour
     private void CompleteEventCard(int cardIndex)
     {
         EventCard selectedCard = eventCardDeck.GetShownCard(cardIndex);
+        List<RewardItemData> rewardItems = BuildEventCardRewards(selectedCard);
+        if (rewardItems.Count > 0 && view != null)
+        {
+            eventCardDeck.CommitSelectedCard(cardIndex);
+            GameWindow rewardView = view;
+            rewardView.ShowEventRewards(rewardItems, () =>
+            {
+                rewardView.CompleteEventCardTransition(cardIndex, RefreshEventCards);
+            });
+            return;
+        }
+
         if (view == null)
         {
             eventCardDeck.CommitSelectedCard(cardIndex);
-            GrantEventCardReward(selectedCard);
+            GrantEventRewards(rewardItems);
             RefreshEventCards();
             return;
         }
@@ -240,41 +252,57 @@ public sealed class GameRoot : MonoBehaviour
         view.CompleteEventCardTransition(cardIndex, () =>
         {
             eventCardDeck.CommitSelectedCard(cardIndex);
-            GrantEventCardReward(selectedCard);
+            GrantEventRewards(rewardItems);
             RefreshEventCards();
         });
     }
 
     /// <summary>
-    /// 根据事件卡配置随机选择奖励表并发放奖励。
+    /// 发放奖励列表中的全部奖励。
     /// </summary>
-    /// <param name="card">已完成的事件卡</param>
-    private static void GrantEventCardReward(EventCard card)
+    private void GrantEventRewards(IReadOnlyList<RewardItemData> rewardItems)
     {
-        if (card == null || card.RewardList == null || card.RewardList.Count == 0)
+        if (rewardItems == null)
         {
             return;
+        }
+
+        for (int i = 0; i < rewardItems.Count; i++)
+        {
+            GrantEventReward(rewardItems[i]);
+        }
+    }
+
+    /// <summary>
+    /// 根据事件卡配置解析奖励表，保留奖励项中的重复奖励。
+    /// </summary>
+    private static List<RewardItemData> BuildEventCardRewards(EventCard card)
+    {
+        List<RewardItemData> rewardItems = new List<RewardItemData>();
+        if (card == null || card.RewardList == null || card.RewardList.Count == 0)
+        {
+            return rewardItems;
         }
 
         Tables tables = GameTableManager.Instance?.Tables;
         if (tables == null || tables.RewardDataCategory == null || tables.RewardItemDataCategory == null)
         {
-            Debug.LogWarning($"事件卡奖励表未加载，无法发放奖励。cardId={card.Id}");
-            return;
+            Debug.LogWarning($"事件卡奖励表未加载，无法解析奖励。cardId={card.Id}");
+            return rewardItems;
         }
 
         int rewardDataId = SelectWeightedRewardId(card.RewardList);
         if (rewardDataId <= 0)
         {
             Debug.LogWarning($"事件卡奖励权重无效，无法选择奖励表。cardId={card.Id}");
-            return;
+            return rewardItems;
         }
 
         RewardData rewardData = tables.RewardDataCategory.GetOrDefault(rewardDataId);
         if (rewardData == null || rewardData.RewardList == null)
         {
             Debug.LogWarning($"奖励表不存在。rewardDataId={rewardDataId}, cardId={card.Id}");
-            return;
+            return rewardItems;
         }
 
         for (int i = 0; i < rewardData.RewardList.Count; i++)
@@ -287,12 +315,27 @@ public sealed class GameRoot : MonoBehaviour
                 continue;
             }
 
-            BagMgr.Instance.AddBagProp(rewardItem.BagId, rewardItem.Num, true, "事件卡奖励");
-            string rewardName = string.IsNullOrWhiteSpace(rewardItem.Name)
-                ? $"物品{rewardItem.BagId}"
-                : rewardItem.Name;
-            FloatTipWindow.Show($"{rewardName}+{rewardItem.Num:0.##}");
+            rewardItems.Add(rewardItem);
         }
+
+        return rewardItems;
+    }
+
+    /// <summary>
+    /// 发放单个事件卡奖励。
+    /// </summary>
+    public void GrantEventReward(RewardItemData rewardItem)
+    {
+        if (rewardItem == null || rewardItem.BagId <= 0 || rewardItem.Num <= 0f)
+        {
+            return;
+        }
+
+        BagMgr.Instance.AddBagProp(rewardItem.BagId, rewardItem.Num, true, "事件卡奖励");
+        string rewardName = string.IsNullOrWhiteSpace(rewardItem.Name)
+            ? $"物品{rewardItem.BagId}"
+            : rewardItem.Name;
+        FloatTipWindow.Show($"{rewardName}+{rewardItem.Num:0.##}");
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
-using DG.Tweening;
 using cfg;
 using Cysharp.Threading.Tasks;
 using GameMain;
@@ -14,13 +14,20 @@ using YangTools.Scripts.Core.YangUGUI;
 public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
 {
     private const int CoinPropId = 2;
+    private const string ScenePrefabAddress = "3DScene";
+    private const string PlayerEntityPrefabAddress = "BattlePlayerPrefab";
+    private const string EnemyEntityPrefabAddress = "BattleEnemyPrefab";
+    private const int SceneRenderTextureFallbackSize = 512;
+    private const float BattleEntitySpacing = 3.2f;
+    private const float EntityAttackMoveDuration = 0.22f;
+    private const float EntityAttackHitDuration = 0.12f;
+    private const float EntityAttackDistance = 1.1f;
 
     [SerializeField] private TextMeshProUGUI roundText;
     [SerializeField] private TextMeshProUGUI enemyNameText;
     [SerializeField] private Image enemyHpFill;
     [SerializeField] private TextMeshProUGUI enemyHpText;
     [SerializeField] private TextMeshProUGUI playerHpText;
-    [SerializeField] private Image enemyImage;
     [SerializeField] private TextMeshProUGUI enemyResultText;
     [SerializeField] private TextMeshProUGUI playerResultText;
     [SerializeField] private TextMeshProUGUI playerTotalText;
@@ -43,51 +50,31 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     [SerializeField] private UICustomButton settleButton;
     [SerializeField] private UICustomButton setButton;
     [SerializeField] private DiceBattleHoverTargetUI skillHoverTarget;
-    [SerializeField] private RectTransform playerAttackRoot;
-    [SerializeField] private RectTransform enemyAttackRoot;
     [SerializeField] private RectTransform battleLogPanelRoot;
     [SerializeField] private ScrollRect battleLogScrollRect;
     [SerializeField] private TextMeshProUGUI battleLogText;
     [SerializeField] private UICustomButton battleLogCloseButton;
     [SerializeField] private UICustomButton battleLogOpenButton;
-    [SerializeField] private Image playerHitFlashImage;
-    [SerializeField] private Image enemyHitFlashImage;
-    [SerializeField] private RectTransform playerDamagePopupRoot;
-    [SerializeField] private RectTransform enemyDamagePopupRoot;
-    [SerializeField] private CanvasGroup playerDamagePopupCanvasGroup;
-    [SerializeField] private CanvasGroup enemyDamagePopupCanvasGroup;
-    [SerializeField] private TextMeshProUGUI playerDamagePopupText;
-    [SerializeField] private TextMeshProUGUI enemyDamagePopupText;
-    [SerializeField] private float attackMoveDuration = 0.18f;
-    [SerializeField] private float attackHitScaleDuration = 0.12f;
-    [SerializeField] private float attackReturnDuration = 0.16f;
-    [SerializeField] private float attackForwardOffset = 120f;
-    [SerializeField] private float attackHitScale = 1.12f;
-    [SerializeField] private float attackTargetPunchScale = 1.08f;
-    [SerializeField] private float hitFlashPeakAlpha = 0.55f;
-    [SerializeField] private float damagePopupMoveDistance = 56f;
-    [SerializeField] private float damagePopupDuration = 0.28f;
+    [SerializeField] private RawImage sceneRawImage;
     [SerializeField] private float enemyRevealDelay = 0.65f;
     [SerializeField] private List<DiceBattlePlayerDieItemUI> playerDieItems = new List<DiceBattlePlayerDieItemUI>();
     [SerializeField] private List<DiceBattleDieFaceCellUI> enemyDieItems = new List<DiceBattleDieFaceCellUI>();
     [SerializeField] private List<DiceBattleStatusItemUI> enemyStatusItems = new List<DiceBattleStatusItemUI>();
 
-    private readonly Dictionary<string, Sprite> spriteCache = new Dictionary<string, Sprite>();
     private readonly List<string> battleLogEntries = new List<string>();
 
     private DiceBattleModel model;
     private bool initialized;
     private bool resultHandled;
-    private bool isPlayingAttackAnimation;
     private bool isEnemyRevealPlaying;
     private bool battleEndLogged;
     private int hoveredPlayerDieIndex = -1;
-    private Vector2 playerAttackStartPosition;
-    private Vector2 enemyAttackStartPosition;
-    private Vector3 playerAttackStartScale;
-    private Vector3 enemyAttackStartScale;
-    private Vector2 playerDamagePopupStartPosition;
-    private Vector2 enemyDamagePopupStartPosition;
+    private GameObject sceneInstance;
+    private Camera sceneCamera;
+    private RenderTexture sceneRenderTexture;
+    private GameObject playerEntityInstance;
+    private GameObject enemyEntityInstance;
+    private int sceneLoadVersion;
 
     /// <summary>
     /// 打开骰子战斗窗口并初始化显示。
@@ -95,7 +82,6 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     public override void OnOpen(object userData)
     {
         base.OnOpen(userData);
-        ValidateBindings();
 
         if (windowData == null || windowData.EnemyData == null)
         {
@@ -110,12 +96,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         battleEndLogged = false;
         RegisterEventsIfNeeded();
         HideAllHoverPanels();
-        CacheAttackPose();
-        ResetAttackVisualState();
         ResetBattleLogState();
         AppendBattleStartLog();
         RefreshAll();
-        RefreshEnemyVisualsAsync().Forget();
+        Start3DScenePreview();
     }
 
     /// <summary>
@@ -123,11 +107,239 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     public override void OnClose(bool isShutdown, object userData)
     {
-        DOTween.Kill(this);
-        ResetAttackVisualState();
+        sceneLoadVersion++;
+        Cleanup3DScenePreview();
         base.OnClose(isShutdown, userData);
         HideAllHoverPanels();
         ResetBattleLogState();
+    }
+
+    /// <summary>
+    /// 销毁战斗窗口时清理3D场景预览资源。
+    /// </summary>
+    private void OnDestroy()
+    {
+        sceneLoadVersion++;
+        Cleanup3DScenePreview();
+    }
+
+    /// <summary>
+    /// 开始创建战斗窗口的3D场景预览。
+    /// </summary>
+    private void Start3DScenePreview()
+    {
+        Cleanup3DScenePreview();
+        int requestVersion = ++sceneLoadVersion;
+        Create3DScenePreviewAsync(requestVersion).Forget();
+    }
+
+    /// <summary>
+    /// 异步加载3D场景，并让相机对准战斗场景中心。
+    /// </summary>
+    private async UniTask Create3DScenePreviewAsync(int requestVersion)
+    {
+        if (sceneRawImage == null)
+        {
+            Debug.LogError("DiceBattleWindow SceneRawImage 未绑定。", this);
+            return;
+        }
+
+        try
+        {
+            GameObject scenePrefab = await ResourceManager.LoadAssetAsync<GameObject>(ScenePrefabAddress);
+            if (requestVersion != sceneLoadVersion || !isActiveAndEnabled || scenePrefab == null)
+            {
+                return;
+            }
+
+            sceneInstance = Instantiate(scenePrefab);
+            if (requestVersion != sceneLoadVersion || !isActiveAndEnabled)
+            {
+                Cleanup3DScenePreview();
+                return;
+            }
+
+            sceneCamera = sceneInstance.GetComponentInChildren<Camera>(true);
+            if (sceneCamera == null)
+            {
+                Debug.LogError("3D场景预制体中未找到相机。", sceneInstance);
+                Cleanup3DScenePreview();
+                return;
+            }
+
+            DisableSceneAudioListeners();
+            PositionSceneCameraAtBattlePanel();
+            Vector2 renderSize = GetSceneRenderSize();
+            sceneRenderTexture = new RenderTexture(Mathf.CeilToInt(renderSize.x), Mathf.CeilToInt(renderSize.y), 24,
+                RenderTextureFormat.ARGB32)
+            {
+                name = "DiceBattleWindowSceneRenderTexture"
+            };
+            sceneRenderTexture.Create();
+            sceneCamera.targetTexture = sceneRenderTexture;
+            sceneCamera.enabled = true;
+            sceneRawImage.texture = sceneRenderTexture;
+            CreateBattleEntitiesAsync(requestVersion).Forget();
+        }
+        catch (Exception exception)
+        {
+            if (requestVersion == sceneLoadVersion)
+            {
+                Debug.LogException(exception, this);
+                Cleanup3DScenePreview();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 禁用预览场景中的音频监听器，避免与战斗窗口重复监听。
+    /// </summary>
+    private void DisableSceneAudioListeners()
+    {
+        AudioListener[] audioListeners = sceneInstance.GetComponentsInChildren<AudioListener>(true);
+        for (int i = 0; i < audioListeners.Length; i++)
+        {
+            audioListeners[i].enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// 将预览相机平移到BattlePanel中心，并调整朝向。
+    /// </summary>
+    private void PositionSceneCameraAtBattlePanel()
+    {
+        Transform battlePanel = sceneInstance.transform.Find("BattlePanel");
+        if (battlePanel == null)
+        {
+            Debug.LogWarning("3D场景预制体中未找到BattlePanel，相机保持原位置。", sceneInstance);
+            return;
+        }
+
+        Renderer battlePanelRenderer = battlePanel.GetComponent<Renderer>();
+        Vector3 targetPosition = battlePanelRenderer != null
+            ? battlePanelRenderer.bounds.center
+            : battlePanel.position;
+        Vector3 cameraOffset = sceneCamera.transform.position - sceneInstance.transform.position;
+        sceneCamera.transform.position = targetPosition + cameraOffset;
+        sceneCamera.transform.LookAt(targetPosition);
+    }
+
+    /// <summary>
+    /// 加载并创建玩家和敌人的3D实体。
+    /// </summary>
+    private async UniTask CreateBattleEntitiesAsync(int requestVersion)
+    {
+        GameObject playerPrefab;
+        GameObject enemyPrefab;
+        try
+        {
+            playerPrefab = await ResourceManager.LoadAssetAsync<GameObject>(PlayerEntityPrefabAddress);
+            enemyPrefab = await ResourceManager.LoadAssetAsync<GameObject>(EnemyEntityPrefabAddress);
+        }
+        catch (Exception exception)
+        {
+            if (requestVersion == sceneLoadVersion)
+            {
+                Debug.LogException(exception, this);
+            }
+
+            return;
+        }
+
+        if (requestVersion != sceneLoadVersion || !isActiveAndEnabled || sceneInstance == null ||
+            playerPrefab == null || enemyPrefab == null)
+        {
+            return;
+        }
+
+        Transform battlePanel = sceneInstance.transform.Find("BattlePanel");
+        if (battlePanel == null)
+        {
+            Debug.LogError("3D场景预制体中未找到BattlePanel，无法创建战斗实体。", sceneInstance);
+            return;
+        }
+
+        Renderer battlePanelRenderer = battlePanel.GetComponent<Renderer>();
+        Vector3 panelCenter = battlePanelRenderer != null ? battlePanelRenderer.bounds.center : battlePanel.position;
+        float panelTop = battlePanelRenderer != null ? battlePanelRenderer.bounds.max.y : panelCenter.y;
+        Vector3 entityCenter = new Vector3(panelCenter.x, panelTop, panelCenter.z);
+        Vector3 screenRight = sceneCamera != null ? sceneCamera.transform.right : Vector3.right;
+
+        playerEntityInstance = Instantiate(playerPrefab, sceneInstance.transform);
+        enemyEntityInstance = Instantiate(enemyPrefab, sceneInstance.transform);
+        playerEntityInstance.name = "BattlePlayerEntity";
+        enemyEntityInstance.name = "BattleEnemyEntity";
+        playerEntityInstance.transform.position = entityCenter - screenRight * BattleEntitySpacing;
+        enemyEntityInstance.transform.position = entityCenter + screenRight * BattleEntitySpacing;
+
+    }
+
+    /// <summary>
+    /// 获取战斗窗口3D画面的渲染纹理尺寸。
+    /// </summary>
+    private Vector2 GetSceneRenderSize()
+    {
+        Rect rect = sceneRawImage.rectTransform.rect;
+        int width = Mathf.CeilToInt(rect.width);
+        int height = Mathf.CeilToInt(rect.height);
+        if (width <= 0 || height <= 0)
+        {
+            width = SceneRenderTextureFallbackSize;
+            height = SceneRenderTextureFallbackSize;
+        }
+
+        return new Vector2(width, height);
+    }
+
+    /// <summary>
+    /// 清理战斗窗口的3D场景实例和RenderTexture。
+    /// </summary>
+    private void Cleanup3DScenePreview()
+    {
+        CleanupBattleEntities();
+        if (sceneCamera != null)
+        {
+            sceneCamera.targetTexture = null;
+        }
+
+        if (sceneRawImage != null && sceneRawImage.texture == sceneRenderTexture)
+        {
+            sceneRawImage.texture = null;
+        }
+
+        if (sceneInstance != null)
+        {
+            Destroy(sceneInstance);
+        }
+
+        if (sceneRenderTexture != null)
+        {
+            sceneRenderTexture.Release();
+            Destroy(sceneRenderTexture);
+        }
+
+        sceneInstance = null;
+        sceneCamera = null;
+        sceneRenderTexture = null;
+    }
+
+    /// <summary>
+    /// 清理玩家和敌人的3D实体实例。
+    /// </summary>
+    private void CleanupBattleEntities()
+    {
+        if (playerEntityInstance != null)
+        {
+            Destroy(playerEntityInstance);
+        }
+
+        if (enemyEntityInstance != null)
+        {
+            Destroy(enemyEntityInstance);
+        }
+
+        playerEntityInstance = null;
+        enemyEntityInstance = null;
     }
 
     /// <summary>
@@ -261,7 +473,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             if (playerDieItems[i] != null)
             {
                 playerDieItems[i].Refresh(dieState, model.CanRerollSingleDie(i),
-                    !model.IsFinished && !isPlayingAttackAnimation && !isEnemyRevealPlaying);
+                    !model.IsFinished && !isEnemyRevealPlaying);
             }
         }
     }
@@ -320,7 +532,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     /// </summary>
     private void RefreshActionButtons()
     {
-        bool allowInteraction = !isPlayingAttackAnimation && !isEnemyRevealPlaying;
+        bool allowInteraction = !isEnemyRevealPlaying;
         SetButtonState(throwAllButton, !model.IsFinished, allowInteraction && model.CanThrowAll);
         SetButtonState(rerollAllButton, model.CanRerollAll, allowInteraction && model.CanRerollAll);
         SetButtonState(endTurnButton, !model.IsFinished, allowInteraction && model.CanEndTurn);
@@ -408,7 +620,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
 
         if (model.RoundWinner != DiceBattleModel.RoundWinnerType.Draw)
         {
-            await PlayAttackSequenceAsync(model.RoundWinner == DiceBattleModel.RoundWinnerType.Player);
+            await PlayEntityAttackAsync(model.RoundWinner == DiceBattleModel.RoundWinnerType.Player);
         }
 
         if (model.IsFinished && model.IsPlayerWin && model.CoinReward > 0)
@@ -427,8 +639,6 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             AppendBattleLog($"<color=#D7DCEB>进入第 {model.CurrentRound} 回合</color>");
         }
 
-        ResetAttackVisualState();
-        isPlayingAttackAnimation = false;
         RefreshAll();
         if (model.IsFinished)
         {
@@ -617,46 +827,6 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     }
 
     /// <summary>
-    /// 异步刷新敌人图片。
-    /// </summary>
-    private async UniTaskVoid RefreshEnemyVisualsAsync()
-    {
-        if (enemyImage == null)
-        {
-            return;
-        }
-
-        Sprite sprite = await LoadSpriteSafe(model.EnemySpriteName);
-        if (enemyImage == null)
-        {
-            return;
-        }
-
-        enemyImage.sprite = sprite;
-        enemyImage.color = sprite == null ? new Color(0.26f, 0.43f, 0.76f, 1f) : Color.white;
-    }
-
-    /// <summary>
-    /// 安全加载精灵资源。
-    /// </summary>
-    private async UniTask<Sprite> LoadSpriteSafe(string spriteName)
-    {
-        if (string.IsNullOrEmpty(spriteName))
-        {
-            return null;
-        }
-
-        if (spriteCache.TryGetValue(spriteName, out Sprite sprite))
-        {
-            return sprite;
-        }
-
-        sprite = await ResourceManager.LoadAssetAsync<Sprite>(spriteName);
-        spriteCache[spriteName] = sprite;
-        return sprite;
-    }
-
-    /// <summary>
     /// 追加一条战斗日志并刷新显示。
     /// </summary>
     private void AppendBattleLog(string message)
@@ -836,256 +1006,179 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     }
 
     /// <summary>
-    /// 缓存攻击载体的初始姿态。
+    /// 播放一轮3D攻击动作：攻击者移动到目标前方，目标受击后攻击者返回原位。
     /// </summary>
-    private void CacheAttackPose()
+    private async UniTask PlayEntityAttackAsync(bool isPlayerAttack)
     {
-        if (playerAttackRoot != null)
+        GameObject attacker = isPlayerAttack ? playerEntityInstance : enemyEntityInstance;
+        GameObject target = isPlayerAttack ? enemyEntityInstance : playerEntityInstance;
+        bool isEnemyTarget = isPlayerAttack;
+        if (attacker == null || target == null)
         {
-            playerAttackStartPosition = playerAttackRoot.anchoredPosition;
-            playerAttackStartScale = playerAttackRoot.localScale;
+            ShowDamageFloatTip(isEnemyTarget, model.RoundDamage);
+            await PlayEntityHitFlashAsync(isEnemyTarget);
+            return;
         }
 
-        if (enemyAttackRoot != null)
+        Transform attackerTransform = attacker.transform;
+        Transform targetTransform = target.transform;
+        Vector3 startPosition = attackerTransform.position;
+        Quaternion startRotation = attackerTransform.rotation;
+        Vector3 direction = targetTransform.position - startPosition;
+        direction.y = 0f;
+        if (direction.sqrMagnitude > 0.001f)
         {
-            enemyAttackStartPosition = enemyAttackRoot.anchoredPosition;
-            enemyAttackStartScale = enemyAttackRoot.localScale;
+            direction.Normalize();
+            attackerTransform.rotation = Quaternion.LookRotation(direction, Vector3.up);
         }
 
-        if (playerDamagePopupRoot != null)
-        {
-            playerDamagePopupStartPosition = playerDamagePopupRoot.anchoredPosition;
-        }
-
-        if (enemyDamagePopupRoot != null)
-        {
-            enemyDamagePopupStartPosition = enemyDamagePopupRoot.anchoredPosition;
-        }
-    }
-
-    /// <summary>
-    /// 播放回合攻击动画。
-    /// </summary>
-    private UniTask PlayAttackSequenceAsync(bool isPlayerAttack)
-    {
-        if (playerAttackRoot == null || enemyAttackRoot == null)
-        {
-            return UniTask.CompletedTask;
-        }
-
-        return isPlayerAttack ? PlayPlayerAttackAsync() : PlayEnemyAttackAsync();
-    }
-
-    /// <summary>
-    /// 播放玩家攻击动画。
-    /// </summary>
-    private UniTask PlayPlayerAttackAsync()
-    {
-        return PlayAttackAnimationAsync(playerAttackRoot, enemyAttackRoot, playerAttackStartPosition,
-            enemyAttackStartScale, attackForwardOffset, enemyHitFlashImage, enemyDamagePopupRoot,
-            enemyDamagePopupCanvasGroup, enemyDamagePopupText, enemyDamagePopupStartPosition, model.RoundDamage);
-    }
-
-    /// <summary>
-    /// 播放敌方攻击动画。
-    /// </summary>
-    private UniTask PlayEnemyAttackAsync()
-    {
-        return PlayAttackAnimationAsync(enemyAttackRoot, playerAttackRoot, enemyAttackStartPosition,
-            playerAttackStartScale, -attackForwardOffset, playerHitFlashImage, playerDamagePopupRoot,
-            playerDamagePopupCanvasGroup, playerDamagePopupText, playerDamagePopupStartPosition, model.RoundDamage);
-    }
-
-    /// <summary>
-    /// 重置攻击载体到初始姿态。
-    /// </summary>
-    private void ResetAttackVisualState()
-    {
-        if (playerAttackRoot != null)
-        {
-            playerAttackRoot.anchoredPosition = playerAttackStartPosition;
-            playerAttackRoot.localScale = playerAttackStartScale;
-        }
-
-        if (enemyAttackRoot != null)
-        {
-            enemyAttackRoot.anchoredPosition = enemyAttackStartPosition;
-            enemyAttackRoot.localScale = enemyAttackStartScale;
-        }
-
-        ResetHitFeedbackVisual(playerHitFlashImage, playerDamagePopupRoot, playerDamagePopupCanvasGroup,
-            playerDamagePopupText, playerDamagePopupStartPosition);
-        ResetHitFeedbackVisual(enemyHitFlashImage, enemyDamagePopupRoot, enemyDamagePopupCanvasGroup,
-            enemyDamagePopupText, enemyDamagePopupStartPosition);
-    }
-
-    /// <summary>
-    /// 播放单侧冲刺命中动画。
-    /// </summary>
-    private async UniTask PlayAttackAnimationAsync(RectTransform attackerRoot, RectTransform targetRoot,
-        Vector2 attackerStartPosition, Vector3 targetStartScale, float forwardOffset, Image hitFlashImage,
-        RectTransform damagePopupRoot, CanvasGroup damagePopupCanvasGroup, TextMeshProUGUI damagePopupText,
-        Vector2 damagePopupStartPosition, int damage)
-    {
-        if (attackerRoot == null || targetRoot == null)
+        Vector3 attackPosition = targetTransform.position - direction * EntityAttackDistance;
+        attackPosition.y = startPosition.y;
+        await MoveEntityAsync(attackerTransform, startPosition, attackPosition, EntityAttackMoveDuration);
+        if (attacker == null || target == null)
         {
             return;
         }
 
-        isPlayingAttackAnimation = true;
-        RefreshActionButtons();
-        DOTween.Kill(this);
-        ResetAttackVisualState();
-
-        Sequence attackSequence = DOTween.Sequence().SetTarget(this);
-        attackSequence
-            .Append(attackerRoot.DOAnchorPos(attackerStartPosition + new Vector2(forwardOffset, 0f), attackMoveDuration)
-                .SetEase(Ease.OutCubic))
-            .Join(attackerRoot.DOScale(attackerRoot.localScale * attackHitScale, attackMoveDuration).SetEase(Ease.OutBack))
-            .AppendCallback(() => PrepareDamagePopup(damagePopupRoot, damagePopupCanvasGroup, damagePopupText, damagePopupStartPosition, damage))
-            .Append(targetRoot.DOScale(targetStartScale * attackTargetPunchScale, attackHitScaleDuration).SetEase(Ease.OutBack));
-
-        if (hitFlashImage != null)
+        ShowDamageFloatTip(isEnemyTarget, model.RoundDamage);
+        await PlayEntityHitFlashAsync(isEnemyTarget);
+        await UniTask.Delay((int) (EntityAttackHitDuration * 1000f));
+        await MoveEntityAsync(attackerTransform, attackPosition, startPosition, EntityAttackMoveDuration);
+        if (attacker != null)
         {
-            attackSequence.Join(hitFlashImage.DOFade(hitFlashPeakAlpha, attackHitScaleDuration * 0.5f));
-        }
-
-        if (damagePopupCanvasGroup != null)
-        {
-            attackSequence.Join(damagePopupCanvasGroup.DOFade(1f, attackHitScaleDuration * 0.5f));
-        }
-
-        if (damagePopupRoot != null)
-        {
-            attackSequence.Join(damagePopupRoot
-                .DOAnchorPos(damagePopupStartPosition + new Vector2(0f, damagePopupMoveDistance), damagePopupDuration)
-                .SetEase(Ease.OutCubic));
-        }
-
-        attackSequence
-            .Append(targetRoot.DOScale(targetStartScale, attackHitScaleDuration).SetEase(Ease.OutCubic))
-            .Join(attackerRoot.DOAnchorPos(attackerStartPosition, attackReturnDuration).SetEase(Ease.InCubic))
-            .Join(attackerRoot.DOScale(GetAttackStartScale(attackerRoot), attackReturnDuration).SetEase(Ease.OutCubic));
-
-        if (hitFlashImage != null)
-        {
-            attackSequence.Join(hitFlashImage.DOFade(0f, attackHitScaleDuration));
-        }
-
-        if (damagePopupCanvasGroup != null)
-        {
-            attackSequence.Join(damagePopupCanvasGroup.DOFade(0f, attackHitScaleDuration));
-        }
-
-        await WaitSequenceAsync(attackSequence);
-    }
-
-    /// <summary>
-    /// 准备伤害数字弹出显示。
-    /// </summary>
-    private static void PrepareDamagePopup(RectTransform damagePopupRoot, CanvasGroup damagePopupCanvasGroup,
-        TextMeshProUGUI damagePopupText, Vector2 damagePopupStartPosition, int damage)
-    {
-        if (damagePopupRoot != null)
-        {
-            damagePopupRoot.anchoredPosition = damagePopupStartPosition;
-        }
-
-        if (damagePopupCanvasGroup != null)
-        {
-            damagePopupCanvasGroup.alpha = 0f;
-        }
-
-        if (damagePopupText != null)
-        {
-            damagePopupText.text = $"-{Mathf.Max(0, damage)}";
+            attackerTransform.rotation = startRotation;
         }
     }
 
     /// <summary>
-    /// 重置单侧受击反馈显示。
+    /// 平滑移动3D实体，并在窗口关闭后安全结束异步动作。
     /// </summary>
-    private static void ResetHitFeedbackVisual(Image hitFlashImage, RectTransform damagePopupRoot,
-        CanvasGroup damagePopupCanvasGroup, TextMeshProUGUI damagePopupText, Vector2 damagePopupStartPosition)
+    private static async UniTask MoveEntityAsync(Transform entityTransform, Vector3 startPosition,
+        Vector3 targetPosition, float duration)
     {
-        if (hitFlashImage != null)
+        if (entityTransform == null || duration <= 0f)
         {
-            Color flashColor = hitFlashImage.color;
-            flashColor.a = 0f;
-            hitFlashImage.color = flashColor;
+            if (entityTransform != null)
+            {
+                entityTransform.position = targetPosition;
+            }
+
+            return;
         }
 
-        if (damagePopupRoot != null)
+        float elapsed = 0f;
+        while (elapsed < duration && entityTransform != null)
         {
-            damagePopupRoot.anchoredPosition = damagePopupStartPosition;
+            elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(elapsed / duration);
+            progress = progress * progress * (3f - 2f * progress);
+            entityTransform.position = Vector3.LerpUnclamped(startPosition, targetPosition, progress);
+            await UniTask.Yield();
         }
 
-        if (damagePopupCanvasGroup != null)
+        if (entityTransform != null)
         {
-            damagePopupCanvasGroup.alpha = 0f;
-        }
-
-        if (damagePopupText != null)
-        {
-            damagePopupText.text = string.Empty;
+            entityTransform.position = targetPosition;
         }
     }
 
     /// <summary>
-    /// 获取攻击载体的初始缩放。
+    /// 播放玩家或敌人的3D受击闪烁。
     /// </summary>
-    private Vector3 GetAttackStartScale(RectTransform attackRoot)
+    private async UniTask PlayEntityHitFlashAsync(bool isEnemyTarget)
     {
-        if (attackRoot == playerAttackRoot)
+        GameObject targetEntity = isEnemyTarget ? enemyEntityInstance : playerEntityInstance;
+        if (targetEntity == null)
         {
-            return playerAttackStartScale;
+            return;
         }
 
-        return enemyAttackStartScale;
+        Renderer[] renderers = targetEntity.GetComponentsInChildren<Renderer>();
+        MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+        SetEntityFlashColor(renderers, propertyBlock, Color.white);
+        await UniTask.Delay(70);
+        if (targetEntity == null)
+        {
+            return;
+        }
+
+        ClearEntityFlashColor(renderers);
+        await UniTask.Delay(55);
+        if (targetEntity == null)
+        {
+            return;
+        }
+
+        SetEntityFlashColor(renderers, propertyBlock, Color.white);
+        await UniTask.Delay(70);
+        ClearEntityFlashColor(renderers);
     }
 
     /// <summary>
-    /// 等待 DOTween 序列结束。
+    /// 设置实体所有Renderer的临时闪烁颜色。
     /// </summary>
-    private static UniTask WaitSequenceAsync(Sequence sequence)
+    private static void SetEntityFlashColor(Renderer[] renderers, MaterialPropertyBlock propertyBlock, Color color)
     {
-        if (sequence == null)
+        for (int i = 0; i < renderers.Length; i++)
         {
-            return UniTask.CompletedTask;
-        }
+            if (renderers[i] == null)
+            {
+                continue;
+            }
 
-        UniTaskCompletionSource completionSource = new UniTaskCompletionSource();
-        sequence.OnComplete(() => completionSource.TrySetResult());
-        sequence.OnKill(() => completionSource.TrySetResult());
-        return completionSource.Task;
+            renderers[i].GetPropertyBlock(propertyBlock);
+            propertyBlock.SetColor("_Color", color);
+            renderers[i].SetPropertyBlock(propertyBlock);
+        }
     }
 
     /// <summary>
-    /// 校验 prefab 绑定是否完整。
+    /// 清除实体Renderer的临时闪烁颜色覆盖。
     /// </summary>
-    private void ValidateBindings()
+    private static void ClearEntityFlashColor(Renderer[] renderers)
     {
-        if (roundText == null || enemyNameText == null || enemyHpFill == null || enemyHpText == null ||
-            playerHpText == null || enemyImage == null || enemyResultText == null || playerResultText == null ||
-            playerTotalText == null || roundSummaryText == null || probabilityTitleText == null ||
-            probabilityRangeText == null || probabilityDetailText == null || skillNameText == null ||
-            skillDescText == null || statusHoverTitleText == null || statusHoverDescText == null ||
-            skillHoverTitleText == null || skillHoverDescText == null || probabilityPanelRoot == null ||
-            statusHoverPanelRoot == null || skillHoverPanelRoot == null || throwAllButton == null ||
-            rerollAllButton == null || endTurnButton == null || settleButton == null || setButton == null ||
-            skillHoverTarget == null || playerAttackRoot == null || enemyAttackRoot == null ||
-            battleLogPanelRoot == null || battleLogScrollRect == null || battleLogText == null ||
-            battleLogCloseButton == null || battleLogOpenButton == null ||
-            playerHitFlashImage == null || enemyHitFlashImage == null || playerDamagePopupRoot == null ||
-            enemyDamagePopupRoot == null || playerDamagePopupCanvasGroup == null || enemyDamagePopupCanvasGroup == null ||
-            playerDamagePopupText == null || enemyDamagePopupText == null)
+        for (int i = 0; i < renderers.Length; i++)
         {
-            Debug.LogError("DiceBattleWindow 预制体引用未绑定完整", this);
-        }
-
-        if (playerDieItems.Count == 0 || enemyDieItems.Count == 0 || enemyStatusItems.Count == 0)
-        {
-            Debug.LogError("DiceBattleWindow 列表型预制体引用未绑定完整", this);
+            if (renderers[i] != null)
+            {
+                renderers[i].SetPropertyBlock(null);
+            }
         }
     }
+
+    /// <summary>
+    /// 使用通用飘字窗口在受伤实体的屏幕位置显示伤害。
+    /// </summary>
+    private void ShowDamageFloatTip(bool isEnemyTarget, int damage)
+    {
+        GameObject targetEntity = isEnemyTarget ? enemyEntityInstance : playerEntityInstance;
+        if (targetEntity == null || sceneCamera == null || sceneRawImage == null)
+        {
+            FloatTipWindow.Show($"-{Mathf.Max(0, damage)}");
+            return;
+        }
+
+        Renderer targetRenderer = targetEntity.GetComponentInChildren<Renderer>();
+        Vector3 worldPosition = targetRenderer != null
+            ? targetRenderer.bounds.center + Vector3.up * 0.6f
+            : targetEntity.transform.position + Vector3.up * 1.5f;
+        Vector3 viewportPosition = sceneCamera.WorldToViewportPoint(worldPosition);
+        if (viewportPosition.z <= 0f)
+        {
+            FloatTipWindow.Show($"-{Mathf.Max(0, damage)}");
+            return;
+        }
+
+        Rect rawImageRect = sceneRawImage.rectTransform.rect;
+        Vector2 localPosition = new Vector2(rawImageRect.x + viewportPosition.x * rawImageRect.width,
+            rawImageRect.y + viewportPosition.y * rawImageRect.height);
+        Canvas canvas = sceneRawImage.GetComponentInParent<Canvas>();
+        Camera uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(uiCamera,
+            sceneRawImage.rectTransform.TransformPoint(localPosition));
+        FloatTipWindow.Show($"-{Mathf.Max(0, damage)}", screenPosition, new Color(1f, 0.35f, 0.35f, 1f));
+    }
+
 }

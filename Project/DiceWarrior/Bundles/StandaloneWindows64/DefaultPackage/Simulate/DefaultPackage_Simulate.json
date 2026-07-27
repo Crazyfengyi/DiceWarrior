@@ -10,7 +10,7 @@
     "BuildPipeline": "EditorSimulateBuildPipeline",
     "PackageName": "DefaultPackage",
     "PackageVersion": "Simulate",
-    "PackageNote": "2026/7/26 22:59:35",
+    "PackageNote": "2026/8/3 2:30:33",
     "AssetList": [
         {
             "Address": "BGM_1",
@@ -685,6 +685,38 @@
             "DependentBundleIDs": []
         },
         {
+            "Address": "BattleEnemyMaterial",
+            "AssetPath": "Assets/AssetBundle/UIWindow/DiceBattleWindow/BattleEnemyMaterial.mat",
+            "AssetGuid": "b4c5d6e7f8a90123456789abcdef0123",
+            "AssetTags": [],
+            "BundleID": 12,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "BattleEnemyPrefab",
+            "AssetPath": "Assets/AssetBundle/UIWindow/DiceBattleWindow/BattleEnemyPrefab.prefab",
+            "AssetGuid": "d4e5f6a7b8c90123456789abcdef0123",
+            "AssetTags": [],
+            "BundleID": 12,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "BattlePlayerMaterial",
+            "AssetPath": "Assets/AssetBundle/UIWindow/DiceBattleWindow/BattlePlayerMaterial.mat",
+            "AssetGuid": "a4b5c6d7e8f90123456789abcdef0123",
+            "AssetTags": [],
+            "BundleID": 12,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "BattlePlayerPrefab",
+            "AssetPath": "Assets/AssetBundle/UIWindow/DiceBattleWindow/BattlePlayerPrefab.prefab",
+            "AssetGuid": "c4d5e6f7a8b90123456789abcdef0123",
+            "AssetTags": [],
+            "BundleID": 12,
+            "DependentBundleIDs": []
+        },
+        {
             "Address": "DiceBattleWindow",
             "AssetPath": "Assets/AssetBundle/UIWindow/DiceBattleWindow/DiceBattleWindow.prefab",
             "AssetGuid": "39d47109fa344495ac2cf40b75284ae3",
@@ -781,9 +813,25 @@
             "DependentBundleIDs": []
         },
         {
+            "Address": "3DScene",
+            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/3DScene.prefab",
+            "AssetGuid": "3e08edc2ea083a546b89a28b5008b5f2",
+            "AssetTags": [],
+            "BundleID": 16,
+            "DependentBundleIDs": []
+        },
+        {
             "Address": "GameWindow",
             "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/GameWindow.prefab",
             "AssetGuid": "9f51a00eb9e1cdb459f1829b577a94e5",
+            "AssetTags": [],
+            "BundleID": 16,
+            "DependentBundleIDs": []
+        },
+        {
+            "Address": "ItemPrefab",
+            "AssetPath": "Assets/AssetBundle/UIWindow/GameWindow/ItemPrefab.prefab",
+            "AssetGuid": "976e806dfb6439940a0c075952253f14",
             "AssetTags": [],
             "BundleID": 16,
             "DependentBundleIDs": []
@@ -1267,7 +1315,7 @@
             "UnityCrc": 0,
             "FileHash": "c8489a0880750c29b44f05445d90cc29",
             "FileCrc": 0,
-            "FileSize": 29275903,
+            "FileSize": 29276967,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -1307,7 +1355,7 @@
             "UnityCrc": 0,
             "FileHash": "cceb6dc2f0c984a84159014948ebda39",
             "FileCrc": 0,
-            "FileSize": 377476,
+            "FileSize": 366076,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
@@ -1347,7 +1395,7 @@
             "UnityCrc": 0,
             "FileHash": "2b66a442c2eb3cbad892ebaa56a930eb",
             "FileCrc": 0,
-            "FileSize": 348093,
+            "FileSize": 380268,
             "IsEncrypted": false,
             "Tags": [],
             "DependentBundleIDs": []
