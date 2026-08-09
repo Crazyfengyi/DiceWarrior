@@ -76,6 +76,7 @@ public sealed class CardMainWindow : UGUIPanelBase<DefaultUGUIDataBase>, IBeginD
     public override void OnOpen(object userData)
     {
         base.OnOpen(userData);
+        GameWindow.Preload3DSceneAsync().Forget();
         EnsureUI(); // 确保UI元素正确创建
         RegisterEvents(); // 注册事件监听
         actionOpening = false;

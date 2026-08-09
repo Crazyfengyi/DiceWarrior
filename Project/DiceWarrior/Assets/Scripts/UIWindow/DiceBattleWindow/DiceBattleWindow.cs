@@ -30,8 +30,10 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
     [SerializeField] private TextMeshProUGUI playerHpText;
     [SerializeField] private TextMeshProUGUI enemyResultText;
     [SerializeField] private TextMeshProUGUI playerResultText;
+    [SerializeField] private RectTransform uiEnemyPos;
+    [SerializeField] private RectTransform uiPlayerPos;
+    [SerializeField] private TextMeshProUGUI roundsText;
     [SerializeField] private TextMeshProUGUI playerTotalText;
-    [SerializeField] private TextMeshProUGUI roundSummaryText;
     [SerializeField] private TextMeshProUGUI probabilityTitleText;
     [SerializeField] private TextMeshProUGUI probabilityRangeText;
     [SerializeField] private TextMeshProUGUI probabilityDetailText;
@@ -262,16 +264,59 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         Renderer battlePanelRenderer = battlePanel.GetComponent<Renderer>();
         Vector3 panelCenter = battlePanelRenderer != null ? battlePanelRenderer.bounds.center : battlePanel.position;
         float panelTop = battlePanelRenderer != null ? battlePanelRenderer.bounds.max.y : panelCenter.y;
-        Vector3 entityCenter = new Vector3(panelCenter.x, panelTop, panelCenter.z);
-        Vector3 screenRight = sceneCamera != null ? sceneCamera.transform.right : Vector3.right;
-
         playerEntityInstance = Instantiate(playerPrefab, sceneInstance.transform);
         enemyEntityInstance = Instantiate(enemyPrefab, sceneInstance.transform);
         playerEntityInstance.name = "BattlePlayerEntity";
         enemyEntityInstance.name = "BattleEnemyEntity";
-        playerEntityInstance.transform.position = entityCenter - screenRight * BattleEntitySpacing;
-        enemyEntityInstance.transform.position = entityCenter + screenRight * BattleEntitySpacing;
 
+        Vector3 fallbackEntityCenter = new Vector3(panelCenter.x, panelTop, panelCenter.z);
+        Vector3 screenRight = sceneCamera != null ? sceneCamera.transform.right : Vector3.right;
+        Vector3 fallbackPlayerPosition = fallbackEntityCenter - screenRight * BattleEntitySpacing;
+        Vector3 fallbackEnemyPosition = fallbackEntityCenter + screenRight * BattleEntitySpacing;
+        playerEntityInstance.transform.position = GetEntityPositionForUi(
+            uiPlayerPos, fallbackPlayerPosition, panelTop);
+        enemyEntityInstance.transform.position = GetEntityPositionForUi(
+            uiEnemyPos, fallbackEnemyPosition, panelTop);
+
+    }
+
+    /// <summary>
+    /// 将 UI 锚点位置转换为战斗地面上的 3D 位置。
+    /// </summary>
+    private Vector3 GetEntityPositionForUi(RectTransform uiAnchor, Vector3 fallbackPosition, float groundHeight)
+    {
+        if (uiAnchor == null || sceneCamera == null || sceneRawImage == null)
+        {
+            return fallbackPosition;
+        }
+
+        Canvas canvas = sceneRawImage.GetComponentInParent<Canvas>();
+        Camera uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(uiCamera, uiAnchor.position);
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                sceneRawImage.rectTransform, screenPosition, uiCamera, out Vector2 localPosition))
+        {
+            return fallbackPosition;
+        }
+
+        Rect rawImageRect = sceneRawImage.rectTransform.rect;
+        if (rawImageRect.width <= 0f || rawImageRect.height <= 0f)
+        {
+            return fallbackPosition;
+        }
+
+        float viewportX = Mathf.Clamp01((localPosition.x - rawImageRect.x) / rawImageRect.width);
+        float viewportY = Mathf.Clamp01((localPosition.y - rawImageRect.y) / rawImageRect.height);
+        Ray ray = sceneCamera.ViewportPointToRay(new Vector3(viewportX, viewportY, 0f));
+        if (Mathf.Abs(ray.direction.y) <= Mathf.Epsilon)
+        {
+            return fallbackPosition;
+        }
+
+        float distance = (groundHeight - ray.origin.y) / ray.direction.y;
+        return distance > 0f ? ray.GetPoint(distance) : fallbackPosition;
     }
 
     /// <summary>
@@ -411,6 +456,11 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             roundText.text = $"第 {model.CurrentRound} 回合";
         }
 
+        if (roundsText != null)
+        {
+            roundsText.text = $"回合数:{model.CurrentRound}";
+        }
+
         if (enemyNameText != null)
         {
             enemyNameText.text = model.EnemyName;
@@ -432,12 +482,6 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
                 $"单骰重投 {model.RemainingSingleDieRerolls}/1    全部重投 {model.RemainingAllDiceRerolls}/1";
         }
 
-        if (roundSummaryText != null)
-        {
-            roundSummaryText.text = model.IsFinished && model.IsPlayerWin
-                ? $"{model.LastMessage}\n战斗胜利，获得金币 {model.CoinReward}"
-                : model.LastMessage;
-        }
     }
 
     /// <summary>
@@ -937,7 +981,7 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
             battleLogScrollRect.verticalNormalizedPosition = 1f;
         }
 
-        SetBattleLogVisible(true);
+        SetBattleLogVisible(false);
     }
 
     /// <summary>

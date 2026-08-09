@@ -126,6 +126,21 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         eventCardTransitionSequence != null && eventCardTransitionSequence.IsActive();
 
     /// <summary>
+    /// 预加载游戏窗口使用的3D场景预制体。
+    /// </summary>
+    public static async UniTask Preload3DSceneAsync()
+    {
+        try
+        {
+            await ResourceManager.LoadAssetAsync<GameObject>(ScenePrefabAddress);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+    }
+
+    /// <summary>
     /// 析构函数，停止金币飞行效果
     /// </summary>
     private void OnDestroy()
@@ -336,6 +351,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             sceneCamera.targetTexture = sceneRenderTexture;
             sceneCamera.enabled = true;
             sceneRawImage.texture = sceneRenderTexture;
+            SetScenePreviewVisible(true);
             if (isShowingEventRewards && pendingEventRewards != null && eventRewardItems.Count == 0)
             {
                 int rewardRequestVersion = ++eventRewardLoadVersion;
@@ -374,6 +390,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// </summary>
     private void Cleanup3DScenePreview()
     {
+        SetScenePreviewVisible(false);
         if (sceneCamera != null)
         {
             sceneCamera.targetTexture = null;
@@ -398,6 +415,21 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
         sceneInstance = null;
         sceneCamera = null;
         sceneRenderTexture = null;
+    }
+
+    /// <summary>
+    /// 控制3D场景预览区域的显示状态，避免异步加载期间出现白色占位。
+    /// </summary>
+    private void SetScenePreviewVisible(bool visible)
+    {
+        if (sceneRawImage == null)
+        {
+            return;
+        }
+
+        Color color = sceneRawImage.color;
+        color.a = visible ? 1f : 0f;
+        sceneRawImage.color = color;
     }
 
     /// <summary>

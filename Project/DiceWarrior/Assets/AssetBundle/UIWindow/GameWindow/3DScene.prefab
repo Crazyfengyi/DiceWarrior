@@ -64,13 +64,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-<<<<<<< HEAD
   near clip plane: 1
   far clip plane: 100
-=======
-  near clip plane: 0.3
-  far clip plane: 1000
->>>>>>> f92166f95358b8453ea4a28b62d75718a8f8c2fc
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -97,7 +92,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 378595805858875099}
   m_Enabled: 1
-<<<<<<< HEAD
 --- !u!1 &902465699656279100
 GameObject:
   m_ObjectHideFlags: 0
@@ -203,8 +197,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
-=======
->>>>>>> f92166f95358b8453ea4a28b62d75718a8f8c2fc
 --- !u!1 &2594360288018690867
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,11 +210,7 @@ GameObject:
   - component: {fileID: 5539876331834497544}
   - component: {fileID: 3605182578629401217}
   m_Layer: 0
-<<<<<<< HEAD
   m_Name: ItemPanel
-=======
-  m_Name: Cube
->>>>>>> f92166f95358b8453ea4a28b62d75718a8f8c2fc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -344,10 +332,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2462861809295813186}
-<<<<<<< HEAD
   - {fileID: 5135129580881235128}
-=======
->>>>>>> f92166f95358b8453ea4a28b62d75718a8f8c2fc
   - {fileID: 6495094549560265219}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

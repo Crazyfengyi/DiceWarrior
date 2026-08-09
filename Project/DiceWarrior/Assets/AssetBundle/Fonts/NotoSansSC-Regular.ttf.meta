@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7948661890d1ffe4185849338e64a2e7
+guid: 113b6ae2406323c4cbfda7fe152d06b3
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - zihun110hao-wulinjianghuti
+  - Noto Sans SC
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
