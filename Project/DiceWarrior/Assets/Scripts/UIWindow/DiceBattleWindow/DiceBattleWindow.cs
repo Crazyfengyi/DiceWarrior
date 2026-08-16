@@ -948,6 +948,35 @@ public sealed class DiceBattleWindow : UGUIPanelBase<DiceBattleWindowData>
         }
 
         battleLogText.text = string.Join("\n", battleLogEntries);
+        RefreshBattleLogLayout();
+    }
+
+    /// <summary>
+    /// 根据日志文本的实际高度更新滚动内容区域。
+    /// </summary>
+    private void RefreshBattleLogLayout()
+    {
+        if (battleLogText == null)
+        {
+            return;
+        }
+
+        battleLogText.ForceMeshUpdate();
+        RectTransform textRect = battleLogText.rectTransform;
+        float preferredHeight = battleLogText.preferredHeight;
+        textRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, preferredHeight);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(textRect);
+
+        if (battleLogScrollRect == null || battleLogScrollRect.content == null)
+        {
+            return;
+        }
+
+        RectTransform viewport = battleLogScrollRect.viewport;
+        float viewportHeight = viewport == null ? 0f : viewport.rect.height;
+        float contentHeight = Mathf.Max(viewportHeight, preferredHeight);
+        battleLogScrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(battleLogScrollRect.content);
     }
 
     /// <summary>

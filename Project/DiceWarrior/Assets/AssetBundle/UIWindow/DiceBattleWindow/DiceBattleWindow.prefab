@@ -5206,7 +5206,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8964688203064672930}
-  - component: {fileID: 5974707143160319671}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -5234,20 +5233,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -12, y: 0}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &5974707143160319671
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8249238307759218369}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
-  m_VerticalFit: 2
 --- !u!1 &8259430617906525057
 GameObject:
   m_ObjectHideFlags: 0
@@ -5259,7 +5244,6 @@ GameObject:
   - component: {fileID: 8846654138651259400}
   - component: {fileID: 4664026344634355986}
   - component: {fileID: 136356987478770099}
-  - component: {fileID: 2810157852292533345}
   m_Layer: 5
   m_Name: LogText
   m_TagString: Untagged
@@ -5383,20 +5367,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2810157852292533345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8259430617906525057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
-  m_VerticalFit: 2
 --- !u!1 &8307761626659478852
 GameObject:
   m_ObjectHideFlags: 0
