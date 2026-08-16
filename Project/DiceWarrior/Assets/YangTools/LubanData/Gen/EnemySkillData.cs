@@ -20,14 +20,14 @@ public sealed partial class EnemySkillData :  Bright.Config.BeanBase
     {
         { if(!_json["id"].IsNumber) { throw new SerializationException(); }  Id = _json["id"]; }
         { if(!_json["skillName"].IsString) { throw new SerializationException(); }  SkillName = _json["skillName"]; }
-        { if(!_json["diceId"].IsString) { throw new SerializationException(); }  DiceId = _json["diceId"]; }
+        { if(!_json["diceId"].IsNumber) { throw new SerializationException(); }  DiceId = _json["diceId"]; }
         { if(!_json["attackMultiplier"].IsNumber) { throw new SerializationException(); }  AttackMultiplier = _json["attackMultiplier"]; }
         { if(!_json["cooldown"].IsNumber) { throw new SerializationException(); }  Cooldown = _json["cooldown"]; }
         { if(!_json["desc"].IsString) { throw new SerializationException(); }  Desc = _json["desc"]; }
         PostInit();
     }
 
-    public EnemySkillData(int id, string skillName, string diceId, int attackMultiplier, int cooldown, string desc ) 
+    public EnemySkillData(int id, string skillName, int diceId, int attackMultiplier, int cooldown, string desc ) 
     {
         this.Id = id;
         this.SkillName = skillName;
@@ -54,7 +54,7 @@ public sealed partial class EnemySkillData :  Bright.Config.BeanBase
     /// <summary>
     /// 骰子id
     /// </summary>
-    public string DiceId { get; private set; }
+    public int DiceId { get; private set; }
     /// <summary>
     /// 倍率（攻击次数）
     /// </summary>

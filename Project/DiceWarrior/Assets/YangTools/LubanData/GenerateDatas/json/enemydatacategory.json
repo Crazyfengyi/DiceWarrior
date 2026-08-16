@@ -4,7 +4,7 @@
     "enemyName": "测试怪1",
     "enemyType": "小怪",
     "hp": 10,
-    "desc": "",
+    "desc": "测试怪1",
     "skillGroup": [
       1
     ]
@@ -14,7 +14,7 @@
     "enemyName": "测试怪2",
     "enemyType": "小怪",
     "hp": 10,
-    "desc": "",
+    "desc": "测试怪2",
     "skillGroup": [
       2
     ]
@@ -24,7 +24,7 @@
     "enemyName": "测试怪3",
     "enemyType": "小怪",
     "hp": 10,
-    "desc": "",
+    "desc": "测试怪3",
     "skillGroup": [
       3
     ]
@@ -34,7 +34,7 @@
     "enemyName": "测试怪4",
     "enemyType": "小怪",
     "hp": 10,
-    "desc": "",
+    "desc": "测试怪4",
     "skillGroup": [
       4
     ]
@@ -44,7 +44,7 @@
     "enemyName": "测试boss",
     "enemyType": "boss",
     "hp": 50,
-    "desc": "",
+    "desc": "测试boss",
     "skillGroup": [
       1,
       1001
@@ -55,7 +55,7 @@
     "enemyName": "巨人",
     "enemyType": "boss",
     "hp": 200,
-    "desc": "",
+    "desc": "巨人",
     "skillGroup": [
       9001
     ]

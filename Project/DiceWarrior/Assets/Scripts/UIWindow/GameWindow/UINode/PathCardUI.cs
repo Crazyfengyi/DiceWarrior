@@ -1,15 +1,12 @@
 using System;
 using cfg;
 using cfg.eventcard;
+using Cysharp.Threading.Tasks;
 using GameMain;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using YangTools.Scripts.Core.ResourceManager;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using System;
 
 /// <summary>
 /// 路径卡牌UI类
@@ -26,6 +23,11 @@ public sealed class PathCardUI : MonoBehaviour
 
     private int cardIndex; // 卡牌索引
     private Action<int> clickCallback; // 点击回调函数
+    private int refreshVersion; // 卡牌刷新版本号
+    private static readonly System.Collections.Generic.Dictionary<string, Sprite> backgroundSpriteCache =
+        new System.Collections.Generic.Dictionary<string, Sprite>(); // 背景图片缓存
+    private static readonly System.Collections.Generic.Dictionary<string, Sprite> iconSpriteCache =
+        new System.Collections.Generic.Dictionary<string, Sprite>(); // 图标图片缓存
 
     /// <summary>
     /// 获取RectTransform组件
@@ -50,6 +52,7 @@ public sealed class PathCardUI : MonoBehaviour
     /// </summary>
     public void Refresh(string pathTitle, EventCard card)
     {
+        int currentRefreshVersion = ++refreshVersion;
         pathTitleText.text = pathTitle;
         bool hasCard = card != null;
 
@@ -57,10 +60,86 @@ public sealed class PathCardUI : MonoBehaviour
         typeText.text = hasCard ? GetTypeName(card.CardType) : string.Empty;
         descText.text = hasCard ? card.Desc : "无描述";
 
-        icon.gameObject.SetActive(hasCard && !string.IsNullOrEmpty(card.SpriteName));
-        if (hasCard && !string.IsNullOrEmpty(card.SpriteName))
+        if (background != null)
         {
-            ResourceManager.SetImageSprite(icon, card.SpriteName);
+            if (hasCard)
+            {
+                SetBackgroundSpriteAsync(GetBackgroundSpriteName(card.CardType), currentRefreshVersion).Forget();
+            }
+            else
+            {
+                background.sprite = null;
+            }
+        }
+
+        if (icon != null)
+        {
+            bool hasIcon = hasCard && !string.IsNullOrEmpty(card.SpriteName);
+            icon.gameObject.SetActive(hasIcon);
+            if (hasIcon)
+            {
+                SetIconSpriteAsync(card.SpriteName, currentRefreshVersion).Forget();
+            }
+            else
+            {
+                icon.sprite = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 异步设置路径卡背景，并忽略过期的加载结果。
+    /// </summary>
+    private async UniTask SetBackgroundSpriteAsync(string spriteName, int currentRefreshVersion)
+    {
+        if (backgroundSpriteCache.TryGetValue(spriteName, out Sprite cachedSprite))
+        {
+            if (currentRefreshVersion == refreshVersion && background != null)
+            {
+                background.sprite = cachedSprite;
+            }
+
+            return;
+        }
+
+        Sprite loadedSprite = await ResourceManager.LoadSprite(spriteName);
+        if (loadedSprite == null)
+        {
+            return;
+        }
+
+        backgroundSpriteCache[spriteName] = loadedSprite;
+        if (currentRefreshVersion == refreshVersion && background != null)
+        {
+            background.sprite = loadedSprite;
+        }
+    }
+
+    /// <summary>
+    /// 异步设置路径卡图标，并忽略过期的加载结果。
+    /// </summary>
+    private async UniTask SetIconSpriteAsync(string spriteName, int currentRefreshVersion)
+    {
+        if (iconSpriteCache.TryGetValue(spriteName, out Sprite cachedSprite))
+        {
+            if (currentRefreshVersion == refreshVersion && icon != null)
+            {
+                icon.sprite = cachedSprite;
+            }
+
+            return;
+        }
+
+        Sprite loadedSprite = await ResourceManager.LoadSprite(spriteName);
+        if (loadedSprite == null)
+        {
+            return;
+        }
+
+        iconSpriteCache[spriteName] = loadedSprite;
+        if (currentRefreshVersion == refreshVersion && icon != null)
+        {
+            icon.sprite = loadedSprite;
         }
     }
 
@@ -87,6 +166,30 @@ public sealed class PathCardUI : MonoBehaviour
                 return cardType.ToString();
             default:
                 return cardType.ToString();
+        }
+    }
+
+    /// <summary>
+    /// 根据事件类型获取对应颜色的路径卡背景图片名称。
+    /// </summary>
+    private static string GetBackgroundSpriteName(EEventCardType cardType)
+    {
+        switch (cardType)
+        {
+            case EEventCardType.Battle:
+                return "card_01";
+            case EEventCardType.Neutral:
+                return "card_02";
+            case EEventCardType.Treasure:
+                return "card_03";
+            case EEventCardType.Spite:
+                return "card_04";
+            case EEventCardType.Friend:
+                return "card_05";
+            case EEventCardType.Special:
+                return "card_06";
+            default:
+                return "card_01";
         }
     }
 }

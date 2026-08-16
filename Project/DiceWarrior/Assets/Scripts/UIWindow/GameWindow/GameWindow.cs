@@ -87,6 +87,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     [SerializeField] private GameRoot gameRoot; // 游戏根节点
     private IReadOnlyList<EventCard> pendingEventCards = Array.Empty<EventCard>(); // 待处理的事件卡片
     private bool eventCardItemsCreating; // 事件卡片项创建中标志
+    private bool clearSaveInProgress; // 清除存档处理中标志
 
     [SerializeField]
     private List<EquippedDiceSlotUI> equippedDiceSlotItems = new List<EquippedDiceSlotUI>(); // 装备骰子槽位项列表
@@ -157,8 +158,30 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// </summary>
     private void ClearBtn_OnClick()
     {
-        YangSaveDataManager.Instance.ClearSaveData();
-        FloatTipWindow.Show("xxx");
+        if (clearSaveInProgress)
+        {
+            return;
+        }
+
+        ClearSaveDataAndRestartAsync().Forget();
+    }
+
+    /// <summary>
+    /// 清除存档并重建当前游戏状态。
+    /// </summary>
+    private async UniTaskVoid ClearSaveDataAndRestartAsync()
+    {
+        clearSaveInProgress = true;
+        try
+        {
+            await YangSaveDataManager.Instance.ClearSaveData();
+            gameRoot?.RestartGame();
+            FloatTipWindow.Show("存档已清除");
+        }
+        finally
+        {
+            clearSaveInProgress = false;
+        }
     }
 
     /// <summary>

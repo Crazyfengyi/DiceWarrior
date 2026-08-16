@@ -20,16 +20,16 @@ public sealed partial class DiceData :  Bright.Config.BeanBase
     {
         { if(!_json["id"].IsNumber) { throw new SerializationException(); }  Id = _json["id"]; }
         { if(!_json["diceName"].IsString) { throw new SerializationException(); }  DiceName = _json["diceName"]; }
-        { if(!_json["diceType"].IsString) { throw new SerializationException(); }  DiceType = _json["diceType"]; }
-        { if(!_json["faces"].IsString) { throw new SerializationException(); }  Faces = _json["faces"]; }
+        { if(!_json["mark"].IsString) { throw new SerializationException(); }  Mark = _json["mark"]; }
+        { var __json0 = _json["faces"]; if(!__json0.IsArray) { throw new SerializationException(); } Faces = new System.Collections.Generic.List<int>(__json0.Count); foreach(JSONNode __e0 in __json0.Children) { int __v0;  { if(!__e0.IsNumber) { throw new SerializationException(); }  __v0 = __e0; }  Faces.Add(__v0); }   }
         PostInit();
     }
 
-    public DiceData(int id, string diceName, string diceType, string faces ) 
+    public DiceData(int id, string diceName, string mark, System.Collections.Generic.List<int> faces ) 
     {
         this.Id = id;
         this.DiceName = diceName;
-        this.DiceType = diceType;
+        this.Mark = mark;
         this.Faces = faces;
         PostInit();
     }
@@ -48,13 +48,13 @@ public sealed partial class DiceData :  Bright.Config.BeanBase
     /// </summary>
     public string DiceName { get; private set; }
     /// <summary>
-    /// 类型
+    /// 备注
     /// </summary>
-    public string DiceType { get; private set; }
+    public string Mark { get; private set; }
     /// <summary>
     /// 面
     /// </summary>
-    public string Faces { get; private set; }
+    public System.Collections.Generic.List<int> Faces { get; private set; }
 
     public const int __ID__ = -119691247;
     public override int GetTypeId() => __ID__;
@@ -73,8 +73,8 @@ public sealed partial class DiceData :  Bright.Config.BeanBase
         return "{ "
         + "Id:" + Id + ","
         + "DiceName:" + DiceName + ","
-        + "DiceType:" + DiceType + ","
-        + "Faces:" + Faces + ","
+        + "Mark:" + Mark + ","
+        + "Faces:" + Bright.Common.StringUtil.CollectionToString(Faces) + ","
         + "}";
     }
     
