@@ -24,10 +24,11 @@ public sealed partial class Item :  Bright.Config.BeanBase
         { if(!_json["desc"].IsString) { throw new SerializationException(); }  Desc = _json["desc"]; }
         { if(!_json["price"].IsNumber) { throw new SerializationException(); }  Price = _json["price"]; }
         { if(!_json["quality"].IsNumber) { throw new SerializationException(); }  Quality = (item.EQuality)_json["quality"].AsInt; }
+        { if(!_json["prefabName"].IsString) { throw new SerializationException(); }  PrefabName = _json["prefabName"]; }
         PostInit();
     }
 
-    public Item(int id, string name, string spriteName, string desc, int price, item.EQuality quality ) 
+    public Item(int id, string name, string spriteName, string desc, int price, item.EQuality quality, string prefabName ) 
     {
         this.Id = id;
         this.Name = name;
@@ -35,6 +36,7 @@ public sealed partial class Item :  Bright.Config.BeanBase
         this.Desc = desc;
         this.Price = price;
         this.Quality = quality;
+        this.PrefabName = prefabName;
         PostInit();
     }
 
@@ -67,6 +69,10 @@ public sealed partial class Item :  Bright.Config.BeanBase
     /// 品质
     /// </summary>
     public item.EQuality Quality { get; private set; }
+    /// <summary>
+    /// 预制体名称
+    /// </summary>
+    public string PrefabName { get; private set; }
 
     public const int __ID__ = 2289459;
     public override int GetTypeId() => __ID__;
@@ -89,6 +95,7 @@ public sealed partial class Item :  Bright.Config.BeanBase
         + "Desc:" + Desc + ","
         + "Price:" + Price + ","
         + "Quality:" + Quality + ","
+        + "PrefabName:" + PrefabName + ","
         + "}";
     }
     

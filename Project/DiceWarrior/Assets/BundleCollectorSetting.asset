@@ -46,6 +46,14 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+      - CollectPath: Assets/100 Eggs Pack Cute Series/Prefabs
+        CollectorGUID: 80d4ec4f17617444690fdc430ffa1586
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
     - GroupName: Font
       GroupDesc: 
       AssetTags: 

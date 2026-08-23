@@ -301,7 +301,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 57
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3422,7 +3422,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
+  m_fontSize: 27.6
   m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -6951,6 +6951,8 @@ MonoBehaviour:
   jumpButton: {fileID: 950881362605276837}
   moneyFlyEffectRoot: {fileID: 7517639307382129675}
   eventCardRoot: {fileID: 462680870603657648}
+  confirmCardButtonPrefab: {fileID: 8510938411341434655, guid: 6c1413df7e928764e87a329198e33e64, type: 3}
+  cancelCardButtonPrefab: {fileID: 8510938411341434655, guid: a9ecfb5818ab30041a4a916771f1113b, type: 3}
   eventCardItems: []
   routeHudRoot: {fileID: 5305065687704451072}
   gameRoot: {fileID: 3327498964341641485}
@@ -7713,6 +7715,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1901827983013330709, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
+      propertyPath: m_fontSize
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 2411227982809301740, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 6.399994
@@ -8281,6 +8287,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1901827983013330709, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
+      propertyPath: m_fontSize
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 2411227982809301740, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 6.399994
@@ -8552,7 +8562,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 90428075825350396, guid: 3c66fea8e5c0e3347a61796386a8ea3f, type: 3}
       propertyPath: m_fontSize
-      value: 45.7
+      value: 46
       objectReference: {fileID: 0}
     - target: {fileID: 90428075825350396, guid: 3c66fea8e5c0e3347a61796386a8ea3f, type: 3}
       propertyPath: m_fontAsset
@@ -8900,7 +8910,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3228187618553615995, guid: 4c53d9fc8861e7c4db8b4fa5124a6f7e, type: 3}
       propertyPath: m_fontSize
-      value: 42
+      value: 41
       objectReference: {fileID: 0}
     - target: {fileID: 3263273157123928967, guid: 4c53d9fc8861e7c4db8b4fa5124a6f7e, type: 3}
       propertyPath: m_SizeDelta.x
@@ -9066,6 +9076,10 @@ PrefabInstance:
     - target: {fileID: 831284935454365902, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1901827983013330709, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
+      propertyPath: m_fontSize
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 2411227982809301740, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -9438,7 +9452,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6272007210051105006, guid: 09a929abf2703d342b86fb6b33b87e6b, type: 3}
       propertyPath: m_fontSize
-      value: 19.3
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 6272007210051105006, guid: 09a929abf2703d342b86fb6b33b87e6b, type: 3}
       propertyPath: m_fontSizeMax
@@ -9853,6 +9867,10 @@ PrefabInstance:
     - target: {fileID: 831284935454365902, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1901827983013330709, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
+      propertyPath: m_fontSize
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 2411227982809301740, guid: 9c0a8f8df36906e45909de34a3c89eb8, type: 3}
       propertyPath: m_AnchoredPosition.y

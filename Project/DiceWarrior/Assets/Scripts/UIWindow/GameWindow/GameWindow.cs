@@ -45,6 +45,9 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     private const float CardSelectionButtonHeight = 78f; // 选择按钮高度
     private const string ScenePrefabAddress = "3DScene"; // 3D场景预制体地址
     private const string EventRewardItemPrefabAddress = "ItemPrefab"; // 事件奖励物体预制体地址
+    private const int EggItemIdStart = 10001; // Egg物品起始ID
+    private const int EggItemCount = 100; // Egg物品数量
+    private const float EventRewardEggScale = 1f; // Egg在奖励球槽中的显示缩放
     private const int SceneRenderTextureFallbackSize = 512; // 3D场景渲染纹理默认尺寸
     private const float EventRewardItemSpacing = 1.4f; // 奖励物体之间的间距
 
@@ -73,6 +76,8 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     [SerializeField] private UICustomButton jumpButton; // 跳转按钮
     [SerializeField] private RectTransform moneyFlyEffectRoot; // 金币飞行效果根节点
     [SerializeField] private RectTransform eventCardRoot; // 事件卡片根节点
+    [SerializeField] private GameObject confirmCardButtonPrefab; // 确认卡牌按钮预制体
+    [SerializeField] private GameObject cancelCardButtonPrefab; // 取消卡牌按钮预制体
     [SerializeField] private List<EventCardItemUI> eventCardItems = new List<EventCardItemUI>(); // 事件卡片项列表
     [SerializeField] private RectTransform routeHudRoot; // 路线HUD根节点
 
@@ -521,6 +526,14 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             GameObject instance = Instantiate(itemPrefab, sceneInstance.transform);
             instance.name = $"EventRewardItem_{reward.BagId}_{i}";
             instance.transform.localPosition = new Vector3(startX + createdCount * EventRewardItemSpacing, 1f, 0f);
+
+            await CreateRewardPrefabAsync(instance.transform, reward.BagId, requestVersion);
+            if (requestVersion != eventRewardLoadVersion || !isShowingEventRewards || !isActiveAndEnabled)
+            {
+                Destroy(instance);
+                return;
+            }
+
             EventRewardItem rewardItem = instance.GetComponent<EventRewardItem>();
             if (rewardItem == null)
             {
@@ -531,6 +544,60 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             eventRewardItems.Add(rewardItem);
             createdCount++;
         }
+    }
+
+    /// <summary>
+    /// 根据奖励物品ID加载对应的Egg预制体，并挂载到ItemPrefab的Sphere节点下。
+    /// </summary>
+    private async UniTask CreateRewardPrefabAsync(Transform rewardItemRoot, int itemId, int requestVersion)
+    {
+        if (!TryGetEggPrefabAddress(itemId, out string prefabAddress))
+        {
+            return;
+        }
+
+        Transform sphere = rewardItemRoot.Find("Sphere");
+        if (sphere == null)
+        {
+            Debug.LogWarning($"奖励物体缺少Sphere节点，无法显示预制体。itemId={itemId}", rewardItemRoot);
+            return;
+        }
+
+        GameObject prefab = await ResourceManager.LoadAssetAsync<GameObject>(prefabAddress);
+        if (requestVersion != eventRewardLoadVersion || !isShowingEventRewards || !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        if (prefab == null)
+        {
+            Debug.LogWarning($"奖励预制体加载失败。itemId={itemId}, address={prefabAddress}", rewardItemRoot);
+            return;
+        }
+
+        GameObject instance = Instantiate(prefab, sphere, false);
+        instance.name = prefabAddress;
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        instance.transform.localScale = Vector3.one * EventRewardEggScale;
+    }
+
+    /// <summary>
+    /// 将Egg物品ID转换为YooAsset中的预制体地址。
+    /// </summary>
+    private static bool TryGetEggPrefabAddress(int itemId, out string prefabAddress)
+    {
+        prefabAddress = null;
+        int eggIndex = itemId - EggItemIdStart;
+        if (eggIndex < 0 || eggIndex >= EggItemCount)
+        {
+            return false;
+        }
+
+        int series = eggIndex / 5 + 1;
+        char variant = (char)('A' + eggIndex % 5);
+        prefabAddress = $"Egg {series:00}{variant}";
+        return true;
     }
 
     /// <summary>
@@ -1189,9 +1256,7 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             }
         }
 
-        // 初始化弃牌堆、抽牌堆和骰子装备面板
-        discardPileUI?.Init(ShowHoverTip, HideHoverTip);
-        drawPileUI?.Init(ShowHoverTip, HideHoverTip);
+        // 初始化牌堆和骰子装备面板
         diceEquipmentPanelUI?.Init();
     }
 
@@ -1638,8 +1703,8 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
             new Vector2(-130f, buttonY), new Color(0.16f, 0.48f, 0.78f, 1f));
         UICustomButton cancelButton = CreateCardSelectionButton("CancelCardButton", "取消",
             new Vector2(130f, buttonY), new Color(0.32f, 0.36f, 0.44f, 1f));
-        confirmButton.AddListener(ConfirmCardSelection);
-        cancelButton.AddListener(CancelCardSelection);
+        confirmButton?.AddListener(ConfirmCardSelection);
+        cancelButton?.AddListener(CancelCardSelection);
     }
 
     /// <summary>
@@ -1652,53 +1717,37 @@ public class GameWindow : UGUIPanelBase<DefaultUGUIDataBase>
     /// <returns>创建的按钮组件</returns>
     private UICustomButton CreateCardSelectionButton(string objectName, string text, Vector2 position, Color color)
     {
-        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer),
-            typeof(Image), typeof(Button), typeof(UICustomButton));
-        buttonObject.layer = LayerMask.NameToLayer("UI");
+        GameObject buttonPrefab = objectName == "ConfirmCardButton"
+            ? confirmCardButtonPrefab
+            : cancelCardButtonPrefab;
+        if (buttonPrefab == null || eventCardRoot == null)
+        {
+            Debug.LogError($"事件卡选择按钮预制体未绑定：{objectName}");
+            return null;
+        }
+
+        GameObject buttonObject = Instantiate(buttonPrefab, eventCardRoot, false);
+        buttonObject.name = objectName;
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
-        buttonRect.SetParent(eventCardRoot, false);
         buttonRect.anchorMin = buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
         buttonRect.anchoredPosition = position;
         buttonRect.sizeDelta = new Vector2(CardSelectionButtonWidth, CardSelectionButtonHeight);
-
-        Image image = buttonObject.GetComponent<Image>();
-        image.color = color;
+        
         Button button = buttonObject.GetComponent<Button>();
-        button.transition = Selectable.Transition.None;
+        if (button != null)
+        {
+            button.transition = Selectable.Transition.None;
+        }
 
-        TextMeshProUGUI label = CreateCardSelectionText(buttonRect, text);
-        label.color = Color.white;
-        UICustomButton customButton = buttonObject.GetComponent<UICustomButton>();
-        customButton.needClickAudio = true;
-        customButton.needAni = true;
-        return customButton;
-    }
+        TextMeshProUGUI label = buttonObject.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (label != null)
+        {
+            label.text = text;
+            label.color = Color.white;
+            label.raycastTarget = false;
+        }
 
-    /// <summary>
-    /// 创建事件卡选择按钮文本。
-    /// </summary>
-    /// <param name="parent">文本父节点</param>
-    /// <param name="text">文本内容</param>
-    /// <returns>创建的文本组件</returns>
-    private static TextMeshProUGUI CreateCardSelectionText(RectTransform parent, string text)
-    {
-        GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer),
-            typeof(TextMeshProUGUI));
-        textObject.layer = LayerMask.NameToLayer("UI");
-        RectTransform textRect = textObject.GetComponent<RectTransform>();
-        textRect.SetParent(parent, false);
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI label = textObject.GetComponent<TextMeshProUGUI>();
-        label.font = GameManager.Instance.font;
-        label.text = text;
-        label.fontSize = 32f;
-        label.alignment = TextAlignmentOptions.Center;
-        label.raycastTarget = false;
-        return label;
+        return buttonObject.GetComponent<UICustomButton>();
     }
 
     /// <summary>

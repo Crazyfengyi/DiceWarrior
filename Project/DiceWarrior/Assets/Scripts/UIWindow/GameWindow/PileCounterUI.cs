@@ -1,20 +1,14 @@
-using System;
 using GameMain;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class PileCounterUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public sealed class PileCounterUI : MonoBehaviour
 {
     [SerializeField] private UICustomButton button;
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI countText;
     [SerializeField] private Image background;
-
-    private string hoverText;
-    private Action<string, Vector2> showHoverCallback;
-    private Action hideHoverCallback;
 
     public RectTransform RectTransform => transform as RectTransform;
 
@@ -31,20 +25,10 @@ public sealed class PileCounterUI : MonoBehaviour, IPointerEnterHandler, IPointe
     }
 
     /// <summary>
-    /// 初始化牌堆计数器的悬停事件回调。
+    /// 刷新牌堆标题和数量。
     /// </summary>
-    public void Init(Action<string, Vector2> onShowHover, Action onHideHover)
+    public void Refresh(string title, int count, string countHoverText = null)
     {
-        showHoverCallback = onShowHover;
-        hideHoverCallback = onHideHover;
-    }
-
-    /// <summary>
-    /// 刷新牌堆标题、数量和悬停提示文本。
-    /// </summary>
-    public void Refresh(string title, int count, string countHoverText)
-    {
-        hoverText = countHoverText;
         if (titleText != null)
         {
             titleText.text = title;
@@ -61,19 +45,4 @@ public sealed class PileCounterUI : MonoBehaviour, IPointerEnterHandler, IPointe
         }
     }
 
-    /// <summary>
-    /// 显示牌堆的悬停提示。
-    /// </summary>
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        showHoverCallback?.Invoke(hoverText, eventData.position);
-    }
-
-    /// <summary>
-    /// 隐藏牌堆的悬停提示。
-    /// </summary>
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        hideHoverCallback?.Invoke();
-    }
 }
